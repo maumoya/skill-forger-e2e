@@ -7,6 +7,7 @@
 - `badges.sh`: badge row from live data, with measured benefit badges that link to a dated Results section.
 - `owner_profile.sh`: drafts "About the author" from the public GitHub profile plus interview questions; prints only.
 - `readiness.sh` checks About the author (2) and Best Practices registration (3). Template README gets About the author.
+- `make_header.sh`: byline sits under the right-hand card (long repo names no longer collide); the OSI logo shows only on open-source license pills.
 - README: Results section (retrofit takes a bare repo from readiness 16 to 68, 0 files changed) and benefit badges.
 
 ## 0.3.0
