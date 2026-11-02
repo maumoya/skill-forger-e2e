@@ -10,11 +10,19 @@ In this order:
    Or a header banner from `scripts/make_header.sh` (1280×640 SVG + PNG; also the social preview), with a centered
    badge row under it: Claude Code skill + plugin, license, OSI open source, privacy, OpenSSF Scorecard, readiness.
    Only badges that show a live or measured fact; Best Practices only after the project is registered.
+   `scripts/badges.sh OWNER/REPO --readiness N` prints the row from live data.
+   Add 1-2 benefit badges in green for the main measured win (`--benefit 'label=value' --results '#anchor'`):
+   cost saved, errors caught, time cut, score raised. Each links to a dated `## Results (measured DATE)` section
+   with the method and a table, so anyone can check it. No measurement, no benefit badge.
 2. One line: what it does, for whom.
 3. Two install commands (`/plugin install` and `npx skills add`).
 4. One real example.
 5. How it is tested (eval count, CI badge).
 6. FAQ with question headings ("Does it send my data anywhere?").
+7. About the author, above License: who built it and why, other work, LinkedIn. `scripts/owner_profile.sh GH_USER
+   PROJECT --name "Full Name"` drafts it from the public GitHub profile and prints interview questions
+   (why you built it, role, portfolio link, what to keep private). Show the owner the final text; publish only
+   what they approve. The script prints only; nothing is saved.
 
 In the 8 biggest skill repos (measured 2026-11): 6 open with a picture, 5 document `npx skills add`.
 

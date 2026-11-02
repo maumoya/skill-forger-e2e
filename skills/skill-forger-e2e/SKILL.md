@@ -1,6 +1,6 @@
 ---
 name: skill-forger-e2e
-description: ForgeSkill - ship an agent skill end to end, from idea to an installable, secured and launched Claude Code plugin repo with a header image and trust badges. Writing and evals hand off to skill-creator; this skill owns the rest - scaffold, lint, a 0-100 readiness score, retrofit of an existing repo, a live install test from GitHub, hero banner and badge row, security workflows and launch. Use when the user says "ForgeSkill", "forge skill", "forge a skill", "skill forge", "skill forger", "new skill", "make a skill", "create a skill", "build a skill", "ship my skill", "publish my skill", "release my skill", "share my skill", "package my skill as a plugin", "turn my prompt into a plugin", "is my skill ready", "readiness score", "retrofit my skill repo", "test the install", "write evals for my skill", "add a header image and badges", "make my repo page look good", "skill end to end", or says "I want people to install my skill", "how do I publish a skill", or asks what step comes next for a skill.
+description: ForgeSkill - ship an agent skill end to end, from idea to an installable, secured and launched Claude Code plugin repo with a header image and trust badges. Writing and evals hand off to skill-creator; this skill owns the rest - scaffold, lint, a 0-100 readiness score, retrofit of an existing repo, a live install test from GitHub, hero banner and badge row, security workflows and launch. Use when the user says "ForgeSkill", "forge skill", "forge a skill", "skill forger", "new skill", "make a skill", "create a skill", "build a skill", "ship my skill", "publish my skill", "release my skill", "share my skill", "package my skill as a plugin", "turn my prompt into a plugin", "is my skill ready", "readiness score", "retrofit my skill repo", "test the install", "add a header image and badges", "improve my Scorecard", "OpenSSF best practices badge", "add about the author", "skill end to end", or says "I want people to install my skill", "how do I publish a skill", or asks what step comes next for a skill.
 license: MIT
 ---
 
@@ -80,9 +80,13 @@ Details: `references/security.md`. Templates are in `templates/repo/.github/`.
 - Every action pinned to a full commit SHA; `permissions: read-all` at the top.
 - `SECURITY.md` with a private reporting path. Branch protection on main.
 - Review every script the skill runs: no network writes, no piping downloads into a shell, no secret reads.
-- Register at bestpractices.dev and reach "passing" honestly.
+- Scorecard feedback: `scripts/scorecard.sh OWNER/REPO` lists every check below 10, fixable ones first, with the fix.
+  Fix the top one, re-run after the next scan, report the score delta.
+- Best Practices: `scripts/bestpractices.sh OWNER/REPO <repo-dir>` says if the project is registered (ID, level, badge).
+  If not, it prints the form link and an evidence sheet (each passing criterion and the URL proving it).
+  The owner signs in and submits the form; you prepare the answers. Never answer Met without the evidence.
 
-**Gate 5:** Scorecard has run, CodeQL is green, a signed release exists.
+**Gate 5:** Scorecard has run, CodeQL is green, a signed release exists, Best Practices is registered or its evidence sheet has no TODO.
 
 ## Phase 6 · Launch
 
@@ -92,8 +96,13 @@ Details: `references/launch.md`. Every post, form or PR to another repo is an ou
   (`--image shot.png` for an app; `--photo me.png --by "Name" --handle "@you"` for a byline). Writes a 1280×640 SVG and,
   with Chrome, a PNG that doubles as the social preview. If the project already has good art (an Open Graph image), use that.
   Read the PNG back and fix any overflow before committing.
-- Badge row under it, centered: Claude Code skill + plugin, license, OSI open source, privacy, OpenSSF Scorecard, readiness
-  score; OpenSSF Best Practices only once the project is registered. Badges show live or measured facts only.
+- Badge row under it, centered: `scripts/badges.sh OWNER/REPO --readiness N` prints it from live data (Claude Code, license,
+  OSI, privacy, Scorecard once scanned, Best Practices once registered).
+- Benefit badges are the most clicked: the main measured win, e.g. `--benefit 'spend per run=−35%' --results '#results-measured-DATE'`.
+  Only numbers from a run you can repeat (eval, bench, before/after score), shown in a dated `## Results` section with the method.
+- About the author: `scripts/owner_profile.sh GH_USER PROJECT --name "Full Name"` drafts it from the public GitHub profile
+  (bio, LinkedIn, other repos) and prints interview questions for the rest. Ask them, show the owner the final text,
+  publish only what they approve. It prints only; nothing is saved. Add `--photo` and `--by` to the header for a byline.
 - Repo description ≤350 chars opening with what + who; ≤20 topics; homepage (GitHub Pages) with Open Graph tags; `llms.txt`.
 - Channels in order: Anthropic plugin directory form, skills.sh, awesome lists (each on its own rules), the niche community, then an essay that teaches something and links the repo.
 
@@ -101,7 +110,8 @@ Details: `references/launch.md`. Every post, form or PR to another repo is an ou
 
 ## Phase 7 · Loop
 
-Run `scripts/readiness.sh <repo-dir> OWNER/REPO` (ship score) and `scripts/measure.sh OWNER/REPO [BEST_PRACTICES_ID]` (traffic, stars, Scorecard).
+Run `scripts/readiness.sh <repo-dir> OWNER/REPO` (ship score), `scripts/scorecard.sh OWNER/REPO` (security fixes)
+and `scripts/measure.sh OWNER/REPO [BEST_PRACTICES_ID]` (traffic, stars).
 Pick the one highest-impact gap. Fix it on a branch with a PR. Re-measure after merge. Report the delta in one row.
 Re-run Phase 3 evals before every release. For CI, the repo root `action.yml` runs the linter and the score on every PR
 (`uses: maumoya/skill-forger-e2e@<commit-sha>`, with `min-score` to fail below a bar); see `references/packaging.md`.

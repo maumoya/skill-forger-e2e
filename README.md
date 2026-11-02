@@ -4,7 +4,9 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Claude%20Code-skill%20%2B%20plugin-7c5cfc" alt="Claude Code skill and plugin">
-  <a href="#score-any-skill-repo-0-100"><img src="https://img.shields.io/badge/skill%20readiness-100%2F100-brightgreen" alt="Skill readiness: 100/100"></a>
+  <a href="#results-measured-2026-11-01"><img src="https://img.shields.io/badge/retrofit%2C%201%20command-readiness%2016%20%E2%86%92%2068-2da44e" alt="One retrofit command: readiness 16 to 68 out of 100"></a>
+  <a href="#results-measured-2026-11-01"><img src="https://img.shields.io/badge/existing%20files%20changed-0-2da44e" alt="Retrofit changes 0 existing files"></a>
+  <a href="#score-any-skill-repo-0-100"><img src="https://img.shields.io/badge/skill%20readiness-97%2F100-brightgreen" alt="Skill readiness: 97/100"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license">
   <a href="https://opensource.org/license/mit"><img src="https://img.shields.io/badge/Open%20Source-OSI%20approved%20license-3DA639?logo=opensourceinitiative&logoColor=white" alt="Open Source: OSI-approved MIT license"></a>
   <img src="https://img.shields.io/badge/privacy-no%20tracking%20%C2%B7%20no%20data%20collected-7c5cfc" alt="Privacy: no tracking, no data collected">
@@ -21,7 +23,9 @@ Claude Code plugin repo, and tells you with a number how close you are.
 - **Readiness score 0-100** with a badge, locally or as a GitHub Action on every PR.
 - **Retrofit** an existing skill repo: adds the missing plugin JSON, workflows, `SECURITY.md`, evals and `llms.txt`. Never overwrites.
 - **Live install test** from your public repo, in a throwaway config, plus an opt-in check that a trigger phrase loads the skill.
-- **Header image and badge row** in the style that gets clicked: one command makes a 1280x640 banner (and social preview) from your words, a screenshot or a terminal card.
+- **Header image and badge row** in the style that gets clicked: one command makes a 1280x640 banner (and social preview) from your words, a screenshot or a terminal card. Benefit badges come only from measured numbers.
+- **OpenSSF feedback:** your live Scorecard checks, fixable ones first, each with its fix, and an evidence sheet for the Best Practices "passing" badge.
+- **About the author:** drafts your credits section from your public GitHub profile (LinkedIn, other repos) and interviews you for the rest. Nothing is saved.
 - Scaffold, keyless linter, SHA-pinned security workflows and a launch playbook, in eight gated phases.
 
 ```
@@ -67,8 +71,8 @@ Type one of (or just `ForgeSkill`):
 | 2 Author | linter prints `PASS` | `new_skill.sh`, `lint_skill.sh`; writing handed to skill-creator, [authoring.md](skills/skill-forger-e2e/references/authoring.md) |
 | 3 Test | every eval passes and the skill beats the baseline | eval template; skill-creator's eval loop, [testing.md](skills/skill-forger-e2e/references/testing.md) |
 | 4 Package | live install test passes, trigger loads the skill | `retrofit.sh`, `install_test.sh`, [packaging.md](skills/skill-forger-e2e/references/packaging.md) |
-| 5 Secure | Scorecard ran, CodeQL green, signed release | SHA-pinned workflows, SLSA release, [security.md](skills/skill-forger-e2e/references/security.md) |
-| 6 Launch | 10-second README test + one channel submitted | [launch.md](skills/skill-forger-e2e/references/launch.md) |
+| 5 Secure | Scorecard ran, CodeQL green, signed release, Best Practices evidence | `scorecard.sh`, `bestpractices.sh`, SHA-pinned workflows, SLSA release, [security.md](skills/skill-forger-e2e/references/security.md) |
+| 6 Launch | 10-second README test + one channel submitted | `make_header.sh`, `badges.sh`, `owner_profile.sh`, [launch.md](skills/skill-forger-e2e/references/launch.md) |
 | 7 Loop | one measured fix per round | `readiness.sh`, `measure.sh`, GitHub Action |
 
 ### Scaffold a new skill repo
@@ -124,6 +128,32 @@ Writes `assets/header.svg` and, when Chrome is installed, `assets/header.png` (1
 size GitHub wants for the social preview). Use `--image screenshot.png` instead of `--line` for an app.
 The banner above was made with it. Add the badge row from the [template README](skills/skill-forger-e2e/templates/repo/README.md).
 
+### Improve your OpenSSF Scorecard and get the Best Practices badge
+
+```bash
+bash skills/skill-forger-e2e/scripts/scorecard.sh OWNER/REPO
+bash skills/skill-forger-e2e/scripts/bestpractices.sh OWNER/REPO path/to/repo
+```
+
+`scorecard.sh` reads the live score and lists every check below 10, the ones you can fix today first,
+with the fix and the exact lines Scorecard flagged. `bestpractices.sh` says whether the project is
+registered (ID, level, badge markdown). If not, it prints the form link and an evidence sheet: each
+passing criterion with the URL in your repo that proves it, and TODO where something is missing.
+You sign in and submit the form yourself.
+
+### Badge row and About the author
+
+```bash
+bash skills/skill-forger-e2e/scripts/badges.sh OWNER/REPO --readiness 95 \
+  --results '#results-measured-2026-11-01' --benefit 'spend per run=−35%'
+bash skills/skill-forger-e2e/scripts/owner_profile.sh your-github my-skill --name "Your Full Name"
+```
+
+`badges.sh` prints the centered row from live data: Scorecard once scanned, Best Practices once
+registered, and benefit badges only with a link to your dated Results section. `owner_profile.sh`
+drafts "About the author" from your public GitHub profile and lists interview questions for the rest
+(why you built it, role, portfolio link). It prints to the terminal only; you choose what to publish.
+
 ### Retrofit an existing skill repo
 
 ```bash
@@ -159,6 +189,18 @@ strings and personal paths. No API key, no network.
   the readiness score through the repo's own `action.yml`, on every PR.
 - `evals/` holds one case per promise. Run `claude plugin eval . --allow-tools` (bills your account).
 
+## Results (measured 2026-11-01)
+
+Method: copy the `haiku-coach` fixture (a bare skill repo in `evals/retrofit-and-score/files/`), score
+it, run `retrofit.sh`, score again. CI repeats this on every PR and fails if the score does not rise or
+the skill's own files change.
+
+| | Before | After one `retrofit.sh` |
+|---|---:|---:|
+| Readiness score | 16/100 | 68/100 |
+| Files in the repo | 2 | 17 |
+| Existing files changed | | 0 |
+
 ## FAQ
 
 ### How is this different from Anthropic's skill-creator?
@@ -171,8 +213,9 @@ measurement.
 ### Does it send my data anywhere?
 
 No. The scaffold, linter, retrofit and score are local and write only inside the folder you give
-them. `readiness.sh` and `measure.sh` only read public GitHub and OpenSSF data for the repo you
-name. `install_test.sh` clones your public repo into a temp folder and deletes it after.
+them. `readiness.sh`, `measure.sh`, `scorecard.sh`, `bestpractices.sh` and `badges.sh` only read
+public GitHub and OpenSSF data for the repo you name. `owner_profile.sh` reads your public GitHub
+profile and prints a draft; nothing is stored or sent anywhere. `install_test.sh` clones your public repo into a temp folder and deletes it after.
 
 ### Will it get my skill stars?
 
@@ -181,6 +224,17 @@ No one can promise that. It makes the skill easy to find, trust and install, and
 ### Does it post or submit anything for me?
 
 No. Every post, form and PR to another repo is prepared for you to send yourself.
+
+## About the author
+
+Hi, I'm **Mauricio Alonso Moya Tapia** ([@maumoya](https://github.com/maumoya)). I built skill-forger-e2e
+because shipping a skill took far more steps than writing it, and I wanted one place that does them
+all and says with a number how close a skill is to ready.
+
+More of my work: [adhd-status](https://github.com/maumoya/adhd-status), an ADHD-friendly status board
+skill for Claude Code that catches forgotten tasks 83% of the time vs 25% without it.
+
+Say hi or follow my work on [LinkedIn](https://www.linkedin.com/in/mba-mmoyat/).
 
 ## License
 

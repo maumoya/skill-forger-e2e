@@ -1,5 +1,6 @@
 <!-- Header: create it with skill-forger-e2e's make_header.sh, then put its img tag here, centered, width 100%. -->
 
+<!-- Regenerate the row with badges.sh: it adds Scorecard, Best Practices and measured benefit badges when they exist. -->
 <p align="center">
   <img src="https://img.shields.io/badge/Claude%20Code-skill%20%2B%20plugin-7c5cfc" alt="Claude Code skill and plugin">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license">
@@ -47,6 +48,13 @@ __DESCRIPTION__
 ### Does it send my data anywhere?
 
 No. It is instructions and local scripts only.
+
+<!-- Draft this with skill-forger-e2e's owner_profile.sh, then let the owner edit it. -->
+## About the author
+
+Hi, I'm **__OWNER__** ([@__GH__](https://github.com/__GH__)). I built __NAME__ because WHY_YOU_BUILT_IT.
+
+Say hi or follow my work on [GitHub](https://github.com/__GH__).
 
 ## License
 

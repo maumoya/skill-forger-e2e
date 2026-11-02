@@ -38,6 +38,7 @@ check 10 "README shows both install paths" "$(grep -q 'plugin marketplace add' R
 check 5 "README has a picture" "$(yes grep -qiE '\.(png|gif|svg|jpe?g|webp)' README.md)" "add a header image (make_header.sh) or a demo GIF at the top"
 cases=(evals/*/case.yaml)
 check 3 "README has a badge row" "$(yes grep -qiE 'shields\.io|/badge' README.md)" "add a centered badge row under the header (see Phase 6)"
+check 2 "README has About the author" "$(yes grep -qiE '^#+ *about the author' README.md)" "owner_profile.sh drafts it from the owner's GitHub profile"
 check 10 "at least 1 eval case" "$([ ${#cases[@]} -ge 1 ] && echo 1 || echo 0)" "add evals/<case>/ (see references/testing.md)"
 check 5 "3+ eval cases" "$([ ${#cases[@]} -ge 3 ] && echo 1 || echo 0)" "cover trigger, happy path and a failure case"
 check 5 "LICENSE" "$(yes test -f LICENSE)" "add a LICENSE"
@@ -62,10 +63,13 @@ if [ -n "$slug" ] && command -v gh >/dev/null; then
   fi
   sc=$(curl -fsS "https://api.securityscorecards.dev/projects/github.com/$slug" 2>/dev/null | jq -r '.score // empty' 2>/dev/null)
   if [ -n "$sc" ]; then
-    check 4 "Scorecard score >= 5 (now $sc)" "$(awk -v s="$sc" 'BEGIN{print (s>=5)?1:0}')" "fix the lowest Scorecard checks"
+    check 4 "Scorecard score >= 5 (now $sc)" "$(awk -v s="$sc" 'BEGIN{print (s>=5)?1:0}')" "scorecard.sh $slug lists each fix"
   else
     check 4 "Scorecard score >= 5" skip "no Scorecard result yet"
   fi
+  bp=$(curl -fsS "https://www.bestpractices.dev/en/projects.json?url=$(jq -rn --arg u "https://github.com/$slug" '$u|@uri')" 2>/dev/null \
+    | jq -r --arg u "https://github.com/$slug" '[.[] | select(.repo_url == $u or .homepage_url == $u)][0].id // empty' 2>/dev/null)
+  check 3 "OpenSSF Best Practices registered" "$([ -n "$bp" ] && echo 1 || echo 0)" "bestpractices.sh $slug prints the form link and evidence sheet"
 else
   check 10 "GitHub topics, description, Scorecard" skip "pass OWNER/REPO to check"
 fi

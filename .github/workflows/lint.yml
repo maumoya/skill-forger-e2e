@@ -38,6 +38,11 @@ jobs:
           [ "$after" -gt "$before" ]
           git diff --no-index --quiet evals/retrofit-and-score/files/haiku-coach/skills "$RUNNER_TEMP/haiku/skills"
 
+      - name: Benefit badges need a Results section
+        run: |
+          if bash skills/skill-forger-e2e/scripts/badges.sh ci/demo --benefit 'cost=-35%' >/dev/null 2>&1; then exit 1; fi
+          bash skills/skill-forger-e2e/scripts/badges.sh ci/demo --results '#results' --benefit 'cost=-35%' | grep -q 'cost-.*2da44e'
+
       - name: Make a header image
         run: |
           bash skills/skill-forger-e2e/scripts/make_header.sh "$RUNNER_TEMP/hdr" --repo ci/demo --head "Say the job." --head2 "Get the result." --chip "a" --line '$ demo' --line '✓ ok'
