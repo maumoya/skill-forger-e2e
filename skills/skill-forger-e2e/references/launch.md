@@ -7,6 +7,9 @@ it, show it, and let the user send it.
 
 In this order:
 1. A picture or a ≤10 s GIF: one input → one result. Record it from a `vhs` tape kept in the repo so it can be re-made.
+   Or a header banner from `scripts/make_header.sh` (1280×640 SVG + PNG; also the social preview), with a centered
+   badge row under it: Claude Code skill + plugin, license, OSI open source, privacy, OpenSSF Scorecard, readiness.
+   Only badges that show a live or measured fact; Best Practices only after the project is registered.
 2. One line: what it does, for whom.
 3. Two install commands (`/plugin install` and `npx skills add`).
 4. One real example.

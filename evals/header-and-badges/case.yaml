@@ -1,0 +1,12 @@
+schema_version: "1.1"
+name: header-and-badges
+expected_outcome: |
+  On "ForgeSkill: make my repo page look good", the agent runs the skill's make_header.sh to create assets/header.svg (and header.png when Chrome exists) for ./haiku-coach, puts it centered at the top of the README with a badge row under it, keeps every badge truthful, and re-runs readiness.sh to show the picture and badge checks now pass.
+context:
+  scaffold_script: place-files.sh
+---
+tags: [skill-forger-e2e]
+max_turns: 25
+timeout_seconds: 900
+allowed_tools: [Read, Write, Edit, Glob, Grep, Skill, Bash]
+---

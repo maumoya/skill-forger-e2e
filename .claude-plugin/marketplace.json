@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "skill-forger-e2e",
-      "description": "Ship an agent skill end to end: scaffold, lint, a 0-100 readiness score and GitHub Action, retrofit for existing repos, a live install test from GitHub, security workflows and launch. Writing and evals hand off to skill-creator.",
+      "description": "Ship an agent skill end to end: scaffold, lint, a 0-100 readiness score and GitHub Action, retrofit for existing repos, a live install test from GitHub, header image and trust badges, security workflows and launch. Writing and evals hand off to skill-creator.",
       "source": "./",
       "category": "development",
       "keywords": [

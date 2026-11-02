@@ -1,6 +1,6 @@
 ---
 name: skill-forger-e2e
-description: Ship an agent skill end to end, from idea to an installable, secured and launched Claude Code plugin repo. Writing and evals hand off to skill-creator; this skill owns the rest - scaffold, lint, a 0-100 readiness score, retrofit of an existing repo, a live install test from GitHub, security workflows and launch. Use when the user says "make a skill", "build a skill", "ship my skill", "publish my skill", "package my skill as a plugin", "is my skill ready", "readiness score", "retrofit my skill repo", "test the install", "write evals for my skill", "skill end to end", "skill forger", "forge a skill", or asks what step comes next for a skill.
+description: ForgeSkill - ship an agent skill end to end, from idea to an installable, secured and launched Claude Code plugin repo with a header image and trust badges. Writing and evals hand off to skill-creator; this skill owns the rest - scaffold, lint, a 0-100 readiness score, retrofit of an existing repo, a live install test from GitHub, hero banner and badge row, security workflows and launch. Use when the user says "ForgeSkill", "forge skill", "forge a skill", "skill forge", "skill forger", "new skill", "make a skill", "create a skill", "build a skill", "ship my skill", "publish my skill", "release my skill", "share my skill", "package my skill as a plugin", "turn my prompt into a plugin", "is my skill ready", "readiness score", "retrofit my skill repo", "test the install", "write evals for my skill", "add a header image and badges", "make my repo page look good", "skill end to end", or says "I want people to install my skill", "how do I publish a skill", or asks what step comes next for a skill.
 license: MIT
 ---
 
@@ -88,6 +88,12 @@ Details: `references/security.md`. Templates are in `templates/repo/.github/`.
 
 Details: `references/launch.md`. Every post, form or PR to another repo is an outward action: ask the user first.
 - README order: picture or ≤10 s GIF, one-line promise, two install commands, one example, FAQ.
+- Header image: `scripts/make_header.sh assets --repo OWNER/REPO --head "Line one." --head2 "Line two." --chip … --line '$ cmd' --line '✓ result'`
+  (`--image shot.png` for an app; `--photo me.png --by "Name" --handle "@you"` for a byline). Writes a 1280×640 SVG and,
+  with Chrome, a PNG that doubles as the social preview. If the project already has good art (an Open Graph image), use that.
+  Read the PNG back and fix any overflow before committing.
+- Badge row under it, centered: Claude Code skill + plugin, license, OSI open source, privacy, OpenSSF Scorecard, readiness
+  score; OpenSSF Best Practices only once the project is registered. Badges show live or measured facts only.
 - Repo description ≤350 chars opening with what + who; ≤20 topics; homepage (GitHub Pages) with Open Graph tags; `llms.txt`.
 - Channels in order: Anthropic plugin directory form, skills.sh, awesome lists (each on its own rules), the niche community, then an essay that teaches something and links the repo.
 

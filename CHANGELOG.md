@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Sharper triggers: "ForgeSkill", "forge skill", "new skill", "create a skill", "share my skill" and intent sentences such as "I want people to install my skill".
+- `make_header.sh`: 1280x640 README header and social preview (SVG, PNG through headless Chrome) with chips, trust pills, a terminal card or screenshot, and an optional author photo.
+- Template README gets a centered badge row; `readiness.sh` checks for it (3 points).
+- New eval case: header-and-badges.
+
 ## 0.2.0
 
 - Refocused on shipping: writing and evals hand off to skill-creator; this skill owns packaging to launch.
