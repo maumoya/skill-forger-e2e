@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0
+
+- `scorecard.sh`: live OpenSSF Scorecard feedback, every check below 10 with its fix, fixable ones first.
+- `bestpractices.sh`: OpenSSF Best Practices status and badge, or the form link plus an evidence sheet for "passing".
+- `badges.sh`: badge row from live data, with measured benefit badges that link to a dated Results section.
+- `owner_profile.sh`: drafts "About the author" from the public GitHub profile plus interview questions; prints only.
+- `readiness.sh` checks About the author (2) and Best Practices registration (3). Template README gets About the author.
+- README: Results section (retrofit takes a bare repo from readiness 16 to 68, 0 files changed) and benefit badges.
+
 ## 0.3.0
 
 - Sharper triggers: "ForgeSkill", "forge skill", "new skill", "create a skill", "share my skill" and intent sentences such as "I want people to install my skill".

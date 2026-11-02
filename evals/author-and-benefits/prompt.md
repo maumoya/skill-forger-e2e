@@ -1,0 +1,1 @@
+ForgeSkill: add my credits and benefit badges to ./haiku-coach (GitHub: testowner/haiku-coach, my GitHub user is octocat). I want an About the author section like the good repos, and badges that show how much it helps, like "−35% cost".
