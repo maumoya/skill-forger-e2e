@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: retrofit-and-score
+expected_outcome: |
+  The agent scores ./haiku-coach with readiness.sh, adds the missing ship files with retrofit.sh (not by hand), leaves the user's SKILL.md and README.md unchanged, re-scores, and reports the score before and after with the remaining gaps.
+context:
+  scaffold_script: place-files.sh

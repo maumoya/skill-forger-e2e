@@ -1,14 +1,14 @@
 {
   "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
   "name": "skill-forger-e2e",
-  "description": "Make an agent skill end to end, from idea to a tested, secured, launched plugin repo.",
+  "description": "Ship an agent skill end to end, from idea to an installable, secured, launched plugin repo.",
   "owner": {
     "name": "Mauricio Alonso Moya Tapia"
   },
   "plugins": [
     {
       "name": "skill-forger-e2e",
-      "description": "Make an agent skill end to end: decide, define, author, test with evals, package as a Claude Code plugin, secure, launch and measure. Eight gated phases, a scaffold script and a keyless linter.",
+      "description": "Ship an agent skill end to end: scaffold, lint, a 0-100 readiness score and GitHub Action, retrofit for existing repos, a live install test from GitHub, security workflows and launch. Writing and evals hand off to skill-creator.",
       "source": "./",
       "category": "development",
       "keywords": [

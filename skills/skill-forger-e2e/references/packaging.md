@@ -30,8 +30,15 @@ Manual: copy `skills/<name>/` into `~/.claude/skills/` (personal) or `.claude/sk
 ## Verify before claiming
 
 1. Push to a public repo.
-2. In a clean session, run both install paths.
-3. Type a trigger. The skill must load. Note what you typed and what happened.
+2. `scripts/install_test.sh OWNER/REPO`: installs from GitHub into a throwaway config and checks the skill landed. Free.
+3. `scripts/install_test.sh OWNER/REPO --trigger "<phrase>"`: one billed `claude -p` run; the phrase must load the skill. Ask first.
+4. `npx skills add OWNER/REPO` in a scratch folder for the second path. Note what you typed and what happened.
+
+## Readiness score in CI
+
+`scripts/readiness.sh <repo-dir> [OWNER/REPO]` scores 0-100. The repo root `action.yml` wraps lint + score for any repo:
+`uses: maumoya/skill-forger-e2e@<full-commit-sha>` with `min-score: 80`. Pin the SHA like every other action.
+Outputs `score` and `badge`; the table goes to the job summary.
 
 ## Versions
 

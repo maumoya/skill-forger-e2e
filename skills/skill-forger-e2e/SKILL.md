@@ -1,6 +1,6 @@
 ---
 name: skill-forger-e2e
-description: Make an agent skill end to end, from idea to a published, tested, secured and launched Claude Code plugin repo. Use when the user says "make a skill", "build a skill", "turn this into a skill", "create a SKILL.md", "package my skill as a plugin", "test my skill", "write evals for my skill", "publish my skill", "skill end to end", "skill forger", "forge a skill", or asks what step comes next for a skill. Walks eight gated phases (decide, define, author, test, package, secure, launch, loop) with a scaffold script and a linter.
+description: Ship an agent skill end to end, from idea to an installable, secured and launched Claude Code plugin repo. Writing and evals hand off to skill-creator; this skill owns the rest - scaffold, lint, a 0-100 readiness score, retrofit of an existing repo, a live install test from GitHub, security workflows and launch. Use when the user says "make a skill", "build a skill", "ship my skill", "publish my skill", "package my skill as a plugin", "is my skill ready", "readiness score", "retrofit my skill repo", "test the install", "write evals for my skill", "skill end to end", "skill forger", "forge a skill", or asks what step comes next for a skill.
 license: MIT
 ---
 
@@ -8,6 +8,12 @@ license: MIT
 
 Eight phases. Each has a gate. Do not start a phase until the previous gate passes.
 Tell the user which phase you are in and what passes its gate, in one line.
+
+Write it with a writing tool, ship it with this one. Phases 2-3 hand off to the best authoring and eval tools;
+Phases 4-7 are this skill's own work and scripts.
+
+**Already have a skill?** Skip to Phase 4: run `scripts/readiness.sh <repo-dir> [OWNER/REPO]` for the score and the gaps,
+then `scripts/retrofit.sh <repo-dir> "<Owner Name>" <github-user>` to add what is missing (it never overwrites).
 
 Paths below are relative to this skill's folder (`skills/skill-forger-e2e/`).
 
@@ -31,9 +37,11 @@ Write down, before any SKILL.md:
 
 **Gate 1:** job, triggers, non-triggers, done-when and a saved baseline exist.
 
-## Phase 2 · Author
+## Phase 2 · Author (hand off the writing)
 
-Scaffold: `scripts/new_skill.sh <skill-name> <target-dir> "<Owner Name>"`. It copies `templates/repo/` and fills the names.
+Scaffold the repo first: `scripts/new_skill.sh <skill-name> <target-dir> "<Owner Name>" [github-user]`. It copies `templates/repo/` and fills the names.
+Then write the SKILL.md body with a dedicated authoring tool when one is installed:
+Anthropic's `skill-creator` (interview, draft, description tuning), or superpowers `writing-skills` (test-first). Without one, follow the rules below.
 Rules (full list in `references/authoring.md`):
 - `name`: lowercase letters, digits, hyphens; ≤64 chars; equals the folder name.
 - `description`: ≤1024 chars, third person, says what AND when, holds the trigger phrases. It is the only part the model sees before choosing the skill.
@@ -44,7 +52,8 @@ Rules (full list in `references/authoring.md`):
 
 ## Phase 3 · Test
 
-Details: `references/testing.md`.
+Details: `references/testing.md`. When `skill-creator` is installed, use its eval loop (with/without runs, blind comparison,
+description optimizer) and come back here for the gate. SkillForge adds regression evals if the user wants them.
 1. **Trigger test:** in a fresh session, type each trigger and each non-trigger. Record hit or miss. Fix the description until all hit and none misfire.
 2. **Evals:** one `evals/<case>/` per done-when (case.yaml + prompt.md + graders/). Each case ships its own input files.
 3. **Run:** `claude plugin eval <repo-dir> --allow-tools` (bills the user's account; ask first). It runs with and without the skill. Keep the report.
@@ -57,10 +66,12 @@ Details: `references/testing.md`.
 Details: `references/packaging.md`.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` (the scaffold made them).
 - Install paths to document: `/plugin marketplace add OWNER/REPO` then `/plugin install NAME@NAME`, and `npx skills add OWNER/REPO`.
-- Test both installs in a clean session before claiming they work.
 - Semantic version in plugin.json; `CHANGELOG.md`; git tag `vX.Y.Z` per release.
+- Live install test, after pushing: `scripts/install_test.sh OWNER/REPO`. It installs from GitHub into a throwaway config
+  (yours is untouched) and prints the component inventory and token cost. Free.
+- Trigger check: add `--trigger "<a phrase a user types>"`. One short `claude -p` run on the user's account: ask first.
 
-**Gate 4:** a clean install from the public repo loads the skill and a trigger fires it.
+**Gate 4:** `install_test.sh` prints `RESULT n passed, 0 failed`, with a passing `--trigger` check.
 
 ## Phase 5 · Secure
 
@@ -84,8 +95,10 @@ Details: `references/launch.md`. Every post, form or PR to another repo is an ou
 
 ## Phase 7 · Loop
 
-Run `scripts/measure.sh OWNER/REPO [BEST_PRACTICES_ID]`. Pick the one highest-impact gap. Fix it on a branch with a PR. Re-measure after merge. Report the delta in one row.
-Re-run Phase 3 evals before every release.
+Run `scripts/readiness.sh <repo-dir> OWNER/REPO` (ship score) and `scripts/measure.sh OWNER/REPO [BEST_PRACTICES_ID]` (traffic, stars, Scorecard).
+Pick the one highest-impact gap. Fix it on a branch with a PR. Re-measure after merge. Report the delta in one row.
+Re-run Phase 3 evals before every release. For CI, the repo root `action.yml` runs the linter and the score on every PR
+(`uses: maumoya/skill-forger-e2e@<commit-sha>`, with `min-score` to fail below a bar); see `references/packaging.md`.
 
 ## Honesty rules
 

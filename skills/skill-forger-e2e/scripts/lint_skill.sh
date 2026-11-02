@@ -77,7 +77,7 @@ for w in .github/workflows/*.yml .github/workflows/*.yaml; do
     ref="${line##*@}"; ref="${ref%% *}"
     [[ "$line" == *slsa-framework/slsa-github-generator* ]] && continue
     [[ "$ref" =~ ^[0-9a-f]{40}$ ]] || fail "$w: action not pinned to a commit SHA: $(xargs <<<"$line")"
-  done < <(grep -E '^\s*-?\s*uses:\s*[^./]' "$w")
+  done < <(grep -E '^[[:space:]]*-?[[:space:]]*uses:[[:space:]]*[^./[:space:]]' "$w")  # local ./ actions need no pin
 done
 
 # --- risky patterns (skill files and scripts)

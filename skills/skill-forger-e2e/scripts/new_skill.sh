@@ -27,7 +27,10 @@ mv "$target/skills/__NAME__" "$target/skills/$name"
 
 export S_NAME="$name" S_TITLE="$title" S_OWNER="$owner" S_GH="$gh_user" S_DESC="$desc" S_YEAR="$(date +%Y)"
 find "$target" -type f ! -path '*/.git/*' -print0 | while IFS= read -r -d '' f; do
-  perl -pi -e 's/__NAME__/$ENV{S_NAME}/g; s/__TITLE__/$ENV{S_TITLE}/g; s/__OWNER__/$ENV{S_OWNER}/g; s/__GH__/$ENV{S_GH}/g; s/__DESCRIPTION__/$ENV{S_DESC}/g; s/__YEAR__/$ENV{S_YEAR}/g' "$f"
+  # JSON files get quotes and backslashes in the owner and description escaped
+  case "$f" in *.json) export S_JSON=1 ;; *) export S_JSON=0 ;; esac
+  perl -pi -e 'BEGIN { sub v { my $s = $ENV{$_[0]}; if ($ENV{S_JSON}) { $s =~ s/(["\\])/\\$1/g } $s } }
+    s/__NAME__/v("S_NAME")/ge; s/__TITLE__/v("S_TITLE")/ge; s/__OWNER__/v("S_OWNER")/ge; s/__GH__/v("S_GH")/ge; s/__DESCRIPTION__/v("S_DESC")/ge; s/__YEAR__/v("S_YEAR")/ge' "$f"
 done
 # copied after the substitution so the linter keeps its own placeholder patterns
 mkdir -p "$target/scripts"

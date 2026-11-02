@@ -1,9 +1,14 @@
 # Skill Forger E2E
 
-Make an agent skill end to end: decide, define, author, test with evals, package as a Claude Code
-plugin, secure, launch and measure. Eight gated phases, a scaffold script and a keyless linter.
+**Write your skill with skill-creator. Ship it with this.**
 
-For anyone who wants to ship a `SKILL.md` that people find, trust and install, not just one that runs on their own machine.
+Skill Forger E2E takes an agent skill from "works on my machine" to an installable, secured, launched
+Claude Code plugin repo, and tells you with a number how close you are.
+
+- **Readiness score 0-100** with a badge, locally or as a GitHub Action on every PR.
+- **Retrofit** an existing skill repo: adds the missing plugin JSON, workflows, `SECURITY.md`, evals and `llms.txt`. Never overwrites.
+- **Live install test** from your public repo, in a throwaway config, plus an opt-in check that a trigger phrase loads the skill.
+- Scaffold, keyless linter, SHA-pinned security workflows and a launch playbook, in eight gated phases.
 
 ```
 0 Decide → 1 Define → 2 Author → 3 Test → 4 Package → 5 Secure → 6 Launch → 7 Loop
@@ -34,6 +39,8 @@ Type one of:
 - `package my skill as a plugin`
 - `write evals for my skill`
 - `publish my skill` (picks up at the phase you are in)
+- `is my skill ready to ship?` (readiness score and the gaps)
+- `retrofit my skill repo`
 
 ## What is inside
 
@@ -41,12 +48,12 @@ Type one of:
 |---|---|---|
 | 0 Decide | one sentence: who, what, better than what exists | search commands |
 | 1 Define | triggers, non-triggers, done-when, saved baseline | — |
-| 2 Author | linter prints `PASS` | `new_skill.sh`, `lint_skill.sh`, [authoring.md](skills/skill-forger-e2e/references/authoring.md) |
-| 3 Test | every eval passes and the skill beats the baseline | eval template, [testing.md](skills/skill-forger-e2e/references/testing.md) |
-| 4 Package | clean install from the public repo fires the skill | plugin + marketplace JSON, [packaging.md](skills/skill-forger-e2e/references/packaging.md) |
+| 2 Author | linter prints `PASS` | `new_skill.sh`, `lint_skill.sh`; writing handed to skill-creator, [authoring.md](skills/skill-forger-e2e/references/authoring.md) |
+| 3 Test | every eval passes and the skill beats the baseline | eval template; skill-creator's eval loop, [testing.md](skills/skill-forger-e2e/references/testing.md) |
+| 4 Package | live install test passes, trigger loads the skill | `retrofit.sh`, `install_test.sh`, [packaging.md](skills/skill-forger-e2e/references/packaging.md) |
 | 5 Secure | Scorecard ran, CodeQL green, signed release | SHA-pinned workflows, SLSA release, [security.md](skills/skill-forger-e2e/references/security.md) |
 | 6 Launch | 10-second README test + one channel submitted | [launch.md](skills/skill-forger-e2e/references/launch.md) |
-| 7 Loop | one measured fix per round | `measure.sh` |
+| 7 Loop | one measured fix per round | `readiness.sh`, `measure.sh`, GitHub Action |
 
 ### Scaffold a new skill repo
 
@@ -57,6 +64,55 @@ bash skills/skill-forger-e2e/scripts/new_skill.sh my-skill ../my-skill "Your Nam
 You get `SKILL.md`, plugin and marketplace JSON, an eval case, lint/Scorecard/CodeQL/release
 workflows with actions pinned to commit SHAs, Dependabot, `SECURITY.md`, `CHANGELOG.md`, `llms.txt`,
 an MIT license, and a README in the order that works.
+
+### Score any skill repo (0-100)
+
+```bash
+bash skills/skill-forger-e2e/scripts/readiness.sh path/to/repo OWNER/REPO
+```
+
+15+ weighted checks: lint, plugin JSON, both install paths in the README, a picture, eval cases,
+LICENSE, `SECURITY.md`, `llms.txt`, CI, Scorecard, Dependabot, release, and (with `OWNER/REPO`)
+topics, description and the live Scorecard score. Prints each gap with its fix and a badge:
+`![skill readiness](https://img.shields.io/badge/skill%20readiness-95%2F100-brightgreen)`.
+`--min 80` exits 1 below 80; `--markdown` prints a table.
+
+### Use it as a GitHub Action
+
+```yaml
+permissions: read-all
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: maumoya/skill-forger-e2e@<commit-sha> # pin to a full SHA
+        with:
+          min-score: 80
+```
+
+Lints, scores, writes the table to the job summary, and outputs `score` and `badge`.
+
+### Retrofit an existing skill repo
+
+```bash
+bash skills/skill-forger-e2e/scripts/retrofit.sh path/to/repo "Your Name" your-github --dry-run
+```
+
+Adds only what is missing; existing files are kept. Drop `--dry-run` to write.
+
+### Test the install from GitHub
+
+```bash
+bash skills/skill-forger-e2e/scripts/install_test.sh OWNER/REPO
+bash skills/skill-forger-e2e/scripts/install_test.sh OWNER/REPO --trigger "a phrase a user types"
+```
+
+Runs `claude plugin marketplace add` and `claude plugin install` in a throwaway config (yours is
+untouched), checks the skill landed, and prints its token cost. `--trigger` adds one short
+`claude -p` run (billed to your account) and checks the phrase loads the skill.
 
 ### Lint any skill repo
 
@@ -70,20 +126,24 @@ strings and personal paths. No API key, no network.
 
 ## How it is tested
 
-- CI lints this repo, then scaffolds a fresh skill and lints that, on every PR.
+- CI lints this repo, scaffolds a fresh skill and lints it, retrofits the broken fixture, and runs
+  the readiness score through the repo's own `action.yml`, on every PR.
 - `evals/` holds one case per promise. Run `claude plugin eval . --allow-tools` (bills your account).
 
 ## FAQ
 
 ### How is this different from Anthropic's skill-creator?
 
-skill-creator helps you write and evaluate a skill. This covers that and what comes after: packaging
-as a plugin, securing the repo, launching, and measuring.
+Use both. skill-creator (and SkillForge, superpowers `writing-skills`) help you write and evaluate a
+skill; this skill hands that part to them. It owns what comes after, which none of them cover:
+packaging as a plugin, a readiness score, retrofit, a live install test, repo security, launch and
+measurement.
 
 ### Does it send my data anywhere?
 
-No. The scaffold and linter are local and write only inside the folder you give them. `measure.sh`
-only reads public GitHub and OpenSSF data for the repo you name.
+No. The scaffold, linter, retrofit and score are local and write only inside the folder you give
+them. `readiness.sh` and `measure.sh` only read public GitHub and OpenSSF data for the repo you
+name. `install_test.sh` clones your public repo into a temp folder and deletes it after.
 
 ### Will it get my skill stars?
 

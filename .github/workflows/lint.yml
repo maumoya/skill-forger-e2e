@@ -26,3 +26,19 @@ jobs:
         run: |
           bash skills/skill-forger-e2e/scripts/new_skill.sh demo-skill "$RUNNER_TEMP/demo" "CI" ci "Demo skill."
           bash "$RUNNER_TEMP/demo/scripts/lint_skill.sh" "$RUNNER_TEMP/demo"
+
+      - name: Retrofit the eval fixture and score it
+        run: |
+          cp -R evals/retrofit-and-score/files/haiku-coach "$RUNNER_TEMP/haiku"
+          before=$(bash skills/skill-forger-e2e/scripts/readiness.sh "$RUNNER_TEMP/haiku" | sed -n 's/^SCORE \([0-9]*\).*/\1/p')
+          bash skills/skill-forger-e2e/scripts/retrofit.sh "$RUNNER_TEMP/haiku" "CI" ci
+          bash skills/skill-forger-e2e/scripts/lint_skill.sh "$RUNNER_TEMP/haiku"
+          after=$(bash skills/skill-forger-e2e/scripts/readiness.sh "$RUNNER_TEMP/haiku" | sed -n 's/^SCORE \([0-9]*\).*/\1/p')
+          echo "readiness $before -> $after"
+          [ "$after" -gt "$before" ]
+          git diff --no-index --quiet evals/retrofit-and-score/files/haiku-coach/skills "$RUNNER_TEMP/haiku/skills"
+
+      - name: Readiness score through the repo's own action
+        uses: ./
+        with:
+          min-score: 80
