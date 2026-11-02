@@ -1,0 +1,56 @@
+name: Skill Forger E2E readiness
+description: Lint an agent skill repo and score how ready it is to ship (0-100), with a badge in the job summary.
+author: Mauricio Alonso Moya Tapia
+branding:
+  icon: check-circle
+  color: orange
+inputs:
+  path:
+    description: Directory of the skill repo to check.
+    default: .
+  repo:
+    description: OWNER/REPO for the GitHub checks (topics, description, Scorecard). Empty skips them.
+    default: ${{ github.repository }}
+  min-score:
+    description: Fail the step when the readiness score is below this number.
+    default: "0"
+  lint:
+    description: Fail the step when lint_skill.sh reports a FAIL.
+    default: "true"
+outputs:
+  score:
+    description: Readiness score 0-100.
+    value: ${{ steps.score.outputs.score }}
+  badge:
+    description: shields.io badge URL for the score.
+    value: ${{ steps.score.outputs.badge }}
+runs:
+  using: composite
+  steps:
+    - name: Lint
+      if: inputs.lint == 'true'
+      shell: bash
+      env:
+        SKILL_PATH: ${{ inputs.path }}
+        SCRIPTS: ${{ github.action_path }}/skills/skill-forger-e2e/scripts
+      run: bash "$SCRIPTS/lint_skill.sh" "$SKILL_PATH"
+    - name: Readiness score
+      id: score
+      shell: bash
+      env:
+        SKILL_PATH: ${{ inputs.path }}
+        SKILL_REPO: ${{ inputs.repo }}
+        MIN_SCORE: ${{ inputs.min-score }}
+        SCRIPTS: ${{ github.action_path }}/skills/skill-forger-e2e/scripts
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        args=("$SKILL_PATH")
+        [ -n "$SKILL_REPO" ] && args+=("$SKILL_REPO")
+        out="$(bash "$SCRIPTS/readiness.sh" "${args[@]}")" || true
+        echo "$out"
+        score="$(sed -n 's/^SCORE \([0-9]*\)\/100.*/\1/p' <<<"$out")"
+        badge="$(sed -n 's/^BADGE !\[skill readiness\](\(.*\))$/\1/p' <<<"$out")"
+        echo "score=$score" >> "$GITHUB_OUTPUT"
+        echo "badge=$badge" >> "$GITHUB_OUTPUT"
+        bash "$SCRIPTS/readiness.sh" "${args[@]}" --markdown >> "$GITHUB_STEP_SUMMARY" || true
+        [ "${score:-0}" -ge "$MIN_SCORE" ] || { echo "::error::Skill readiness $score is below $MIN_SCORE"; exit 1; }
