@@ -71,9 +71,14 @@ for c in "${chips[@]:0:3}"; do
 done
 if [ "$trust" = 1 ]; then
   lw=$(( $(len "$license") * 10 + 66 )); px=$((80 + lw + 14)); pw=$(( $(len "$privacy") * 10 + 66 ))
+  # The OSI logo only for an open source label; anything else (e.g. "Free to play") gets a plain check.
+  case "$license" in
+    *"Open Source"*|*"open source"*) icon="<g transform=\"translate(92 551) scale(1.25)\"><path fill=\"#3DA639\" d=\"M11.959.447A11.938 11.938 0 000 12.407c0 5.576 3.874 10.097 7.783 11.114.193.05.392-.05.467-.234l2.771-6.822a.396.396 0 00-.246-.528C9.365 15.47 8.53 14.32 8.48 12.4c-.024-1.828 1.5-3.45 3.561-3.447 1.931.003 3.479 1.632 3.479 3.453 0 .966-.203 1.687-.575 2.238-.371.552-.922.951-1.695 1.239a.396.396 0 00-.23.515l2.685 6.903a.396.396 0 00.465.24C20.163 22.534 24 18.062 24 12.406 24 5.804 18.603.447 11.959.447z\"/></g>" ;;
+    *) icon="<circle cx=\"107\" cy=\"566\" r=\"14\" fill=\"#22C55E\"/><path d=\"M100.5 566.5 L105 571 L113.5 561.5\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>" ;;
+  esac
   svg+="
     <rect x=\"80\" y=\"546\" width=\"$lw\" height=\"40\" rx=\"20\" fill=\"#FFFFFF\"/>
-    <g transform=\"translate(92 551) scale(1.25)\"><path fill=\"#3DA639\" d=\"M11.959.447A11.938 11.938 0 000 12.407c0 5.576 3.874 10.097 7.783 11.114.193.05.392-.05.467-.234l2.771-6.822a.396.396 0 00-.246-.528C9.365 15.47 8.53 14.32 8.48 12.4c-.024-1.828 1.5-3.45 3.561-3.447 1.931.003 3.479 1.632 3.479 3.453 0 .966-.203 1.687-.575 2.238-.371.552-.922.951-1.695 1.239a.396.396 0 00-.23.515l2.685 6.903a.396.396 0 00.465.24C20.163 22.534 24 18.062 24 12.406 24 5.804 18.603.447 11.959.447z\"/></g>
+    $icon
     <text x=\"130\" y=\"573\" font-size=\"20\" font-weight=\"600\" fill=\"#1E1B3A\">$(esc "$license")</text>
     <rect x=\"$px\" y=\"546\" width=\"$pw\" height=\"40\" rx=\"20\" fill=\"#FFFFFF\"/>
     <g transform=\"translate($((px + 12)) 552)\"><path d=\"M14 1 L26 5.5 V14 C26 21 20.5 26 14 28 C7.5 26 2 21 2 14 V5.5 Z\" fill=\"#7C5CFC\"/><path d=\"M8.5 14.5 L12.5 18.5 L19.5 10.5\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g>
@@ -105,10 +110,10 @@ elif [ ${#lines[@]} -gt 0 ]; then
 fi
 svg+="
   </g>"
+# byline under the right-hand card, so a long OWNER/REPO label never runs into it
 if [ -n "$by" ]; then
-  bx=$([ -n "$photo" ] && echo 1028 || echo 1200)
   svg+="
-  <text x=\"$bx\" y=\"112\" text-anchor=\"end\" font-family=\"$F\" font-size=\"22\" fill=\"#D8D2F5\">by <tspan font-weight=\"700\" fill=\"#FFFFFF\">$(esc "$by")</tspan>$([ -n "$handle" ] && echo " · $(esc "$handle")")</text>"
+  <text x=\"1200\" y=\"540\" text-anchor=\"end\" font-family=\"$F\" font-size=\"22\" fill=\"#D8D2F5\">by <tspan font-weight=\"700\" fill=\"#FFFFFF\">$(esc "$by")</tspan>$([ -n "$handle" ] && echo " · $(esc "$handle")")</text>"
 fi
 if [ -n "$photo" ]; then
   svg+="
