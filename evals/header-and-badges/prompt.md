@@ -1,0 +1,1 @@
+ForgeSkill: make my repo page look good. The skill repo is ./haiku-coach (GitHub: testowner/haiku-coach, owner "Test Owner"). It needs a header image and the trust badges, like the good skill repos have.

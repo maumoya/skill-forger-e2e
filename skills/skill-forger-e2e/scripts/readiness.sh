@@ -35,8 +35,9 @@ check 15 "lint passes (no FAIL)" "$([ $lint_rc -eq 0 ] && echo 1 || echo 0)" "ru
 check 5 "lint has 0 warnings" "$(grep -q '^WARN' <<<"$lint_out" && echo 0 || echo 1)" "fix the WARN lines from lint_skill.sh"
 check 10 "plugin.json + marketplace.json" "$(yes test -f .claude-plugin/plugin.json -a -f .claude-plugin/marketplace.json)" "add .claude-plugin/ (retrofit.sh)"
 check 10 "README shows both install paths" "$(grep -q 'plugin marketplace add' README.md 2>/dev/null && grep -q 'npx skills add' README.md 2>/dev/null && echo 1 || echo 0)" "add /plugin and npx skills install lines"
-check 5 "README has a picture" "$(yes grep -qiE '\.(png|gif|svg|jpe?g|webp)' README.md)" "add a screenshot or demo GIF near the top"
+check 5 "README has a picture" "$(yes grep -qiE '\.(png|gif|svg|jpe?g|webp)' README.md)" "add a header image (make_header.sh) or a demo GIF at the top"
 cases=(evals/*/case.yaml)
+check 3 "README has a badge row" "$(yes grep -qiE 'shields\.io|/badge' README.md)" "add a centered badge row under the header (see Phase 6)"
 check 10 "at least 1 eval case" "$([ ${#cases[@]} -ge 1 ] && echo 1 || echo 0)" "add evals/<case>/ (see references/testing.md)"
 check 5 "3+ eval cases" "$([ ${#cases[@]} -ge 3 ] && echo 1 || echo 0)" "cover trigger, happy path and a failure case"
 check 5 "LICENSE" "$(yes test -f LICENSE)" "add a LICENSE"

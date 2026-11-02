@@ -1,3 +1,16 @@
+<p align="center">
+  <img src="assets/header.png" alt="skill-forger-e2e: write your agent skill with skill-creator, ship it with this. Readiness score, live install test, header image and trust badges, security and launch for Claude Code plugins" width="100%">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Claude%20Code-skill%20%2B%20plugin-7c5cfc" alt="Claude Code skill and plugin">
+  <a href="#score-any-skill-repo-0-100"><img src="https://img.shields.io/badge/skill%20readiness-100%2F100-brightgreen" alt="Skill readiness: 100/100"></a>
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license">
+  <a href="https://opensource.org/license/mit"><img src="https://img.shields.io/badge/Open%20Source-OSI%20approved%20license-3DA639?logo=opensourceinitiative&logoColor=white" alt="Open Source: OSI-approved MIT license"></a>
+  <img src="https://img.shields.io/badge/privacy-no%20tracking%20%C2%B7%20no%20data%20collected-7c5cfc" alt="Privacy: no tracking, no data collected">
+  <a href="https://scorecard.dev/viewer/?uri=github.com/maumoya/skill-forger-e2e"><img src="https://api.scorecard.dev/projects/github.com/maumoya/skill-forger-e2e/badge" alt="OpenSSF Scorecard"></a>
+</p>
+
 # Skill Forger E2E
 
 **Write your skill with skill-creator. Ship it with this.**
@@ -8,6 +21,7 @@ Claude Code plugin repo, and tells you with a number how close you are.
 - **Readiness score 0-100** with a badge, locally or as a GitHub Action on every PR.
 - **Retrofit** an existing skill repo: adds the missing plugin JSON, workflows, `SECURITY.md`, evals and `llms.txt`. Never overwrites.
 - **Live install test** from your public repo, in a throwaway config, plus an opt-in check that a trigger phrase loads the skill.
+- **Header image and badge row** in the style that gets clicked: one command makes a 1280x640 banner (and social preview) from your words, a screenshot or a terminal card.
 - Scaffold, keyless linter, SHA-pinned security workflows and a launch playbook, in eight gated phases.
 
 ```
@@ -33,7 +47,7 @@ npx skills add maumoya/skill-forger-e2e
 
 ## Use
 
-Type one of:
+Type one of (or just `ForgeSkill`):
 
 - `make a skill that turns meeting transcripts into action items`
 - `package my skill as a plugin`
@@ -41,6 +55,8 @@ Type one of:
 - `publish my skill` (picks up at the phase you are in)
 - `is my skill ready to ship?` (readiness score and the gaps)
 - `retrofit my skill repo`
+- `add a header image and badges to my repo`
+- `I want people to install my skill`
 
 ## What is inside
 
@@ -71,7 +87,7 @@ an MIT license, and a README in the order that works.
 bash skills/skill-forger-e2e/scripts/readiness.sh path/to/repo OWNER/REPO
 ```
 
-15+ weighted checks: lint, plugin JSON, both install paths in the README, a picture, eval cases,
+15+ weighted checks: lint, plugin JSON, both install paths in the README, a picture, a badge row, eval cases,
 LICENSE, `SECURITY.md`, `llms.txt`, CI, Scorecard, Dependabot, release, and (with `OWNER/REPO`)
 topics, description and the live Scorecard score. Prints each gap with its fix and a badge:
 `![skill readiness](https://img.shields.io/badge/skill%20readiness-95%2F100-brightgreen)`.
@@ -94,6 +110,19 @@ jobs:
 ```
 
 Lints, scores, writes the table to the job summary, and outputs `score` and `badge`.
+
+### Make a header image and badge row
+
+```bash
+bash skills/skill-forger-e2e/scripts/make_header.sh assets --repo you/my-skill \
+  --head "Say the job." --head2 "Get the result." --sub "One line on what it does" \
+  --chip "fast" --chip "local" --chip "tested" --line '$ my-skill run' --line '✓ done' \
+  --photo me.png --by "Your Name" --handle "@you"
+```
+
+Writes `assets/header.svg` and, when Chrome is installed, `assets/header.png` (1280x640, also the
+size GitHub wants for the social preview). Use `--image screenshot.png` instead of `--line` for an app.
+The banner above was made with it. Add the badge row from the [template README](skills/skill-forger-e2e/templates/repo/README.md).
 
 ### Retrofit an existing skill repo
 
