@@ -1,6 +1,6 @@
 ---
 type: llm
-focus: output
+focus: trace
 weight: 1
 ---
 

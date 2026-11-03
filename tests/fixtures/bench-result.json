@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "claudeVersion": "0.0.0-fixture",
+  "startedAt": "2026-01-02T03:04:05.000Z",
+  "cases": [
+    { "name": "does-the-job", "runsPerCase": 2, "arms": {
+      "with":    [ { "score": 1, "passed": true, "turns": 4, "costUsd": 0.2, "durationSeconds": 30 },
+                   { "score": 1, "passed": true, "turns": 6, "costUsd": 0.2, "durationSeconds": 30 } ],
+      "without": [ { "score": 0.5, "passed": false, "turns": 3, "costUsd": 0.1, "durationSeconds": 20 },
+                   { "score": 0, "passed": false, "turns": 3, "costUsd": 0.1, "durationSeconds": 20 } ] } },
+    { "name": "edge-case", "runsPerCase": 2, "arms": {
+      "with":    [ { "score": 1, "passed": true, "turns": 5, "costUsd": 0.2, "durationSeconds": 30 },
+                   { "score": 0.5, "passed": false, "turns": 5, "costUsd": 0.2, "durationSeconds": 30 } ],
+      "without": [ { "score": 1, "passed": true, "turns": 3, "costUsd": 0.1, "durationSeconds": 20 },
+                   { "score": 0.5, "passed": false, "turns": 3, "costUsd": 0.1, "durationSeconds": 20 } ] } }
+  ]
+}
