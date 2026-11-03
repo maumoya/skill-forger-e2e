@@ -1,0 +1,16 @@
+{
+  "skill": "skill-forger-e2e",
+  "queries": [
+    { "text": "make a skill for summarizing pull requests and publish it", "trigger": true },
+    { "text": "turn my code-review checklist into a claude code plugin other people can install", "trigger": true },
+    { "text": "my skill never triggers, can you fix it and get it ready to ship", "trigger": true },
+    { "text": "add badges and a readiness score to my skill repo", "trigger": true },
+    { "text": "package this SKILL.md as a plugin with a marketplace.json", "trigger": true },
+    { "text": "I want to share my agent skill on GitHub so people can npx skills add it", "trigger": true, "holdout": true },
+    { "text": "check that my skill repo passes lint and the install test before the release", "trigger": true, "holdout": true },
+    { "text": "what is the capital of Portugal", "trigger": false },
+    { "text": "refactor this python function to use a dataclass", "trigger": false },
+    { "text": "write a bash script that renames all jpg files by date", "trigger": false },
+    { "text": "explain what a git rebase does", "trigger": false, "holdout": true }
+  ]
+}

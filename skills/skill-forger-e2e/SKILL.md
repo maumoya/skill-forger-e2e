@@ -54,7 +54,7 @@ Rules (full list in `references/authoring.md`):
 
 Details: `references/testing.md`. When `skill-creator` is installed, use its eval loop (with/without runs, blind comparison,
 description optimizer) and come back here for the gate. SkillForge adds regression evals if the user wants them.
-1. **Trigger test:** in a fresh session, type each trigger and each non-trigger. Record hit or miss. Fix the description until all hit and none misfire.
+1. **Trigger test:** put the triggers and near misses in `evals/triggers.json` (mark a few `"holdout": true`). `scripts/trigger_test.sh <repo>` prints the run count; ask first, then add `--yes`. Fix the description on the train queries until recall ≥ 0.8 and the false-trigger rate ≤ 0.2, and check that holdout holds too.
 2. **Evals:** one `evals/<case>/` per done-when (case.yaml + prompt.md + graders/). Each case ships its own input files.
 3. **Run:** `claude plugin eval <repo-dir> --allow-tools` (bills the user's account; ask first). It runs with and without the skill. Keep the report.
 4. **Keyless CI:** the linter runs in GitHub Actions on every PR.

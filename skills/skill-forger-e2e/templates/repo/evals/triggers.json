@@ -1,0 +1,13 @@
+{
+  "skill": "__NAME__",
+  "queries": [
+    { "text": "REPLACE: a message that should load the skill, worded like trigger one", "trigger": true },
+    { "text": "REPLACE: worded like trigger two", "trigger": true },
+    { "text": "REPLACE: worded like trigger three", "trigger": true },
+    { "text": "REPLACE: the same need in different words", "trigger": true },
+    { "text": "REPLACE: a casual or misspelled version", "trigger": true, "holdout": true },
+    { "text": "REPLACE: a near miss that a different tool should handle", "trigger": false },
+    { "text": "REPLACE: an unrelated request", "trigger": false },
+    { "text": "REPLACE: another near miss", "trigger": false, "holdout": true }
+  ]
+}
