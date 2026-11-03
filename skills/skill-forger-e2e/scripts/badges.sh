@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 # Prints the centered badge row for a skill README, from live data only.
 # Scorecard appears once it has a result; Best Practices once the project is registered.
-# Benefit badges ("spend per run=−35%") must come from a measured, dated Results section: pass its anchor.
+# Benefit badges ("pass rate=+40 pts") must come from a measured, dated Results section: pass its anchor, and the
+# file that holds it (--from README.md, or a block bench.sh wrote). Every number in a benefit value must appear in a
+# `## Results (measured YYYY-MM-DD)` section of that file, so a badge cannot claim what was never measured.
 # Read-only: GETs to the Scorecard and Best Practices APIs. Prints HTML; writes nothing.
 # Usage: badges.sh OWNER/REPO [--readiness N] [--license MIT] [--results '#results-measured-2026-11-01']
-#                  [--benefit 'label=value'] ... [--benefit-alt 'Alt text for the last benefit']
+#                  [--from README.md] [--benefit 'label=value'] ... [--benefit-alt 'Alt text for the last benefit']
 set -uo pipefail
 repo="${1:?usage: badges.sh OWNER/REPO [--readiness N] [--benefit 'label=value'] [--results '#anchor']}"; shift
-readiness="" license="MIT" results="" benefits=() alts=()
+readiness="" license="MIT" results="" from="" benefits=() alts=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --readiness) readiness="$2"; shift 2 ;;
     --license) license="$2"; shift 2 ;;
     --results) results="$2"; shift 2 ;;
+    --from) from="$2"; shift 2 ;;
     --benefit) benefits+=("$2"); alts+=(""); shift 2 ;;
     --benefit-alt) alts[${#alts[@]}-1]="$2"; shift 2 ;;
     *) echo "unknown option $1" >&2; exit 2 ;;
@@ -20,6 +23,18 @@ while [ $# -gt 0 ]; do
 done
 if [ ${#benefits[@]} -gt 0 ] && [ -z "$results" ]; then
   echo "Benefit badges need --results '#anchor' pointing at the measured, dated Results section." >&2; exit 2
+fi
+if [ ${#benefits[@]} -gt 0 ]; then
+  [ -f "$from" ] || { echo "Benefit badges need --from FILE: the file with the measured Results section (README.md or a bench.sh block)." >&2; exit 2; }
+  # Text of every "## Results (measured YYYY-MM-DD)" section, up to the next "## " heading.
+  measured="$(awk '/^## Results \(measured [0-9]{4}-[0-9]{2}-[0-9]{2}\)/ { on=1; print; next } /^## / { on=0 } on' "$from")"
+  [ -n "$measured" ] || { echo "$from has no '## Results (measured YYYY-MM-DD)' section." >&2; exit 2; }
+  for b in "${benefits[@]}"; do
+    for n in $(grep -oE '[0-9]+([.][0-9]+)?' <<<"${b#*=}"); do
+      grep -qE "(^|[^0-9.])${n//./[.]}([^0-9]|$)" <<<"$measured" \
+        || { echo "benefit '$b': $n is not in the measured Results section of $from" >&2; exit 2; }
+    done
+  done
 fi
 
 # shields.io static badge escaping: '-' -> '--', '_' -> '__', then URL-encode.

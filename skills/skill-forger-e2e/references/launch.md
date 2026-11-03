@@ -11,9 +11,11 @@ In this order:
    badge row under it: Claude Code skill + plugin, license, OSI open source, privacy, OpenSSF Scorecard, readiness.
    Only badges that show a live or measured fact; Best Practices only after the project is registered.
    `scripts/badges.sh OWNER/REPO --readiness N` prints the row from live data.
-   Add 1-2 benefit badges in green for the main measured win (`--benefit 'label=value' --results '#anchor'`):
-   cost saved, errors caught, time cut, score raised. Each links to a dated `## Results (measured DATE)` section
-   with the method and a table, so anyone can check it. No measurement, no benefit badge.
+   Add 1-2 benefit badges in green for the main measured win
+   (`--benefit 'label=value' --results '#anchor' --from README.md`): cost saved, errors caught, time cut, score
+   raised. Each links to a dated `## Results (measured DATE)` section with the method and a table, so anyone can
+   check it. `scripts/bench.sh` writes that section from a with-vs-without eval run (billed; ask first), and
+   `badges.sh` refuses a value whose numbers are not in it. No measurement, no benefit badge.
 2. One line: what it does, for whom.
 3. Two install commands (`/plugin install` and `npx skills add`).
 4. One real example.

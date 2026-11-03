@@ -50,10 +50,16 @@ jobs:
           echo "$out"
           for want in "unquoted ': '" "130 chars" "no branding.icon" "branding.color 'pink'"; do grep -qF "$want" <<<"$out"; done
 
-      - name: Benefit badges need a Results section
+      - name: Benefit badges need a measured Results section
         run: |
-          if bash skills/skill-forger-e2e/scripts/badges.sh ci/demo --benefit 'cost=-35%' >/dev/null 2>&1; then exit 1; fi
-          bash skills/skill-forger-e2e/scripts/badges.sh ci/demo --results '#results' --benefit 'cost=-35%' | grep -q 'cost-.*2da44e'
+          b=skills/skill-forger-e2e/scripts/badges.sh
+          out="$(bash skills/skill-forger-e2e/scripts/bench.sh . --json tests/fixtures/bench-result.json --out "$RUNNER_TEMP/bench.md")"
+          grep -qF '| Runs passed | 75% | 25% | +50 pts |' <<<"$out"
+          if bash $b ci/demo --benefit 'runs passed=+50 pts' >/dev/null 2>&1; then exit 1; fi
+          if bash $b ci/demo --results '#r' --benefit 'runs passed=+50 pts' >/dev/null 2>&1; then exit 1; fi
+          if bash $b ci/demo --results '#r' --from "$RUNNER_TEMP/bench.md" --benefit 'runs passed=+60 pts' >/dev/null 2>&1; then exit 1; fi
+          out="$(bash $b ci/demo --results '#r' --from "$RUNNER_TEMP/bench.md" --benefit 'runs passed=+50 pts')"
+          grep -q 'runs%20passed-.*2da44e' <<<"$out"
 
       - name: Make a header image
         run: |

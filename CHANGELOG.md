@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.7.0
+
+- Spec lint: `lint_skill.sh` checks frontmatter against the Agent Skills spec (allowed keys, `compatibility`
+  ≤500 chars, `metadata` string map, `allowed-tools` as one string, name rules) and flags descriptions that
+  narrate the steps instead of saying when to use the skill. `tests/lint_cases.sh` proves each check catches a
+  broken fixture; CI runs it.
+- Injection scan: lint fails on hidden Unicode (zero-width, bidi), injection phrases and symlinks that leave the
+  repo, and warns on HTML comments, long base64 runs and scripts that read credentials. New eval
+  `scan-catches-injection`.
+- `install_test.sh --npx [--agent NAME]`: tests the `npx skills add` path (pinned `skills@1.7.4`) in a throwaway
+  HOME, then lints the installed copy. Gate 4 needs both install paths.
+- `trigger_test.sh`: measured trigger test over `evals/triggers.json` (should, should-not, holdout); prints recall,
+  the false-trigger rate and a dated `TRIGGERS` line. Billed, so it prints the plan until `--yes`. Lint checks the
+  file; readiness gives it 5 points.
+- `bench.sh`: runs the evals with and without the skill (N runs, default 3) and writes a dated Results block: runs
+  passed and score (mean ± sd), spend and time per run, per case. Billed, plan first; `--json` re-renders a saved
+  result for free.
+- `badges.sh --from FILE`: a benefit badge is printed only when every number in it appears in a
+  `## Results (measured DATE)` section of FILE.
+
 ## 0.6.0
 
 - `lint_skill.sh` checks a root `action.yml` against the GitHub Marketplace rules: name and description present,

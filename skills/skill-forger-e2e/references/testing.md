@@ -62,6 +62,15 @@ Run `claude plugin eval <repo> --allow-tools`. It runs every case with the skill
   skill never promised.
 - Put the report in the PR description and the pass count in the release notes.
 
+### Benchmark (`scripts/bench.sh`, billed; ask first)
+
+`bench.sh <repo>` prints the plan (cases x runs x 2 arms) and exits 3. With `--yes` it runs
+`claude plugin eval` with the ablation, 3 runs per case by default (`--runs N`, `--case GLOB`; eval flags
+after `--`, e.g. `-- --scaffold --allow-tools Bash Write Edit`), and writes `evals/bench/DATE.md`: a dated
+`## Results (measured DATE)` block with runs passed and score (mean ± sd) with vs without the skill, spend and
+time per run, and a per-case table. `--json FILE` re-renders a saved `aggregate-result.json` for free.
+Paste the block into the README; `badges.sh --from` takes benefit numbers only from such a block.
+
 ### Writing graders
 
 - One outcome per grader file, checkable from the transcript.
@@ -70,4 +79,4 @@ Run `claude plugin eval <repo> --allow-tools`. It runs every case with the skill
 
 ## Before every release
 
-Lint, then the trigger table, then evals. Record the numbers in `CHANGELOG.md`.
+Lint, then the trigger table, then evals (or `bench.sh`). Record the numbers in `CHANGELOG.md`.

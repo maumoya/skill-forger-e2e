@@ -56,7 +56,7 @@ Details: `references/testing.md`. When `skill-creator` is installed, use its eva
 description optimizer) and come back here for the gate. SkillForge adds regression evals if the user wants them.
 1. **Trigger test:** put the triggers and near misses in `evals/triggers.json` (mark a few `"holdout": true`). `scripts/trigger_test.sh <repo>` prints the run count; ask first, then add `--yes`. Fix the description on the train queries until recall ≥ 0.8 and the false-trigger rate ≤ 0.2, and check that holdout holds too.
 2. **Evals:** one `evals/<case>/` per done-when (case.yaml + prompt.md + graders/). Each case ships its own input files.
-3. **Run:** `claude plugin eval <repo-dir> --allow-tools` (bills the user's account; ask first). It runs with and without the skill. Keep the report.
+3. **Run:** `scripts/bench.sh <repo-dir>` prints the run count; ask first (it bills the user's account), then add `--yes`. It runs `claude plugin eval` with and without the skill and writes a dated Results block (`evals/bench/DATE.md`). Keep it.
 4. **Keyless CI:** the linter runs in GitHub Actions on every PR.
 
 **Gate 3:** every case passes with the skill and the skill beats the baseline on at least one. If not, back to Phase 2.
@@ -101,7 +101,7 @@ Details: `references/launch.md`. Every post, form or PR to another repo is an ou
   Read the PNG back and fix any overflow before committing.
 - Badge row under it, centered: `scripts/badges.sh OWNER/REPO --readiness N` prints it from live data (Claude Code, license,
   OSI, privacy, Scorecard once scanned, Best Practices once registered).
-- Benefit badges are the most clicked: the main measured win, e.g. `--benefit 'spend per run=−35%' --results '#results-measured-DATE'`.
+- Benefit badges are the most clicked: the main measured win, e.g. `--benefit 'runs passed=+50 pts' --results '#results-measured-DATE' --from README.md`; badges.sh refuses numbers that are not in the dated Results block.
   Only numbers from a run you can repeat (eval, bench, before/after score), shown in a dated `## Results` section with the method.
 - About the author: `scripts/owner_profile.sh GH_USER PROJECT --name "Full Name"` drafts it from the public GitHub profile
   (bio, LinkedIn, other repos) and prints interview questions for the rest. Ask them, show the owner the final text,

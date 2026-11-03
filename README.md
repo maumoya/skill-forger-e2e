@@ -147,12 +147,13 @@ You sign in and submit the form yourself.
 
 ```bash
 bash skills/skill-forger-e2e/scripts/badges.sh OWNER/REPO --readiness 95 \
-  --results '#results-measured-2026-11-01' --benefit 'spend per run=−35%'
+  --results '#results-measured-2026-11-01' --from README.md --benefit 'readiness=16→68'
 bash skills/skill-forger-e2e/scripts/owner_profile.sh your-github my-skill --name "Your Full Name"
 ```
 
 `badges.sh` prints the centered row from live data: Scorecard once scanned, Best Practices once
-registered, and benefit badges only with a link to your dated Results section. `owner_profile.sh`
+registered, and benefit badges only with a link to your dated Results section and only with numbers found in it
+(`--from`). `bench.sh` writes that section from a with-vs-without eval run. `owner_profile.sh`
 drafts "About the author" from your public GitHub profile and lists interview questions for the rest
 (why you built it, role, portfolio link). It prints to the terminal only; you choose what to publish.
 
@@ -173,7 +174,20 @@ bash skills/skill-forger-e2e/scripts/install_test.sh OWNER/REPO --trigger "a phr
 
 Runs `claude plugin marketplace add` and `claude plugin install` in a throwaway config (yours is
 untouched), checks the skill landed, and prints its token cost. `--trigger` adds one short
-`claude -p` run (billed to your account) and checks the phrase loads the skill.
+`claude -p` run (billed to your account) and checks the phrase loads the skill. `--npx` tests the
+`npx skills add` path instead (`--agent codex` and other agents too).
+
+### Measure triggers and the benefit
+
+```bash
+bash skills/skill-forger-e2e/scripts/trigger_test.sh .
+bash skills/skill-forger-e2e/scripts/bench.sh .
+```
+
+Both print a plan and stop: they bill your account, so add `--yes` once you agree. `trigger_test.sh`
+reports recall and the false-trigger rate for `evals/triggers.json`, holdout queries apart.
+`bench.sh` runs the evals with and without the skill and writes a dated Results block, the only
+source `badges.sh --from` accepts for benefit badges.
 
 ### Lint any skill repo
 
