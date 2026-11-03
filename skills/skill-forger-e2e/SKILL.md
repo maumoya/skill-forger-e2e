@@ -71,8 +71,10 @@ Details: `references/packaging.md`.
 - Live install test, after pushing: `scripts/install_test.sh OWNER/REPO`. It installs from GitHub into a throwaway config
   (yours is untouched) and prints the component inventory and token cost. Free.
 - Trigger check: add `--trigger "<a phrase a user types>"`. One short `claude -p` run on the user's account: ask first.
+- Second path: `scripts/install_test.sh OWNER/REPO --npx` installs with a pinned `npx skills add` into a throwaway HOME
+  and lints the installed copy. Free. `--agent codex` (or another agent) tests that agent's folder.
 
-**Gate 4:** `install_test.sh` prints `RESULT n passed, 0 failed`, with a passing `--trigger` check.
+**Gate 4:** `install_test.sh` prints `RESULT n passed, 0 failed` twice: once with a passing `--trigger` check, once with `--npx`.
 
 ## Phase 5 · Secure
 
