@@ -80,6 +80,33 @@ for w in .github/workflows/*.yml .github/workflows/*.yaml; do
   done < <(grep -E '^[[:space:]]*-?[[:space:]]*uses:[[:space:]]*[^./[:space:]]' "$w")  # local ./ actions need no pin
 done
 
+# --- action.yml (the Marketplace checks these only at release time, from the tag; catch them in the PR)
+# value of top-level KEY, or of KEY one level under PARENT
+yv() { awk -v k="$2" -v p="${3:-}" '
+  /^[^ #]/ { inp = (p != "" && index($0, p ":") == 1) }
+  { hit = (p == "") ? (index($0, k ":") == 1) : (inp && $0 ~ "^  " k ":") }
+  hit { sub("^ *" k ": *", ""); sub(/ +#.*$/, ""); print; exit }' "$1"; }
+unq() { sed -E "s/^\"(.*)\"\$/\\1/; s/^'(.*)'\$/\\1/" <<<"$1"; }
+[ -f action.yml ] && [ -f action.yaml ] && fail "both action.yml and action.yaml at the root (keep one)"
+for a in action.yml action.yaml; do
+  [ -f "$a" ] || continue
+  for k in name description; do
+    v="$(yv "$a" "$k")"
+    [ -n "$v" ] || { fail "$a: no $k (the Marketplace needs it)"; continue; }
+    [[ "$v" =~ ^[\"\'] || "$v" != *": "* ]] || fail "$a: $k has an unquoted ': ' (invalid YAML); wrap it in double quotes"
+  done
+  d="$(unq "$(yv "$a" description)")"
+  [ ${#d} -lt 125 ] || fail "$a: description is ${#d} chars (the Marketplace needs under 125)"
+  [ -n "$(yv "$a" author)" ] || warn "$a: no author (shown on the Marketplace listing)"
+  [ -n "$(yv "$a" using runs)" ] || fail "$a: no runs.using"
+  [ -n "$(unq "$(yv "$a" icon branding)")" ] || fail "$a: no branding.icon (a Feather icon name, e.g. check-circle)"
+  color="$(unq "$(yv "$a" color branding)")"
+  [[ "$color" =~ ^(white|black|yellow|blue|green|orange|red|purple|gray-dark)$ ]] \
+    || fail "$a: branding.color '$color' is not one of white black yellow blue green orange red purple gray-dark"
+  nested=$(find . -mindepth 2 \( -name .git -o -name node_modules \) -prune -o \( -name action.yml -o -name action.yaml \) -print | head -3 | xargs)
+  [ -z "$nested" ] || warn "action file below the root ($nested): only the root one can be listed on the Marketplace"
+done
+
 # --- risky patterns (skill files and scripts)
 scan=(); for d in skills scripts; do [ -d "$d" ] && scan+=("$d"); done
 if [ ${#scan[@]} -gt 0 ]; then

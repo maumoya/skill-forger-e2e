@@ -182,8 +182,19 @@ bash skills/skill-forger-e2e/scripts/lint_skill.sh path/to/repo
 ```
 
 Checks frontmatter rules, name/folder match, description length and trigger wording, broken links to
-`references/` and `scripts/`, plugin JSON, eval layout, unpinned actions, pipe-to-shell, secret-like
+`references/` and `scripts/`, plugin JSON, eval layout, GitHub Marketplace rules for a root `action.yml`
+(description under 125 chars, quoting, branding), unpinned actions, pipe-to-shell, secret-like
 strings and personal paths. No API key, no network.
+
+### Check an Action before the Marketplace sees it
+
+```bash
+bash skills/skill-forger-e2e/scripts/marketplace_check.sh path/to/repo OWNER/REPO
+```
+
+The Marketplace validates `action.yml` only at publish time, from the tag, so a miss costs a release.
+This runs the same rules before you tag, then checks the repo is public, the listing name is free (or yours),
+the latest tag carries this `action.yml` and is Verified. Add `--listed` after publishing to prove the page is live.
 
 ## How it is tested
 
