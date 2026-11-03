@@ -66,7 +66,8 @@ description optimizer) and come back here for the gate. SkillForge adds regressi
 Details: `references/packaging.md`.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` (the scaffold made them).
 - Install paths to document: `/plugin marketplace add OWNER/REPO` then `/plugin install NAME@NAME`, and `npx skills add OWNER/REPO`.
-- Semantic version in plugin.json; `CHANGELOG.md`; git tag `vX.Y.Z` per release.
+- Semantic version in plugin.json; `CHANGELOG.md`; signed git tag `vX.Y.Z` per release (SSH key, set up once).
+- After each release, refresh every published number: README Results and badges, release notes, About.
 - Live install test, after pushing: `scripts/install_test.sh OWNER/REPO`. It installs from GitHub into a throwaway config
   (yours is untouched) and prints the component inventory and token cost. Free.
 - Trigger check: add `--trigger "<a phrase a user types>"`. One short `claude -p` run on the user's account: ask first.

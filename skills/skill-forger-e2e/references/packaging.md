@@ -45,4 +45,16 @@ Outputs `score` and `badge`; the table goes to the job summary.
 - Semantic versioning in `plugin.json`: patch = wording fix, minor = new capability, major = changed triggers or output shape.
 - One `CHANGELOG.md` entry per version, with the eval pass count.
 - Tag `vX.Y.Z` on main; the release workflow builds the zip and signs provenance.
+- Sign the tag too, set up once before the first release (otherwise GitHub shows the tag as Unverified):
+  `ssh-keygen -t ed25519 -f ~/.ssh/git_signing_ed25519 -C "git tag signing"`, then
+  `git config --global gpg.format ssh`, `user.signingkey ~/.ssh/git_signing_ed25519.pub`, `tag.gpgSign true`,
+  and `gh auth refresh -s admin:ssh_signing_key && gh ssh-key add ~/.ssh/git_signing_ed25519.pub --type signing`.
+  Check with `git verify-tag vX.Y.Z` before pushing (it needs `gpg.ssh.allowedSignersFile`).
+- Unsigned tag already out: re-sign it in place on the same commit, `git tag -f -s vX.Y.Z <commit> -m "..."`,
+  `git verify-tag vX.Y.Z`, `git push -f origin vX.Y.Z`. The release, zip and provenance stay; the release workflow
+  re-runs and fails on "release already exists", which is harmless.
+- After every release, refresh the whole publication, not just the code: README Results (new dated run, older ones
+  kept as history), headline and benefit badges, any "where it stands" table, bench sections, release notes
+  (what changed, measured numbers, verify command) and the repo About description. Stale numbers next to a new
+  version read as untrue.
 - Small releases every 1–2 weeks beat one big one: each release is a reason to look again.

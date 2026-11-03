@@ -1,6 +1,6 @@
 {
   "name": "skill-forger-e2e",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Ship an agent skill end to end: scaffold, lint, a 0-100 readiness score and GitHub Action, retrofit for existing repos, a live install test from GitHub, header image and trust badges, security workflows and launch. Writing and evals hand off to skill-creator.",
   "author": {
     "name": "Mauricio Alonso Moya Tapia",

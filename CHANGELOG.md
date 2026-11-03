@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+
+- Packaging: sign release tags with an SSH key (one-time setup, `git verify-tag` before push), and re-sign an unsigned tag in place without touching the release.
+- Packaging: after every release, refresh the whole publication (README Results and badges, release notes, About), not just the code.
+
 ## 0.4.0
 
 - `scorecard.sh`: live OpenSSF Scorecard feedback, every check below 10 with its fix, fixable ones first.
