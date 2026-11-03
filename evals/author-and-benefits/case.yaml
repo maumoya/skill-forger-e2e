@@ -4,8 +4,3 @@ expected_outcome: |
   On "ForgeSkill: add my credits and benefit badges", the agent runs the skill's owner_profile.sh for the owner, shows the draft "About the author" and asks the interview questions instead of inventing why the owner built it, and adds no benefit badge because ./haiku-coach has no measured result; it says what to measure first. It never invents a Best Practices ID or a Scorecard score.
 context:
   scaffold_script: place-files.sh
----
-tags: [skill-forger-e2e]
-max_turns: 25
-timeout_seconds: 900
-allowed_tools: [Read, Write, Edit, Glob, Grep, Skill, Bash]

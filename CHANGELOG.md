@@ -19,6 +19,10 @@
   result for free.
 - `badges.sh --from FILE`: a benefit badge is printed only when every number in it appears in a
   `## Results (measured DATE)` section of FILE.
+- `bench.sh` counts only cases under `evals/` (the template repo is a nested plugin whose `example-case` the eval
+  also ran) and names cases that produced no result. Lint fails a `case.yaml` with more than one YAML document:
+  `author-and-benefits` and `header-and-badges` had one and never ran; their run settings moved to `prompt.md`.
+  Lint skips `evals/results/` and `evals/bench/`. First measured bench in `evals/bench/2026-11-03.md`.
 
 ## 0.6.0
 

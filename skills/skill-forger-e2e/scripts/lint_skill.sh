@@ -103,8 +103,10 @@ fi
 if [ -d evals ]; then
   for c in evals/*/; do
     c="${c%/}"; cn="$(basename "$c")"
+    case "$cn" in results|bench) continue ;; esac  # run output from claude plugin eval and bench.sh
     [ -f "$c/case.yaml" ] || { fail "$c: no case.yaml"; continue; }
     grep -q '^schema_version:' "$c/case.yaml" || fail "$c/case.yaml: no schema_version"
+    grep -q "^---" "$c/case.yaml" && fail "$c/case.yaml: more than one YAML document (the eval skips the case; put run settings in prompt.md front matter)"
     grep -qE "^name: *\"?$cn\"?$" "$c/case.yaml" || fail "$c/case.yaml: name must equal folder '$cn'"
     grep -q '^expected_outcome:' "$c/case.yaml" || fail "$c/case.yaml: no expected_outcome"
     [ -f "$c/prompt.md" ] || fail "$c: no prompt.md"

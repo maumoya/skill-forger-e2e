@@ -52,6 +52,28 @@ if [ -z "$json" ]; then
 fi
 jq -e '.cases | length > 0' "$json" >/dev/null 2>&1 || { echo "$json: not a plugin eval result" >&2; exit 2; }
 
+# For a run of this repo's suite, count only its own cases (evals/*/): the eval also loads plugins nested in the repo, such as a template, and
+# their cases must not change the numbers. Name the cases that ran elsewhere or never ran, so a short suite is visible.
+own=()
+for d in evals/*/; do
+  [ -f "$d/case.yaml" ] || [ -f "$d/prompt.md" ] || continue
+  case "$(basename "$d")" in results|bench) continue ;; esac
+  [ -n "$case_glob" ] && case "$(basename "$d")" in $case_glob) ;; *) continue ;; esac
+  n="$(sed -n 's/^name:[[:space:]]*//p' "$d/case.yaml" 2>/dev/null | head -1 | tr -d "\"'")"
+  own+=("${n:-$(basename "$d")}")
+done
+if [ "${#own[@]}" -gt 0 ] && [ "$(jq -r ".suite.root // empty" "$json")" = "$PWD" ]; then
+  names="$(printf '%s\n' "${own[@]}" | jq -R . | jq -sc .)"
+  foreign="$(jq -r --argjson own "$names" '[.cases[].name | select(. as $n | $own | index($n) | not)] | join(", ")' "$json")"
+  missing="$(jq -r --argjson own "$names" '[.cases[].name] as $ran | [$own[] | select(. as $n | $ran | index($n) | not)] | join(", ")' "$json")"
+  [ -n "$foreign" ] && echo "not counted (not a case under evals/): $foreign" >&2
+  [ -n "$missing" ] && echo "WARN cases under evals/ with no result (check their case.yaml): $missing" >&2
+  filtered="$(mktemp)"
+  jq --argjson own "$names" '.cases |= map(select(.name as $n | $own | index($n)))' "$json" >"$filtered"
+  jq -e '.cases | length > 0' "$filtered" >/dev/null || { echo "no result for any case under evals/" >&2; rm -f "$filtered"; exit 2; }
+  json="$filtered"
+fi
+
 # stats ARM: runs pass_pct score_mean score_sd cost_mean secs_mean turns_mean (tab-separated; "n/a" when the arm is absent)
 stats() {
   jq -r --arg arm "$1" '
