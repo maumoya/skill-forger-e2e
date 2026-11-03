@@ -28,14 +28,62 @@ for f in "${skill_files[@]}"; do
   [ -n "$desc" ] || fail "$f: frontmatter has no description"
   [ ${#desc} -le 1024 ] || fail "$f: description is ${#desc} chars (max 1024)"
   grep -qiE 'use (it )?when|when the user|trigger' <<<"$desc" || warn "$f: description does not say when to use it"
+  # a description that narrates the steps lets the model act on it and skip the body
+  steps=$(grep -oiwE 'then|first|finally|afterwards|step [0-9]+|phase [0-9]+' <<<"$desc" | wc -l | tr -d ' ')
+  [ "$steps" -lt 2 ] || warn "$f: description reads like a workflow ($steps step words); say what and when, keep the steps in the body"
+  grep -qE '^(I|I'"'"'m|We|You) |(^|[^A-Za-z])(I can|you can|we can)([^A-Za-z]|$)' <<<"$desc" \
+    && warn "$f: description is not in the third person"
+  # Agent Skills spec fields (agentskills.io/specification)
+  compat="$(fm "$f" compatibility)"
+  [ ${#compat} -le 500 ] || fail "$f: compatibility is ${#compat} chars (max 500)"
+  fmk=$(awk 'NR==1{next} /^---$/{exit} /^[A-Za-z_-]+:/{sub(/:.*/, ""); print}' "$f")
+  for k in $fmk; do
+    case "$k" in
+      name|description|license|compatibility|metadata|allowed-tools) ;;  # in the spec
+      argument-hint|disable-model-invocation|user-invocable|model|effort|context|agent|hooks|paths|shell|when_to_use|version) ;;  # Claude Code extras
+      *) warn "$f: frontmatter key '$k' is not in the Agent Skills spec (other agents ignore it; put custom keys under metadata:)" ;;
+    esac
+  done
+  if grep -q '^metadata:' "$f"; then
+    meta=$(awk 'NR==1{next} /^---$/{exit}
+      /^metadata:/ { m=1; v=$0; sub(/^metadata: */, "", v); if (v != "" && v != "{}") print "inline"; next }
+      m && /^[^ ]/ { m=0 }
+      m && /^ +- / { print "list"; next }
+      m && /^ +[^ :]+: *$/ { print "nested"; next }
+      m && /^ +[^ :]+: +[0-9.]+ *$/ { print "number"; next }' "$f" | sort -u)
+    for bad in $meta; do
+      case "$bad" in
+        number) warn "$f: metadata has an unquoted number; quote it, the spec wants string values" ;;
+        *) fail "$f: metadata must be a map of key: \"string\" pairs ($bad value found)" ;;
+      esac
+    done
+  fi
+  if grep -q '^allowed-tools: *$' "$f"; then
+    warn "$f: allowed-tools is a YAML list; the spec wants one space-separated string (Read Bash(git:*))"
+  fi
   body=$(awk 'c>=2{n++} /^---$/{c++} END{print n+0}' "$f")
   [ "$body" -le 500 ] || warn "$f: body is $body lines (keep under 500; move detail to references/)"
+  btok=$(( $(awk 'c>=2{print} /^---$/{c++}' "$f" | wc -c) / 4 ))
+  [ "$btok" -le 5000 ] || warn "$f: body is about $btok tokens (the spec recommends under 5000; move detail to references/)"
+  # references stay one level deep: a reference that links another reference is a chain
+  for r in "$(dirname "$f")"/references/*.md; do
+    for l in $(grep -oE '\]\([^)#: ]+\.md' "$r" | sed 's/^](//' | sort -u); do
+      [ -e "$(dirname "$r")/$l" ] || [ -e "$(dirname "$f")/$l" ] || continue
+      warn "$r links $l; keep references one level deep (link it from SKILL.md instead)"
+    done
+  done
   grep -qE 'REPLACE|TRIGGER (ONE|TWO|THREE)|__[A-Z]+__' "$f" && warn "$f: template placeholders left"
   # links to this skill's own references/ and scripts/ must exist (./scripts/… is a user-project path, skipped)
   for ref in $(grep -oE '(^|[^./A-Za-z0-9_-])(references|scripts)/[A-Za-z0-9_.-]+' "$f" | sed -E 's/^[^rs]//' | sort -u); do
     [ -e "$(dirname "$f")/$ref" ] || fail "$f: links $ref but it does not exist"
   done
 done
+# the spec's reference validator, when installed (pip install skills-ref)
+if command -v skills-ref >/dev/null 2>&1; then
+  for f in "${skill_files[@]}"; do
+    out="$(skills-ref validate "$(dirname "$f")" 2>&1)" || fail "skills-ref validate $(dirname "$f"): $(head -3 <<<"$out" | xargs)"
+  done
+fi
 
 # --- plugin JSON
 for j in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
