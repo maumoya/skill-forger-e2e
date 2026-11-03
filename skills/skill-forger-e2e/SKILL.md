@@ -105,6 +105,7 @@ Details: `references/launch.md`. Every post, form or PR to another repo is an ou
   (bio, LinkedIn, other repos) and prints interview questions for the rest. Ask them, show the owner the final text,
   publish only what they approve. It prints only; nothing is saved. Add `--photo` and `--by` to the header for a byline.
 - Repo description ≤350 chars opening with what + who; ≤20 topics; homepage (GitHub Pages) with Open Graph tags; `llms.txt`.
+- Repo ships an `action.yml`? List it on the GitHub Marketplace from a release (owner ticks the box; see packaging.md).
 - Channels in order: Anthropic plugin directory form, skills.sh, awesome lists (each on its own rules), the niche community, then an essay that teaches something and links the repo.
 
 **Gate 6:** README passes the 10-second test (a stranger can say what it does and how to install it) and one channel submission is done.

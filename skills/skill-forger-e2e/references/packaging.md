@@ -40,6 +40,17 @@ Manual: copy `skills/<name>/` into `~/.claude/skills/` (personal) or `.claude/sk
 `uses: maumoya/skill-forger-e2e@<full-commit-sha>` with `min-score: 80`. Pin the SHA like every other action.
 Outputs `score` and `badge`; the table goes to the job summary.
 
+## GitHub Marketplace (when the repo ships an action)
+
+A root `action.yml` can be listed on the GitHub Marketplace, so people find the CI check there too.
+- Requirements: public repo, exactly one `action.yml` at the root, a `name` no other Marketplace action, user,
+  org or category uses (search the Marketplace first), plus `description`, `author` and `branding` (icon, color).
+- Publishing happens on a release, in the web UI only: open the release (the release workflow made it) → Edit →
+  tick "Publish this Action to the GitHub Marketplace" → pick a primary and secondary category → Update release.
+- First time only: the owner accepts the GitHub Marketplace Developer Agreement (needs 2FA). That is accepting terms:
+  the owner does it, you never do. Prepare the name check and categories, then hand over the click.
+- Listing updates with each later release that has the box ticked. Check it at `https://github.com/marketplace/actions/<slug>`.
+
 ## Versions
 
 - Semantic versioning in `plugin.json`: patch = wording fix, minor = new capability, major = changed triggers or output shape.

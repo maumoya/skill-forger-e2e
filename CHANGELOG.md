@@ -3,6 +3,7 @@
 ## 0.5.0
 
 - Packaging: sign release tags with an SSH key (one-time setup, `git verify-tag` before push), and re-sign an unsigned tag in place without touching the release.
+- Packaging + Launch: list a root `action.yml` on the GitHub Marketplace from a release (requirements, name check, owner-only agreement).
 - Packaging: after every release, refresh the whole publication (README Results and badges, release notes, About), not just the code.
 
 ## 0.4.0
