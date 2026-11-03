@@ -12,6 +12,21 @@ A skill is instructions an agent follows with the user's permissions. Treat it l
 
 `scripts/lint_skill.sh` flags the obvious patterns. It is not a review; read every script.
 
+### What the lint scans for (in `skills/` and `scripts/`)
+
+A skill is a prompt that runs with the user's tools, so hidden or overriding text is the main threat.
+
+| Check | Level | Why |
+|---|---|---|
+| Zero-width, bidi-override or BOM characters | FAIL | they hide text from a human reviewer while the agent still reads it |
+| Phrases that override earlier instructions or hide actions from the user | FAIL | classic prompt injection |
+| Symlinks that resolve outside the repo | FAIL | the skill could read or ship files it does not own |
+| HTML comments in SKILL.md or `references/` | WARN | GitHub hides them; the agent reads them |
+| Base64-like runs of 200+ characters | WARN | a payload no reviewer can read |
+| Scripts that read SSH keys, cloud or npm credentials, the keychain, or API-token variables | WARN | a skill rarely needs them; say why in the README or remove it |
+
+Run it on any skill before you install it, not only your own: `bash scripts/lint_skill.sh <their-repo>`.
+
 ## Repo hygiene (templates in `templates/repo/.github/`)
 
 | Item | Why | Done when |

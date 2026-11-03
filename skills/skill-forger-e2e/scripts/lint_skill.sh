@@ -164,7 +164,30 @@ if [ ${#scan[@]} -gt 0 ]; then
   [ -z "$hits" ] || { sed 's/^/FAIL secret-like string: /' <<<"$hits"; fails=$((fails+1)); }
   hits=$(grep -rnE '/(Users|home)/[a-z][a-z0-9_-]+/' "${scan[@]}")
   [ -z "$hits" ] || { sed 's/^/WARN personal absolute path: /' <<<"$hits"; warns=$((warns+1)); }
+
+  # --- prompt injection and hidden text: a skill is a prompt that runs with the user's tools
+  # zero-width, bidi-override and BOM characters hide text from a human reviewer
+  hits=$(grep -rlI . "${scan[@]}" | while IFS= read -r x; do
+    perl -CSD -ne 'print "$ARGV:$.\n" if /[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2064}\x{2066}-\x{2069}\x{FEFF}]/; close ARGV if eof' "$x" 2>/dev/null
+  done)
+  [ -z "$hits" ] || { sed 's/^/FAIL hidden Unicode (zero-width or bidi): /' <<<"$hits"; fails=$((fails+1)); }
+  hits=$(grep -rnE --include='SKILL.md' --include='*.md' --exclude-dir=templates '<!--' "${scan[@]}" | grep -E '(^|/)(SKILL\.md|references/[^:]*):')
+  [ -z "$hits" ] || { sed 's/^/WARN HTML comment (the agent reads it, a reviewer on GitHub does not see it): /' <<<"$hits"; warns=$((warns+1)); }
+  hits=$(grep -rniE 'ignore[[:space:]]+(all[[:space:]]+|any[[:space:]]+)?(the[[:space:]]+)?(previous|prior|above|earlier)[[:space:]]+(instructions|rules|prompts?)|disregard[[:space:]]+(all[[:space:]]+|the[[:space:]]+)?(previous|prior|above|system)|(do[[:space:]]+not|don.t|never)[[:space:]]+(tell|inform|mention[[:space:]]+(this[[:space:]]+)?to)[[:space:]]+the[[:space:]]+user|without[[:space:]]+(telling|asking|notifying)[[:space:]]+the[[:space:]]+user|you[[:space:]]+are[[:space:]]+now[[:space:]]+in[[:space:]]+[a-z]+[[:space:]]+mode' "${scan[@]}")
+  [ -z "$hits" ] || { sed 's/^/FAIL prompt-injection phrase: /' <<<"$hits"; fails=$((fails+1)); }
+  hits=$(grep -rnIE '[A-Za-z0-9+/]{200,}={0,2}' "${scan[@]}" | cut -c1-160)
+  [ -z "$hits" ] || { sed 's/^/WARN long base64-like blob (hidden payload?): /' <<<"$hits"; warns=$((warns+1)); }
+  # scripts that read credentials the skill should never need
+  hits=$(grep -rnIE --exclude='*.md' --exclude=lint_skill.sh '~/\.ssh|\$HOME/\.ssh|\.aws/credentials|\.netrc|\.npmrc|security[[:space:]]+find-(generic|internet)-password|\$\{?(ANTHROPIC_API_KEY|OPENAI_API_KEY|AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|GH_TOKEN|NPM_TOKEN)\b' "${scan[@]}")
+  [ -z "$hits" ] || { sed 's/^/WARN reads credentials (say why in the README, or remove): /' <<<"$hits"; warns=$((warns+1)); }
 fi
+# symlinks that point outside the repo let a skill read or ship files it does not own
+root="$(pwd -P)"
+while IFS= read -r l; do
+  [ -n "$l" ] || continue
+  t="$(perl -MCwd=abs_path -e 'print abs_path($ARGV[0]) // ""' "$l")"
+  case "$t" in "$root"/*) ;; *) fail "$l: symlink points outside the repo (${t:-broken})" ;; esac
+done < <(find . -path ./.git -prune -o -type l -print)
 
 for f in README.md LICENSE SECURITY.md; do [ -f "$f" ] || warn "$f missing"; done
 
