@@ -15,8 +15,16 @@ skills/<name>/
 | Field | Rule |
 |---|---|
 | `name` | lowercase letters, digits, hyphens; ≤64 chars; same as the folder; no "claude" or "anthropic" |
-| `description` | ≤1024 chars; third person; WHAT it does + WHEN to use it; holds the trigger phrases users type |
+| `description` | ≤1024 chars; third person; WHAT it does + WHEN to use it; holds the trigger phrases users type; never the steps |
 | `license` | optional; `MIT` is the common choice |
+| `compatibility` | optional; ≤500 chars; what the skill needs to run (a CLI, network, a product) |
+| `metadata` | optional; a flat map of `key: "string"` pairs; put custom keys here, quote numbers |
+| `allowed-tools` | optional, experimental; one space-separated string such as `Read Bash(git:*)`, not a YAML list |
+
+These six keys are the [Agent Skills spec](https://agentskills.io/specification), so every agent that
+reads skills understands them. Claude Code adds its own (`argument-hint`, `disable-model-invocation`,
+`model` and others); other agents ignore those. Lint warns on any other top-level key. If
+`skills-ref` is installed (`pip install skills-ref`), lint also runs `skills-ref validate`.
 
 The description is loaded for every installed skill in every session. The body loads only when the
 skill is chosen. So everything that decides *whether* to pick the skill goes in the description, and
@@ -28,11 +36,14 @@ everything about *how* goes in the body.
 
 Bad: `Helps with documents.` (no trigger, no difference)
 
+Bad: `Reads the transcript first, then lists decisions, finally assigns owners.` (it narrates the steps;
+the model may follow the summary and never read the body, so the body's rules get skipped)
+
 Good: `Turns a meeting transcript into decisions, owners and dates. Use when the user pastes a transcript or says "meeting notes", "action items", "who owns what". Never invents an owner that was not said.`
 
 ## Body
 
-- Under 500 lines. If it grows, move sections to `references/` and link them with "read X when Y".
+- Under 500 lines and about 5,000 tokens. If it grows, move sections to `references/` and link them with "read X when Y".
 - Imperative, numbered steps. One action per line.
 - Say what done looks like. The model checks against it before replying.
 - Give one worked example (input → output) when the output has a shape.

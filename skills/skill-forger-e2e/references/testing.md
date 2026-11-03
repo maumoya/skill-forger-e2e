@@ -4,8 +4,10 @@ Three layers, cheapest first.
 
 ## 1. Lint (free, every PR)
 
-`scripts/lint_skill.sh <repo>` checks frontmatter, name/folder match, lengths, JSON validity,
-eval layout, and risky patterns. It runs in CI from `.github/workflows/lint.yml`.
+`scripts/lint_skill.sh <repo>` checks frontmatter against the Agent Skills spec (name, description,
+compatibility, metadata, allowed-tools, unknown keys), name/folder match, lengths, body size, reference
+depth, descriptions that narrate steps or speak in the first person, JSON validity, eval layout, and
+risky patterns. It runs in CI from `.github/workflows/lint.yml`.
 
 ## 2. Trigger test (free, manual, 5 minutes)
 

@@ -22,6 +22,9 @@ jobs:
       - name: Lint this repo
         run: bash skills/skill-forger-e2e/scripts/lint_skill.sh .
 
+      - name: Lint catches broken skills
+        run: bash tests/lint_cases.sh
+
       - name: Scaffold a skill and lint it
         run: |
           bash skills/skill-forger-e2e/scripts/new_skill.sh demo-skill "$RUNNER_TEMP/demo" "CI" ci "Demo skill."
