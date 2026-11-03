@@ -66,7 +66,8 @@ description optimizer) and come back here for the gate. SkillForge adds regressi
 Details: `references/packaging.md`.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` (the scaffold made them).
 - Install paths to document: `/plugin marketplace add OWNER/REPO` then `/plugin install NAME@NAME`, and `npx skills add OWNER/REPO`.
-- Semantic version in plugin.json; `CHANGELOG.md`; git tag `vX.Y.Z` per release.
+- Semantic version in plugin.json; `CHANGELOG.md`; signed git tag `vX.Y.Z` per release (SSH key, set up once).
+- After each release, refresh every published number: README Results and badges, release notes, About.
 - Live install test, after pushing: `scripts/install_test.sh OWNER/REPO`. It installs from GitHub into a throwaway config
   (yours is untouched) and prints the component inventory and token cost. Free.
 - Trigger check: add `--trigger "<a phrase a user types>"`. One short `claude -p` run on the user's account: ask first.
@@ -104,6 +105,7 @@ Details: `references/launch.md`. Every post, form or PR to another repo is an ou
   (bio, LinkedIn, other repos) and prints interview questions for the rest. Ask them, show the owner the final text,
   publish only what they approve. It prints only; nothing is saved. Add `--photo` and `--by` to the header for a byline.
 - Repo description ≤350 chars opening with what + who; ≤20 topics; homepage (GitHub Pages) with Open Graph tags; `llms.txt`.
+- Repo ships an `action.yml`? List it on the GitHub Marketplace from a release (owner ticks the box; see packaging.md).
 - Channels in order: Anthropic plugin directory form, skills.sh, awesome lists (each on its own rules), the niche community, then an essay that teaches something and links the repo.
 
 **Gate 6:** README passes the 10-second test (a stranger can say what it does and how to install it) and one channel submission is done.
