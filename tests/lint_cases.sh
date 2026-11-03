@@ -133,6 +133,19 @@ $ok_desc")
 ln -s SKILL.md "$r/skills/link-in/alias.md"
 clean "$r" 'symlink' "symlink inside the repo passes"
 
+# --- trigger set
+r=$(mkrepo trig-bad "name: trig-bad
+$ok_desc")
+mkdir -p "$r/evals"; echo '{ "skill": "trig-bad", "queries": [ ' > "$r/evals/triggers.json"
+expect "$r" '^FAIL .*triggers.json: invalid JSON' "triggers.json invalid"
+
+r=$(mkrepo trig-few "name: trig-few
+$ok_desc")
+mkdir -p "$r/evals"; echo '{ "skill": "trig-few", "queries": [ { "text": "tidy my notes", "trigger": true }, { "text": "hi", "trigger": "no" } ] }' > "$r/evals/triggers.json"
+expect "$r" '^FAIL .*1 queries lack a text string or a trigger' "triggers.json bad query"
+expect "$r" '^WARN .*1 should-trigger queries' "triggers.json too few"
+expect "$r" '^WARN .*no holdout queries' "triggers.json no holdout"
+
 # --- this repo stays clean
 expect "$here" '^PASS' "skill-forger-e2e itself passes"
 

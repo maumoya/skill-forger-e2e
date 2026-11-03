@@ -114,6 +114,26 @@ if [ -d evals ]; then
     [ -z "$s" ] || [ -f "$c/$s" ] || fail "$c: scaffold_script '$s' does not exist"
     grep -rl 'REPLACE' "$c" >/dev/null && warn "$c: template placeholders left"
   done
+  # trigger set for trigger_test.sh
+  tf=evals/triggers.json
+  if [ -f "$tf" ]; then
+    if ! command -v jq >/dev/null; then warn "$tf: jq not found, not checked"
+    elif ! jq -e . "$tf" >/dev/null 2>&1; then fail "$tf: invalid JSON"
+    else
+      jq -e '.skill | type == "string"' "$tf" >/dev/null || fail "$tf: needs \"skill\": the skill name"
+      bad=$(jq '[.queries[]? | select((.text | type) != "string" or (.trigger | type) != "boolean")] | length' "$tf")
+      [ "$bad" = 0 ] || fail "$tf: $bad queries lack a text string or a trigger true/false"
+      yes_n=$(jq '[.queries[]? | select(.trigger == true)] | length' "$tf")
+      no_n=$(jq '[.queries[]? | select(.trigger == false)] | length' "$tf")
+      [ "$yes_n" -ge 5 ] || warn "$tf: $yes_n should-trigger queries (use at least 5)"
+      [ "$no_n" -ge 3 ] || warn "$tf: $no_n should-not queries (use at least 3 near misses)"
+      jq -e '[.queries[]? | select(.holdout == true)] | length > 0' "$tf" >/dev/null \
+        || warn "$tf: no holdout queries (mark a few \"holdout\": true and never tune the description on them)"
+      grep -q 'REPLACE' "$tf" && warn "$tf: template placeholders left"
+    fi
+  else
+    warn "no evals/triggers.json (trigger_test.sh measures the description with it)"
+  fi
 else
   warn "no evals/ folder (one case per promise, see references/testing.md)"
 fi

@@ -41,6 +41,7 @@ check 3 "README has a badge row" "$(yes grep -qiE 'shields\.io|/badge' README.md
 check 2 "README has About the author" "$(yes grep -qiE '^#+ *about the author' README.md)" "owner_profile.sh drafts it from the owner's GitHub profile"
 check 10 "at least 1 eval case" "$([ ${#cases[@]} -ge 1 ] && echo 1 || echo 0)" "add evals/<case>/ (see references/testing.md)"
 check 5 "3+ eval cases" "$([ ${#cases[@]} -ge 3 ] && echo 1 || echo 0)" "cover trigger, happy path and a failure case"
+check 5 "trigger set (evals/triggers.json)" "$([ -f evals/triggers.json ] && ! grep -q REPLACE evals/triggers.json && echo 1 || echo 0)" "list should and should-not queries, then run trigger_test.sh"
 check 5 "LICENSE" "$(yes test -f LICENSE)" "add a LICENSE"
 check 5 "SECURITY.md" "$(yes test -f SECURITY.md)" "add SECURITY.md"
 check 3 "llms.txt" "$(yes test -f llms.txt)" "add llms.txt for AI discovery"

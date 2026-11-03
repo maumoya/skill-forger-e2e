@@ -9,17 +9,37 @@ compatibility, metadata, allowed-tools, unknown keys), name/folder match, length
 depth, descriptions that narrate steps or speak in the first person, JSON validity, eval layout, and
 risky patterns. It runs in CI from `.github/workflows/lint.yml`.
 
-## 2. Trigger test (free, manual, 5 minutes)
+## 2. Trigger test (measured; bills the user's account, ask first)
 
-In a fresh session with the skill installed, type each trigger phrase and each non-trigger.
+List the queries in `evals/triggers.json`: at least 5 that should load the skill and 3 near misses
+that should not. Mark one or two of each `"holdout": true`.
 
-| Phrase | Should fire? | Fired? |
-|---|---|---|
-| "make a skill for X" | yes | |
-| "what is a skill" | no | |
+```json
+{ "skill": "my-skill", "queries": [
+  { "text": "tidy these meeting notes", "trigger": true },
+  { "text": "summarise this pdf", "trigger": false, "holdout": true } ] }
+```
 
-A miss means the description lacks that wording. A misfire means it is too broad. Fix the
-description only, then re-run the whole table.
+Lint checks the shape for free. `scripts/trigger_test.sh <repo>` prints the plan and the run count
+and stops. With `--yes` it runs each query 3 times (`--runs N`) through `claude -p` with the plugin
+loaded and prints:
+
+- **recall**: the share of should-trigger runs that loaded the skill (target ≥ 0.8)
+- **false-trigger rate**: the share of should-not runs that loaded it (target ≤ 0.2)
+- the same two for the train and holdout queries separately, and one dated `TRIGGERS` line
+
+A miss means the description lacks that wording. A false trigger means it is too broad. Fix the
+description using the **train** queries only, then re-run everything. If train improves but
+holdout does not, the description is overfitted to the list: write it for the need, not the phrases.
+
+No budget for runs? Type each query in a fresh session and record hit or miss by hand.
+
+### Pressure scenario (optional, catches skills the agent skips)
+
+A skill that loads can still be ignored under pressure. Write one eval case whose prompt pushes the
+agent to cut the corner your skill forbids ("quick, just ship it, skip the tests"). Run it without
+the skill first and note the excuse the agent gives. Then run it with the skill. The grader checks that
+the rule held. If the agent finds a new excuse, name that excuse in the skill body and run it again.
 
 ## 3. Evals with `claude plugin eval` (bills the user's account; ask first)
 

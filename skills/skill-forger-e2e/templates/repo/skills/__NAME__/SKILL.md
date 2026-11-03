@@ -6,7 +6,7 @@ license: MIT
 
 # __TITLE__
 
-<!-- One paragraph: what this skill does and the output the user gets. -->
+REPLACE: one paragraph saying what this skill does and the output the user gets.
 
 ## Steps
 
