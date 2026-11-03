@@ -32,7 +32,10 @@ Manual: copy `skills/<name>/` into `~/.claude/skills/` (personal) or `.claude/sk
 1. Push to a public repo.
 2. `scripts/install_test.sh OWNER/REPO`: installs from GitHub into a throwaway config and checks the skill landed. Free.
 3. `scripts/install_test.sh OWNER/REPO --trigger "<phrase>"`: one billed `claude -p` run; the phrase must load the skill. Ask first.
-4. `npx skills add OWNER/REPO` in a scratch folder for the second path. Note what you typed and what happened.
+4. `scripts/install_test.sh OWNER/REPO --npx`: the second path. Runs a pinned `npx skills add` into a throwaway
+   HOME and project (telemetry off, `--copy`), checks a SKILL.md landed, and lints the installed copy. Free.
+   Add `--agent <name>` to test another agent's folder (default `claude-code`). The CLI version is pinned in the
+   script; bump it on purpose to a release at least two weeks old, never `@latest`.
 
 ## Readiness score in CI
 
