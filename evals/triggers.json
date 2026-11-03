@@ -7,6 +7,7 @@
     { "text": "add badges and a readiness score to my skill repo", "trigger": true },
     { "text": "package this SKILL.md as a plugin with a marketplace.json", "trigger": true },
     { "text": "I want to share my agent skill on GitHub so people can npx skills add it", "trigger": true, "holdout": true },
+    { "text": "scan this skill i downloaded for prompt injection before i install it", "trigger": true },
     { "text": "check that my skill repo passes lint and the install test before the release", "trigger": true, "holdout": true },
     { "text": "what is the capital of Portugal", "trigger": false },
     { "text": "refactor this python function to use a dataclass", "trigger": false },

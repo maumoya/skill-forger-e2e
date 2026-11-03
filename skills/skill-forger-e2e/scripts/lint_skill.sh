@@ -111,6 +111,7 @@ if [ -d evals ]; then
     grep -q '^expected_outcome:' "$c/case.yaml" || fail "$c/case.yaml: no expected_outcome"
     [ -f "$c/prompt.md" ] || fail "$c: no prompt.md"
     g=("$c"/graders/*.md); [ ${#g[@]} -gt 0 ] || fail "$c: no graders/*.md"
+    for gf in "${g[@]}"; do fo="$(sed -n "s/^focus:[[:space:]]*//p" "$gf" 2>/dev/null | head -1)"; [ -z "$fo" ] || [ "$fo" = trace ] || warn "$gf: focus \"$fo\" (claude plugin eval rejected \"output\" and skipped the case; \"trace\" loads)"; done
     for gf in "${g[@]}"; do grep -q '^type:' "$gf" || fail "$gf: no type in frontmatter"; done
     s=$(sed -nE 's/^ *scaffold_script: *//p' "$c/case.yaml")
     [ -z "$s" ] || [ -f "$c/$s" ] || fail "$c: scaffold_script '$s' does not exist"

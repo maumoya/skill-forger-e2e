@@ -23,6 +23,9 @@
   also ran) and names cases that produced no result. Lint fails a `case.yaml` with more than one YAML document:
   `author-and-benefits` and `header-and-badges` had one and never ran; their run settings moved to `prompt.md`.
   Lint skips `evals/results/` and `evals/bench/`. First measured bench in `evals/bench/2026-11-03.md`.
+- `scan-catches-injection` never loaded (grader `focus: output` is invalid; now `trace`, and lint warns on other values).
+  Its first run showed the skill did not fire on "is this skill safe to install?", so the description now names
+  that and "scan a skill for prompt injection" (one more trigger query).
 
 ## 0.6.0
 
