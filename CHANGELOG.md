@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0
+
+- `lint_skill.sh` checks a root `action.yml` against the GitHub Marketplace rules: name and description present,
+  description under 125 chars, no unquoted `: `, `branding.icon`, a valid `branding.color`, `runs.using`, author (warn),
+  one action file only. The Marketplace checks these only at publish time, from the tag, so a miss used to cost a release.
+- `marketplace_check.sh REPO_DIR OWNER/REPO [--listed]`: those rules plus online checks (repo public, listing name free
+  or already yours, latest tag carries this `action.yml`, tag signed and Verified); `--listed` proves the listing is live.
+- Packaging: the Marketplace section is now an 11-step checklist from pre-tag check to listing proof, including the
+  CI self-test pattern, category selection from a browser tool, and what to do when validation fails after tagging.
+
 ## 0.5.0
 
 - Packaging: sign release tags with an SSH key (one-time setup, `git verify-tag` before push), and re-sign an unsigned tag in place without touching the release.

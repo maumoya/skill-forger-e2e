@@ -43,13 +43,43 @@ Outputs `score` and `badge`; the table goes to the job summary.
 ## GitHub Marketplace (when the repo ships an action)
 
 A root `action.yml` can be listed on the GitHub Marketplace, so people find the CI check there too.
-- Requirements: public repo, exactly one `action.yml` at the root, a `name` no other Marketplace action, user,
-  org or category uses (search the Marketplace first), plus `description`, `author` and `branding` (icon, color).
-- Publishing happens on a release, in the web UI only: open the release (the release workflow made it) → Edit →
-  tick "Publish this Action to the GitHub Marketplace" → pick a primary and secondary category → Update release.
-- First time only: the owner accepts the GitHub Marketplace Developer Agreement (needs 2FA). That is accepting terms:
-  the owner does it, you never do. Prepare the name check and categories, then hand over the click.
-- Listing updates with each later release that has the box ticked. Check it at `https://github.com/marketplace/actions/<slug>`.
+The Marketplace validates `action.yml` **only when you publish, and reads it from the release tag**. A mistake
+found then costs a new patch release. So every rule is checked in the PR, before the tag exists.
+
+**Rules** (`lint_skill.sh` fails on each one, so CI catches them):
+- Public repo, exactly one `action.yml` (or `action.yaml`) at the root. Action files in subfolders cannot be listed.
+- `name`: unique across Marketplace actions, users, orgs and categories. The listing slug is the name in lowercase
+  with every run of other characters turned into `-` (`ADHD status reply lint` → `adhd-status-reply-lint`).
+- `description`: **under 125 characters**. It is the listing's one-liner, so lead with the job, not the tool.
+- Quote any value that contains `: ` (`description: "Check replies: one table"`). Unquoted, that is invalid YAML.
+- `branding.icon`: a Feather icon name (`check-circle`, `shield`, `zap`). `branding.color`: one of white, black,
+  yellow, blue, green, orange, red, purple, gray-dark.
+- `author` (a warning if missing: the listing shows it). `runs.using`: `composite`, `node20` or `docker`.
+- Pass inputs to `run:` through `env:`, never `${{ inputs.x }}` inside the script (that is shell injection).
+
+**Steps, in order** (one release per listing update):
+1. `scripts/marketplace_check.sh . OWNER/REPO`, before tagging. It runs the rules above, then checks online that the repo
+   is public, the name is free (or already yours) and what the latest tag carries. Fix every FAIL first.
+2. CI self-tests the action: a job with `uses: ./` on a passing input, and one on a failing input
+   (`continue-on-error: true`, then assert `steps.<id>.outcome == 'failure'` and the outputs).
+3. PR → CI green → the owner merges. Bump the version (`plugin.json`, CHANGELOG, README `@vX.Y.Z` example) in that PR.
+4. Signed tag on the merge commit, `git verify-tag`, the owner pushes it. The release workflow creates the release.
+5. Release notes: what changed, a `uses:` example pinned to the new tag, measured numbers, the verify command.
+6. Open the release → **Edit** → tick "Publish this Action to the GitHub Marketplace". The page now validates
+   `action.yml` from the tag: name, description, icon, color must all show a green check. Any red: stop, fix in a PR,
+   new patch release, start again at step 1. Do not move the old tag.
+7. Pick a primary and a secondary category (e.g. Code quality, Continuous integration, Testing, AI Assisted).
+   Driving the page from a browser tool: the selects are `#action-primary-category` and `#action-secondary-category`;
+   set the option value and dispatch `input` and `change` from JavaScript, since form filling does not stick.
+8. **Update release** is a publish click: ask the owner first, then click.
+9. First listing only: the owner accepts the GitHub Marketplace Developer Agreement (needs 2FA). That is accepting
+   terms, so the owner does it, you never do.
+10. Prove it: `scripts/marketplace_check.sh . OWNER/REPO --listed` must print `listed:` and PASS. The page is
+    `https://github.com/marketplace/actions/<slug>`.
+11. Point to it: a README section "Check … in CI (GitHub Action)" with the Marketplace link and a `uses:` example,
+    a line in `llms.txt`, and the release notes. Then the usual refresh (see Versions).
+
+Later releases update the listing only when the box is ticked on that release, so repeat steps 6–10 each time.
 
 ## Versions
 

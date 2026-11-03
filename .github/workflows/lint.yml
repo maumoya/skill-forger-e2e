@@ -38,6 +38,15 @@ jobs:
           [ "$after" -gt "$before" ]
           git diff --no-index --quiet evals/retrofit-and-score/files/haiku-coach/skills "$RUNNER_TEMP/haiku/skills"
 
+      - name: Marketplace rules catch a bad action.yml
+        run: |
+          bash skills/skill-forger-e2e/scripts/marketplace_check.sh .
+          bad="$RUNNER_TEMP/bad-action"; mkdir -p "$bad"; cp -R skills .claude-plugin "$bad"/
+          printf 'name: Bad: name\ndescription: %s\nbranding:\n  color: pink\nruns:\n  using: composite\n' "$(printf 'x%.0s' $(seq 130))" > "$bad/action.yml"
+          out=$(bash skills/skill-forger-e2e/scripts/marketplace_check.sh "$bad") && exit 1
+          echo "$out"
+          for want in "unquoted ': '" "130 chars" "no branding.icon" "branding.color 'pink'"; do grep -qF "$want" <<<"$out"; done
+
       - name: Benefit badges need a Results section
         run: |
           if bash skills/skill-forger-e2e/scripts/badges.sh ci/demo --benefit 'cost=-35%' >/dev/null 2>&1; then exit 1; fi
