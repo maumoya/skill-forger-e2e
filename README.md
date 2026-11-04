@@ -18,6 +18,10 @@
   <a href="#results-measured-2026-11-03"><img src="assets/bench-card.svg" alt="47% of eval runs passed with the skill, 0% without it; grader score 78% vs 38%; 44% less time and 53% more spend per run (measured 2026-11-03)" width="760"></a>
 </p>
 
+<p align="center">
+  <img src="assets/demo.gif" width="720" alt="Demo: readiness.sh runs on the skill-forger-e2e repo, passes all 21 checks and prints SCORE 100/100 with a readiness badge.">
+</p>
+
 # Skill Forger E2E
 
 **Write your skill with skill-creator. Ship it with this.**
