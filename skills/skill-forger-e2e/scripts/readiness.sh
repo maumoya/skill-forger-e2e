@@ -2,8 +2,9 @@
 # Ship-readiness score 0-100 for a skill repo, plus a shields.io badge.
 # Read-only. Local checks always run; GitHub checks (topics, description, Scorecard) run when OWNER/REPO is given.
 # Skipped checks are left out and the score is scaled to what was checked.
-# Ship gates (marked GATE): Scorecard >= 7.3, Best Practices passing, private vulnerability reporting on, a ruleset on
-# main that requires a PR and CodeQL. They need OWNER/REPO and gh signed in.
+# Ship gates (marked GATE): header banner, demo video card, hero result card, owner-only authorship (local);
+# Scorecard >= 7.3, Best Practices passing, private vulnerability reporting on, a ruleset on main that requires a PR
+# and CodeQL, the main head and latest release tag signed and Verified (need OWNER/REPO and gh signed in).
 # Usage: readiness.sh [REPO_DIR] [OWNER/REPO] [--min N] [--ship] [--markdown]
 #   --min N      exit 1 when the score is below N (for CI)
 #   --ship       exit 1 when any GATE is missed or could not be checked (run before every release tag)
@@ -41,8 +42,8 @@ check 15 "lint passes (no FAIL)" "$([ $lint_rc -eq 0 ] && echo 1 || echo 0)" "ru
 check 5 "lint has 0 warnings" "$(grep -q '^WARN' <<<"$lint_out" && echo 0 || echo 1)" "fix the WARN lines from lint_skill.sh"
 check 10 "plugin.json + marketplace.json" "$(yes test -f .claude-plugin/plugin.json -a -f .claude-plugin/marketplace.json)" "add .claude-plugin/ (retrofit.sh)"
 check 10 "README shows both install paths" "$(grep -q 'plugin marketplace add' README.md 2>/dev/null && grep -q 'npx skills add' README.md 2>/dev/null && echo 1 || echo 0)" "add /plugin and npx skills install lines"
-check 3 "README has a header banner" "$(yes grep -qiE 'header[^)\" ]*\.(png|svg)' README.md)" "make_header.sh writes assets/header.svg + .png; put it first in the README"
-check 2 "README has a demo video card" "$(yes grep -qiE '\.(gif|mp4|webm)|demo[^)\" ]*\.svg' README.md)" "a <=10 s demo GIF under the header, the same clip as the portfolio site"
+gate 3 "README has a header banner" "$(yes grep -qiE 'header[^)\" ]*\.(png|svg)' README.md)" "make_header.sh writes assets/header.svg + .png; put it first in the README"
+gate 2 "README has a demo video card" "$(yes grep -qiE '\.(gif|mp4|webm)|demo[^)\" ]*\.svg' README.md)" "make_demo.sh INPUT assets/demo.gif: a <=10 s GIF under the header, the same clip as the portfolio site"
 cases=(evals/*/case.yaml)
 check 3 "README has a badge row" "$(yes grep -qiE 'shields\.io|/badge' README.md)" "add a centered badge row under the header (see Phase 6)"
 check 2 "README has About the author" "$(yes grep -qiE '^#+ *about the author' README.md)" "owner_profile.sh drafts it from the owner's GitHub profile"
@@ -79,7 +80,14 @@ fi
 # Marketing: results as percentages, the hero result as a card.
 rawsize=$(grep -oE 'img\.shields\.io/badge/[^)" ]*[0-9]+(\.[0-9]+)?(%20)?(GiB|GB|MiB|MB|KiB|KB)' README.md 2>/dev/null | wc -l | tr -d ' ')
 check 2 "benefit badges in %, not raw sizes" "$([ "$rawsize" -eq 0 ] && echo 1 || echo 0)" "say '19% of the disk freed (6% → 25% free)', not GiB"
-check 2 "README hero result card (SVG)" "$(yes grep -qiE '(card|hero)[^)\" ]*\.svg' README.md)" "a big green SVG card with the measured result, under the header"
+gate 2 "README hero result card (SVG)" "$(yes grep -qiE '(card|hero)[^)\" ]*\.svg' README.md)" "a big green SVG card with the measured result, under the header"
+# Owner-only authorship: no AI co-author trailers or AI "generated" footers in commit messages or tracked files.
+# The pattern is built from parts so this script does not match itself.
+ai='(claude|anthropic|copilot|openai|chatgpt|codex|gemini|cursor|devin|aider)'
+coauthor="co-$(printf authored)-by:.*$ai"; footer="$(printf generated) (with|by) .{0,30}$ai"
+aimsg=0; [ -d .git ] || git rev-parse --git-dir >/dev/null 2>&1 && aimsg=$(git log -n 500 --format=%B 2>/dev/null | grep -ciE "$coauthor|$footer")
+aifile=$(git grep -IliE "$coauthor|$footer" 2>/dev/null | grep -vxF CHANGELOG.md | wc -l | tr -d ' ')
+gate 3 "owner-only authorship (no AI co-author or footer)" "$([ "${aimsg:-0}" -eq 0 ] && [ "$aifile" -eq 0 ] && echo 1 || echo 0)" "$aimsg commit(s), $aifile file(s) credit an AI: reword them (git rebase / git filter-repo) and set includeCoAuthoredBy false"
 
 if [ -n "$slug" ] && command -v gh >/dev/null; then
   meta="$(gh repo view "$slug" --json description,repositoryTopics 2>/dev/null)"
@@ -103,18 +111,29 @@ if [ -n "$slug" ] && command -v gh >/dev/null; then
   gate 5 "Best Practices passing (${lvl:-not registered})" "$(grep -qxE 'passing|silver|gold' <<<"$lvl" && echo 1 || echo 0)" "bestpractices.sh $slug: fill the form to 100% of passing, add the badge"
   if command -v gh >/dev/null && gh auth status >/dev/null 2>&1; then
     pvr=$(gh api "repos/$slug/private-vulnerability-reporting" --jq .enabled 2>/dev/null)
-    gate 3 "private vulnerability reporting on" "$([ "$pvr" = true ] && echo 1 || echo 0)" "owner runs: gh api -X PUT repos/$slug/private-vulnerability-reporting"
+    gate 3 "private vulnerability reporting on" "$([ "$pvr" = true ] && echo 1 || echo 0)" "gh api -X PUT repos/$slug/private-vulnerability-reporting"
     def=$(gh repo view "$slug" --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null)
     rules=$(gh api "repos/$slug/rules/branches/${def:-main}" 2>/dev/null)
     rs=0; jq -e 'any(.[]; .type=="pull_request") and any(.[]; .type=="required_status_checks" and any(.parameters.required_status_checks[]; .context=="CodeQL"))' <<<"$rules" >/dev/null 2>&1 && rs=1
-    gate 3 "ruleset on ${def:-main}: PR + CodeQL" "$rs" "owner runs: gh api -X POST repos/$slug/rulesets --input <skill>/templates/ruleset-main.json"
+    gate 3 "ruleset on ${def:-main}: PR + CodeQL" "$rs" "gh api -X POST repos/$slug/rulesets --input <skill>/templates/ruleset-main.json"
+    # Verified: the head of the default branch and the latest release tag are signed and Verified, and the head is the owner's
+    head=$(gh api "repos/$slug/commits/${def:-main}" --jq '[.commit.verification.verified, (.author.login // "")] | @tsv' 2>/dev/null)
+    owner="${slug%%/*}"; hv=0; [ "${head%%$'\t'*}" = true ] && [ "$(tr 'A-Z' 'a-z' <<<"${head#*$'\t'}")" = "$(tr 'A-Z' 'a-z' <<<"$owner")" ] && hv=1
+    gate 3 "${def:-main} head signed, Verified, authored by $owner" "$hv" "merge through GitHub (squash merges are signed) as $owner; author ${head#*$'\t'}"
+    tag=$(gh api "repos/$slug/releases/latest" --jq .tag_name 2>/dev/null); tv=0
+    if [ -n "$tag" ]; then
+      obj=$(gh api "repos/$slug/git/ref/tags/$tag" --jq '.object.type + " " + .object.sha' 2>/dev/null)
+      [ "${obj%% *}" = tag ] && [ "$(gh api "repos/$slug/git/tags/${obj#* }" --jq .verification.verified 2>/dev/null)" = true ] && tv=1
+    fi
+    gate 3 "latest release tag ${tag:-(none)} signed and Verified" "$tv" "git tag -s vX.Y.Z (SSH key added as a signing key), git verify-tag, push"
   else
     gate 3 "private vulnerability reporting on" skip "gh not signed in"
     gate 3 "ruleset on main: PR + CodeQL" skip "gh not signed in"
+    gate 6 "head commit and release tag Verified" skip "gh not signed in"
   fi
 else
   check 10 "GitHub topics, description" skip "pass OWNER/REPO to check"
-  gate 22 "Scorecard, Best Practices, reporting, ruleset" skip "pass OWNER/REPO to check the ship gates"
+  gate 28 "Scorecard, Best Practices, reporting, ruleset, Verified" skip "pass OWNER/REPO to check the ship gates"
 fi
 
 score=$(( max > 0 ? (got*100 + max/2) / max : 0 ))

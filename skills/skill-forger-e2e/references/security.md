@@ -49,15 +49,15 @@ Action does the same with `ship-gates: true`.
 | Gate | Bar | Fix |
 |---|---|---|
 | OpenSSF Scorecard | ≥ 7.3 | `scorecard.sh OWNER/REPO`, top row first |
-| Best Practices | passing (aim for 100%) | `bestpractices.sh`, owner submits, badge in README |
+| Best Practices | passing (aim for 100%) | `bestpractices.sh`, you fill it in the browser, badge in README |
 | Private vulnerability reporting | enabled | `gh api -X PUT repos/O/R/private-vulnerability-reporting` |
 | Ruleset on the default branch | PR + CodeQL required | `templates/ruleset-main.json` |
 
 ## OpenSSF Best Practices badge
 
 Run `scripts/bestpractices.sh OWNER/REPO <repo-dir>`. Registered: it prints the ID, level and badge.
-Not registered: it prints https://www.bestpractices.dev/en/projects/new (the owner signs in with GitHub and
-submits) and an evidence sheet, one row per passing criterion with the URL that proves it. Fix every TODO row
+Not registered: it prints https://www.bestpractices.dev/en/projects/new (you fill and submit it in the built-in
+browser; the owner only signs in) and an evidence sheet, one row per passing criterion with the URL that proves it. Fix every TODO row
 in the repo first, then answer Met with that URL as the justification. N/A needs a reason (no crypto, no build).
 Passing is reachable alone. Silver needs governance docs, a code of
 conduct, a documented release process, and DCO or similar. Gold needs a second real maintainer: do not fake it.
@@ -67,7 +67,7 @@ conduct, a documented release process, and DCO or similar. Gold needs a second r
 `scripts/scorecard.sh OWNER/REPO` reads the live result and lists every check below 10, the ones you can fix
 now first, each with its fix and the lines Scorecard flagged. Fix the top one on a branch, merge, wait for the
 next scan (the workflow runs on push to main and weekly), re-run, report the delta.
-Usually fixable alone: Branch-Protection (owner runs the `gh api` command), CII-Best-Practices, Signed-Releases
+Usually fixable alone: Branch-Protection (you run the `gh api` ruleset command), CII-Best-Practices, Signed-Releases
 and Packaging (tag a release), Pinned-Dependencies (except the SLSA generator, which must stay on a tag),
 Token-Permissions, Dependency-Update-Tool, Security-Policy, SAST.
 Time only: Maintained (90 days). Usually N/A for skills: Fuzzing.

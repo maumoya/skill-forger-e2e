@@ -15,11 +15,11 @@
 </p>
 
 <p align="center">
-  <a href="#results-measured-2026-11-03"><img src="assets/bench-card.svg" alt="47% of eval runs passed with the skill, 0% without it; grader score 78% vs 38%; 44% less time and 53% more spend per run (measured 2026-11-03)" width="760"></a>
+  <img src="assets/demo.gif" width="720" alt="Demo: readiness.sh runs on the skill-forger-e2e repo, passes all 21 checks and prints SCORE 100/100 with a readiness badge.">
 </p>
 
 <p align="center">
-  <img src="assets/demo.gif" width="720" alt="Demo: readiness.sh runs on the skill-forger-e2e repo, passes all 21 checks and prints SCORE 100/100 with a readiness badge.">
+  <a href="#results-measured-2026-11-03"><img src="assets/bench-card.svg" alt="47% of eval runs passed with the skill, 0% without it; grader score 78% vs 38%; 44% less time and 53% more spend per run (measured 2026-11-03)" width="760"></a>
 </p>
 
 # Skill Forger E2E
@@ -27,15 +27,21 @@
 **Write your skill with skill-creator. Ship it with this.**
 
 Skill Forger E2E takes an agent skill from "works on my machine" to an installable, secured, launched
-Claude Code plugin repo, and tells you with a number how close you are.
+Claude Code plugin repo, and tells you with a number how close you are. The agent does the GitHub work
+itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings and forms. You only sign in.
 
-- **Readiness score 0-100** with a badge, locally or as a GitHub Action on every PR.
+- **Readiness score 0-100** with a badge, locally or as a GitHub Action on every PR, plus **ship gates** that block a
+  release: header banner, demo video card, result card, owner-only authorship, Scorecard ≥ 7.3, Best Practices
+  passing, private reporting, a ruleset, and a signed, Verified head commit and release tag.
+- **Launch checklist (a-h)** swept before every done report, each row with its proof command. With
+  [adhd-status](https://github.com/maumoya/adhd-status) installed it becomes one tiny status table, so nothing is missed.
+- **Demo video card:** one command turns a screen recording or a live URL into a ≤10 s README GIF under 5 MB.
 - **Retrofit** an existing skill repo: adds the missing plugin JSON, workflows, `SECURITY.md`, evals and `llms.txt`. Never overwrites.
 - **Live install test** from your public repo, in a throwaway config, plus an opt-in check that a trigger phrase loads the skill.
 - **Header image and badge row** in the style that gets clicked: one command makes a 1280x640 banner (and social preview) from your words, a screenshot or a terminal card. Benefit badges come only from measured numbers.
-- **OpenSSF feedback:** your live Scorecard checks, fixable ones first, each with its fix, and an evidence sheet for the Best Practices "passing" badge.
+- **OpenSSF feedback:** your live Scorecard checks, fixable ones first, each with its fix, looping to ≥ 7.4, and an evidence sheet the agent uses to fill the Best Practices form to 100% of "passing".
 - **About the author:** drafts your credits section from your public GitHub profile (LinkedIn, other repos) and interviews you for the rest. Nothing is saved.
-- **Release hygiene:** SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and listing your Action on the GitHub Marketplace.
+- **Release hygiene:** owner-only authorship (no AI co-author lines), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and listing your Action on the GitHub Marketplace.
 - Scaffold, keyless linter, SHA-pinned security workflows and a launch playbook, in eight gated phases.
 
 ```
@@ -82,8 +88,8 @@ Type one of (or just `ForgeSkill`):
 | 2 Author | linter prints `PASS` | `new_skill.sh`, `lint_skill.sh`; writing handed to skill-creator, [authoring.md](skills/skill-forger-e2e/references/authoring.md) |
 | 3 Test | every eval passes and the skill beats the baseline | eval template; skill-creator's eval loop, [testing.md](skills/skill-forger-e2e/references/testing.md) |
 | 4 Package | live install test passes, trigger loads the skill | `retrofit.sh`, `install_test.sh`, [packaging.md](skills/skill-forger-e2e/references/packaging.md) |
-| 5 Secure | Scorecard ran, CodeQL green, signed release, Best Practices evidence | `scorecard.sh`, `bestpractices.sh`, SHA-pinned workflows, SLSA release, [security.md](skills/skill-forger-e2e/references/security.md) |
-| 6 Launch | 10-second README test + one channel submitted | `make_header.sh`, `badges.sh`, `owner_profile.sh`, [launch.md](skills/skill-forger-e2e/references/launch.md) |
+| 5 Secure | `readiness.sh --ship` exits 0: every ship gate met | `scorecard.sh`, `bestpractices.sh`, SHA-pinned workflows, SLSA release, [security.md](skills/skill-forger-e2e/references/security.md) |
+| 6 Launch | banner, demo card, result card; Marketplace listed; 10-second README test; one channel | `make_header.sh`, `make_demo.sh`, `badges.sh`, `owner_profile.sh`, [launch.md](skills/skill-forger-e2e/references/launch.md) |
 | 7 Loop | one measured fix per round; `sync.py check` says every number is current | `readiness.sh`, `measure.sh`, `sync.py`, GitHub Action |
 
 ### Scaffold a new skill repo
@@ -102,9 +108,11 @@ an MIT license, and a README in the order that works.
 bash skills/skill-forger-e2e/scripts/readiness.sh path/to/repo OWNER/REPO
 ```
 
-15+ weighted checks: lint, plugin JSON, both install paths in the README, a picture, a badge row, eval cases,
-LICENSE, `SECURITY.md`, `llms.txt`, CI, Scorecard, Dependabot, release, and (with `OWNER/REPO`)
-topics, description and the live Scorecard score. Prints each gap with its fix and a badge:
+30+ weighted checks: lint, plugin JSON, both install paths in the README, header banner, demo video card, result
+card, a badge row, eval cases, LICENSE, `SECURITY.md`, `llms.txt`, CI, CodeQL, Scorecard, Dependabot, SHA pins,
+release, one version everywhere, owner-only authorship, and (with `OWNER/REPO`) topics, description, the live
+Scorecard score, Best Practices, private reporting, the ruleset and Verified signatures. `--ship` exits 1 while any
+GATE row is missed. Prints each gap with its fix and a badge:
 `![skill readiness](https://img.shields.io/badge/skill%20readiness-95%2F100-brightgreen)`.
 `--min 80` exits 1 below 80; `--markdown` prints a table.
 
@@ -119,7 +127,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@v0.9.0 # or pin the tag's full commit SHA
+      - uses: maumoya/skill-forger-e2e@v0.10.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
           ship-gates: true # fail below Scorecard 7.3, Best Practices passing, reporting on, ruleset
@@ -140,6 +148,16 @@ bash skills/skill-forger-e2e/scripts/make_header.sh assets --repo you/my-skill \
 Writes `assets/header.svg` and, when Chrome is installed, `assets/header.png` (1280x640, also the
 size GitHub wants for the social preview). Use `--image screenshot.png` instead of `--line` for an app.
 The banner above was made with it. Add the badge row from the [template README](skills/skill-forger-e2e/templates/repo/README.md).
+
+### Make the demo video card
+
+```bash
+bash skills/skill-forger-e2e/scripts/make_demo.sh demo.mp4 assets/demo.gif --seconds 8
+bash skills/skill-forger-e2e/scripts/make_demo.sh http://localhost:5173 assets/demo.gif --seconds 6
+```
+
+A screen recording or a URL (recorded in headless Chrome) becomes a ≤10 s palette GIF under 5 MB; it retries
+smaller until it fits. Put it under the badge row and use the same file on your portfolio site.
 
 ### Improve your OpenSSF Scorecard and get the Best Practices badge
 
@@ -298,7 +316,13 @@ No one can promise that. It makes the skill easy to find, trust and install, and
 
 ### Does it post or submit anything for me?
 
-No. Every post, form and PR to another repo is prepared for you to send yourself.
+In your own repo, yes: it pushes, opens and merges PRs, tags, releases, lists the Action on the Marketplace and fills
+the Best Practices form, in the built-in browser where you are signed in. You keep sign-ins, passkeys and terms.
+Posts to other people's spaces (directories, awesome lists, communities) wait for your yes.
+
+### Who is the author of what it ships?
+
+You. Commits, tags and releases carry your name only; the authorship gate fails if any commit or file credits an AI.
 
 ## About the author
 
