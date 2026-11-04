@@ -1,0 +1,9 @@
+[
+ {"path": "assets/bench-card.svg", "template": "launch/templates/bench-card.svg",
+  "uses": ["bench_runs_with", "bench_runs_without", "bench_score_with", "bench_score_without", "bench_time_less", "bench_spend_more", "bench_cases", "bench_runs", "bench_date"]},
+ {"path": "assets/header.svg", "template": "launch/templates/header.svg", "uses": ["readiness"]},
+ {"path": "assets/header.png", "run": "bash skills/skill-forger-e2e/scripts/make_header.sh assets --png-only", "uses": ["readiness"]},
+ {"name": "Social preview", "outward": "upload assets/header.png in repo Settings > Social preview", "uses": ["readiness"]},
+ {"name": "Repo description", "outward": "check the About text on GitHub still matches the README numbers", "uses": ["readiness", "bench_runs_with", "bench_runs_without"]},
+ {"name": "Profile row", "outward": "PR on maumoya/maumoya README: refresh the skill-forger-e2e row", "uses": ["readiness", "bench_runs_with", "bench_runs_without"]}
+]

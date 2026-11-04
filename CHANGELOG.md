@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.0
+
+- Update round: `scripts/sync.py` keeps every published number in step with one `launch/facts.json`. It re-renders SVG
+  cards and banners from templates, re-runs generators (PNG, GIF) with `--run`, updates fact markers in
+  Markdown, lists owner-only places (social preview, About, profile row), and `check` fails on any stale surface or old
+  value left by hand, badge URLs included. `--no-outward` for CI.
+- `make_header.sh OUT_DIR --png-only` re-renders header.png from an updated header.svg.
+- This repo: `launch/` drives the bench card and header; README re-measured (readiness 100/100, retrofit 14 → 66,
+  18 files) with both results under one dated Results section; CI runs the sync check.
+
 ## 0.8.0
 
 - Ship gates: `readiness.sh . OWNER/REPO --ship` exits 1 unless OpenSSF Scorecard ≥ 7.3, Best Practices is passing,

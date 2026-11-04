@@ -25,6 +25,11 @@ jobs:
       - name: Lint catches broken skills
         run: bash tests/lint_cases.sh
 
+      - name: Every published number matches launch/facts.json
+        run: |
+          python3 -I tests/test_sync.py
+          python3 -I skills/skill-forger-e2e/scripts/sync.py check . --no-outward
+
       - name: Scaffold a skill and lint it
         run: |
           bash skills/skill-forger-e2e/scripts/new_skill.sh demo-skill "$RUNNER_TEMP/demo" "CI" ci "Demo skill."

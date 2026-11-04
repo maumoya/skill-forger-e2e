@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="240" viewBox="0 0 760 240" role="img" aria-label="{{bench_runs_with}} of eval runs passed with the skill, {{bench_runs_without}} without it: grader score {{bench_score_with}} with the skill versus {{bench_score_without}} without, {{bench_time_less}} less time per run, {{bench_spend_more}} more spend per run, measured {{bench_date}} over {{bench_cases}} cases and {{bench_runs}} runs each">
+  <rect x="1.5" y="1.5" width="757" height="237" rx="18" fill="#0d1117" stroke="#2da44e" stroke-width="2"/>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="180" y="132" text-anchor="middle" font-size="120" font-weight="800" fill="#2da44e">{{bench_runs_with}}</text>
+    <text x="180" y="170" text-anchor="middle" font-size="20" font-weight="600" fill="#2da44e">of eval runs passed</text>
+    <text x="180" y="196" text-anchor="middle" font-size="14" fill="#8b949e">{{bench_runs_without}} without the skill · {{bench_cases}} cases × {{bench_runs}} runs</text>
+
+    <text x="370" y="62" font-size="15" fill="#c9d1d9">Grader score without the skill</text>
+    <text x="730" y="62" text-anchor="end" font-size="15" font-weight="700" fill="#f85149">{{bench_score_without}}</text>
+    <rect x="370" y="72" width="360" height="22" rx="6" fill="#21262d"/>
+    <rect x="370" y="72" width="{{bench_score_without|scale:360}}" height="22" rx="6" fill="#f85149"/>
+
+    <text x="370" y="132" font-size="15" fill="#c9d1d9">Grader score with the skill</text>
+    <text x="730" y="132" text-anchor="end" font-size="15" font-weight="700" fill="#2da44e">{{bench_score_with}}</text>
+    <rect x="370" y="142" width="360" height="22" rx="6" fill="#21262d"/>
+    <rect x="370" y="142" width="{{bench_score_with|scale:360}}" height="22" rx="6" fill="#2da44e"/>
+
+    <text x="370" y="200" font-size="14" fill="#8b949e">{{bench_time_less}} less time per run, {{bench_spend_more}} more spend per run</text>
+    <text x="370" y="220" font-size="14" fill="#8b949e">measured {{bench_date}} · method in Results</text>
+  </g>
+</svg>

@@ -4,9 +4,9 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Claude%20Code-skill%20%2B%20plugin-7c5cfc" alt="Claude Code skill and plugin">
-  <a href="#results-measured-2026-11-01"><img src="https://img.shields.io/badge/retrofit%2C%201%20command-readiness%2016%20%E2%86%92%2068-2da44e" alt="One retrofit command: readiness 16 to 68 out of 100"></a>
-  <a href="#results-measured-2026-11-01"><img src="https://img.shields.io/badge/existing%20files%20changed-0-2da44e" alt="Retrofit changes 0 existing files"></a>
-  <a href="#score-any-skill-repo-0-100"><img src="https://img.shields.io/badge/skill%20readiness-98%2F100-brightgreen" alt="Skill readiness: 98/100"></a>
+  <a href="#retrofit"><img src="https://img.shields.io/badge/retrofit%2C%201%20command-readiness%2014%20%E2%86%92%2066-2da44e" alt="One retrofit command: readiness 14 to 66 out of 100"></a>
+  <a href="#retrofit"><img src="https://img.shields.io/badge/existing%20files%20changed-0-2da44e" alt="Retrofit changes 0 existing files"></a>
+  <a href="#score-any-skill-repo-0-100"><img src="https://img.shields.io/badge/skill%20readiness-100%2F100-brightgreen" alt="Skill readiness: 100/100"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license">
   <a href="https://opensource.org/license/mit"><img src="https://img.shields.io/badge/Open%20Source-OSI%20approved%20license-3DA639?logo=opensourceinitiative&logoColor=white" alt="Open Source: OSI-approved MIT license"></a>
   <img src="https://img.shields.io/badge/privacy-no%20tracking%20%C2%B7%20no%20data%20collected-7c5cfc" alt="Privacy: no tracking, no data collected">
@@ -67,6 +67,7 @@ Type one of (or just `ForgeSkill`):
 - `retrofit my skill repo`
 - `add a header image and badges to my repo`
 - `I want people to install my skill`
+- `update everything` (new numbers or a new version: banners, cards, badges, README in one pass)
 
 ## What is inside
 
@@ -79,7 +80,7 @@ Type one of (or just `ForgeSkill`):
 | 4 Package | live install test passes, trigger loads the skill | `retrofit.sh`, `install_test.sh`, [packaging.md](skills/skill-forger-e2e/references/packaging.md) |
 | 5 Secure | Scorecard ran, CodeQL green, signed release, Best Practices evidence | `scorecard.sh`, `bestpractices.sh`, SHA-pinned workflows, SLSA release, [security.md](skills/skill-forger-e2e/references/security.md) |
 | 6 Launch | 10-second README test + one channel submitted | `make_header.sh`, `badges.sh`, `owner_profile.sh`, [launch.md](skills/skill-forger-e2e/references/launch.md) |
-| 7 Loop | one measured fix per round | `readiness.sh`, `measure.sh`, GitHub Action |
+| 7 Loop | one measured fix per round; `sync.py check` says every number is current | `readiness.sh`, `measure.sh`, `sync.py`, GitHub Action |
 
 ### Scaffold a new skill repo
 
@@ -114,7 +115,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@v0.8.0 # or pin the tag's full commit SHA
+      - uses: maumoya/skill-forger-e2e@v0.9.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
           ship-gates: true # fail below Scorecard 7.3, Best Practices passing, reporting on, ruleset
@@ -153,7 +154,7 @@ You sign in and submit the form yourself.
 
 ```bash
 bash skills/skill-forger-e2e/scripts/badges.sh OWNER/REPO --readiness 95 \
-  --results '#results-measured-2026-11-01' --from README.md --benefit 'readiness=16→68'
+  --results '#retrofit' --from README.md --benefit 'readiness=14→66'
 bash skills/skill-forger-e2e/scripts/owner_profile.sh your-github my-skill --name "Your Full Name"
 ```
 
@@ -170,6 +171,18 @@ bash skills/skill-forger-e2e/scripts/retrofit.sh path/to/repo "Your Name" your-g
 ```
 
 Adds only what is missing; existing files are kept. Drop `--dry-run` to write.
+
+### Keep every number in sync
+
+```bash
+python3 skills/skill-forger-e2e/scripts/sync.py apply . --run
+python3 skills/skill-forger-e2e/scripts/sync.py check .
+```
+
+Each number lives once in `launch/facts.json`. `launch/assets.json` says which banner, card, PNG or owner-only
+place shows it; templates re-render, generator commands re-run with `--run`, and fact markers (HTML comments) in
+Markdown update in place. `check` exits 1 on a stale surface or on an old value still written by hand somewhere
+(badge URLs included). This repo runs it in CI.
 
 ### Test the install from GitHub
 
@@ -224,15 +237,17 @@ the latest tag carries this `action.yml` and is Verified. Add `--listed` after p
 
 ## Results (measured 2026-11-03)
 
-Method: `bench.sh` ran `claude plugin eval` on 5 cases, 3 runs each, with the skill and without it
+### Bench
+
+Method: `bench.sh` ran `claude plugin eval` on <!--fact:bench_cases-->5<!--/fact--> cases, <!--fact:bench_runs-->3<!--/fact--> runs each, with the skill and without it
 (claude 2.1.316). Score is the share of graders passed per run; a run passes when every grader passes.
 
 | | With the skill | Without | Change |
 |---|---:|---:|---:|
-| Runs passed | 47% | 0% | +47 pts |
+| Runs passed | <!--fact:bench_runs_with-->47%<!--/fact--> | <!--fact:bench_runs_without-->0%<!--/fact--> | +47 pts |
 | Score (mean ± sd) | 0.78 ± 0.22 | 0.38 ± 0.13 | +0.40 |
-| Spend per run (USD) | 0.403 | 0.263 | +53% |
-| Time per run (s) | 89 | 159 | -44% |
+| Spend per run (USD) | 0.403 | 0.263 | +<!--fact:bench_spend_more-->53%<!--/fact--> |
+| Time per run (s) | 89 | 159 | -<!--fact:bench_time_less-->44%<!--/fact--> |
 | Turns per run | 13.1 | 9.8 | |
 
 | Case | Passed with | Passed without |
@@ -245,7 +260,7 @@ Method: `bench.sh` ran `claude plugin eval` on 5 cases, 3 runs each, with the sk
 
 Open: `fix-broken-skill` and `retrofit-and-score` pass 0/3 with the skill; they are the next cases to fix.
 
-## Results (measured 2026-11-01)
+### Retrofit
 
 Method: copy the `haiku-coach` fixture (a bare skill repo in `evals/retrofit-and-score/files/`), score
 it, run `retrofit.sh`, score again. CI repeats this on every PR and fails if the score does not rise or
@@ -253,8 +268,8 @@ the skill's own files change.
 
 | | Before | After one `retrofit.sh` |
 |---|---:|---:|
-| Readiness score | 16/100 | 68/100 |
-| Files in the repo | 2 | 17 |
+| Readiness score | <!--fact:retrofit_before-->14/100<!--/fact--> | <!--fact:retrofit_after-->66/100<!--/fact--> |
+| Files in the repo | 2 | <!--fact:retrofit_files_after-->18<!--/fact--> |
 | Existing files changed | | 0 |
 
 ## FAQ

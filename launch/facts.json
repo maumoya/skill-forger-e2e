@@ -1,0 +1,15 @@
+{
+ "readiness": {"value": "100/100", "source": "readiness.sh . maumoya/skill-forger-e2e", "date": "2026-11-03"},
+ "retrofit_before": {"value": "14/100", "source": "readiness.sh on evals/retrofit-and-score/files/haiku-coach", "date": "2026-11-03"},
+ "retrofit_after": {"value": "66/100", "source": "readiness.sh after one retrofit.sh on the same fixture", "date": "2026-11-03"},
+ "retrofit_files_after": {"value": "18", "source": "find -type f after retrofit.sh (2 before)", "date": "2026-11-03"},
+ "bench_date": {"value": "2026-11-03", "source": "bench.sh run date", "date": "2026-11-03"},
+ "bench_runs_with": {"value": "47%", "source": "bench.sh, runs passed with the skill", "date": "2026-11-03"},
+ "bench_runs_without": {"value": "0%", "source": "bench.sh, runs passed without the skill", "date": "2026-11-03"},
+ "bench_score_with": {"value": "78%", "source": "bench.sh, mean grader score with the skill (0.78)", "date": "2026-11-03"},
+ "bench_score_without": {"value": "38%", "source": "bench.sh, mean grader score without (0.38)", "date": "2026-11-03"},
+ "bench_time_less": {"value": "44%", "source": "bench.sh, time per run 89 s vs 159 s", "date": "2026-11-03"},
+ "bench_spend_more": {"value": "53%", "source": "bench.sh, spend per run 0.403 vs 0.263 USD", "date": "2026-11-03"},
+ "bench_cases": {"value": "5", "source": "evals/ cases in the bench run", "date": "2026-11-03"},
+ "bench_runs": {"value": "3", "source": "runs per case in the bench run", "date": "2026-11-03"}
+}
