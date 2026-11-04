@@ -67,6 +67,9 @@ Details: `references/packaging.md`.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` (the scaffold made them).
 - Install paths to document: `/plugin marketplace add OWNER/REPO` then `/plugin install NAME@NAME`, and `npx skills add OWNER/REPO`.
 - Semantic version in plugin.json; `CHANGELOG.md`; signed git tag `vX.Y.Z` per release (SSH key, set up once).
+  Bump plugin.json, CHANGELOG, the README `@vX.Y.Z` example and the `llms.txt` line in one PR (readiness checks they agree).
+- No root `action.yml` = not on the GitHub Marketplace. Say so to the user now, not at launch; if a CI check fits
+  the skill, design a real one (see Phase 6).
 - After each release, refresh every published number: README Results and badges, release notes, About.
 - Live install test, after pushing: `scripts/install_test.sh OWNER/REPO`. It installs from GitHub into a throwaway config
   (yours is untouched) and prints the component inventory and token cost. Free.
@@ -81,15 +84,22 @@ Details: `references/packaging.md`.
 Details: `references/security.md`. Templates are in `templates/repo/.github/`.
 - Workflows: lint, OpenSSF Scorecard, CodeQL (`actions`), Dependabot for actions, SLSA-signed release.
 - Every action pinned to a full commit SHA; `permissions: read-all` at the top.
-- `SECURITY.md` with a private reporting path. Branch protection on main.
+- `SECURITY.md` with a private reporting path, and that path turned on (owner runs):
+  `gh api -X PUT repos/OWNER/REPO/private-vulnerability-reporting`.
+- A ruleset on main that requires a PR and CodeQL (owner runs, a settings change):
+  `gh api -X POST repos/OWNER/REPO/rulesets --input templates/ruleset-main.json`.
 - Review every script the skill runs: no network writes, no piping downloads into a shell, no secret reads.
 - Scorecard feedback: `scripts/scorecard.sh OWNER/REPO` lists every check below 10, fixable ones first, with the fix.
   Fix the top one, re-run after the next scan, report the score delta.
 - Best Practices: `scripts/bestpractices.sh OWNER/REPO <repo-dir>` says if the project is registered (ID, level, badge).
   If not, it prints the form link and an evidence sheet (each passing criterion and the URL proving it).
   The owner signs in and submits the form; you prepare the answers. Never answer Met without the evidence.
+  Aim for passing at 100% (fill it in the built-in browser with the owner signed in), then add the badge to the README.
 
-**Gate 5:** Scorecard has run, CodeQL is green, a signed release exists, Best Practices is registered or its evidence sheet has no TODO.
+**Gate 5 (hard, blocks every release):** `scripts/readiness.sh . OWNER/REPO --ship` exits 0. Its four GATE rows:
+Scorecard ≥ 7.3, Best Practices passing, private vulnerability reporting on, ruleset with PR + CodeQL. CodeQL is green
+and a signed SLSA release exists. Below 7.3, `scorecard.sh` lists the fixes (these took a repo from 6.6 to 7.4: ruleset,
+CodeQL + Scorecard workflows, SHA pins, `permissions: read-all`, signed release, reporting on, Best Practices passing).
 
 ## Phase 6 · Launch
 
@@ -103,16 +113,24 @@ Details: `references/launch.md`. Every post, form or PR to another repo is an ou
   OSI, privacy, Scorecard once scanned, Best Practices once registered).
 - Benefit badges are the most clicked: the main measured win, e.g. `--benefit 'runs passed=+50 pts' --results '#results-measured-DATE' --from README.md`; badges.sh refuses numbers that are not in the dated Results block.
   Only numbers from a run you can repeat (eval, bench, before/after score), shown in a dated `## Results` section with the method.
+- Say results as percentages, never raw sizes: "19% of the disk freed (6% → 25% free), 100% of deletes approved",
+  not "86 GiB". Put the hero result in a big green SVG card under the badge row (`assets/*-card.svg`, linked to Results).
+- Same pass: update the owner's profile row and portfolio site with the new numbers. In profile tables use the short
+  live badge `scorecard.sh` prints as "Profile badge" (reads "OpenSSF 7.4"), never the tiny default Scorecard badge.
 - About the author: `scripts/owner_profile.sh GH_USER PROJECT --name "Full Name"` drafts it from the public GitHub profile
   (bio, LinkedIn, other repos) and prints interview questions for the rest. Ask them, show the owner the final text,
   publish only what they approve. It prints only; nothing is saved. Add `--photo` and `--by` to the header for a byline.
 - Repo description ≤350 chars opening with what + who; ≤20 topics; homepage (GitHub Pages) with Open Graph tags; `llms.txt`.
 - Repo ships an `action.yml`? List it on the GitHub Marketplace from a release. Run `scripts/marketplace_check.sh . OWNER/REPO`
   **before tagging** (the Marketplace reads `action.yml` from the tag; a late fix costs a patch release), then follow the
-  11 steps in `references/packaging.md`. The owner clicks Update release and accepts the agreement; finish with `--listed`.
+  11 steps in `references/packaging.md`. Update release triggers GitHub sudo (passkey): get the owner's OK first; the
+  owner accepts the agreement; finish with `--listed`. CI must self-test the action: one passing `uses: ./` run and one
+  failing run asserted as failure (`marketplace_check.sh` fails without it).
 - Channels in order: Anthropic plugin directory form, skills.sh, awesome lists (each on its own rules), the niche community, then an essay that teaches something and links the repo.
 
-**Gate 6:** README passes the 10-second test (a stranger can say what it does and how to install it) and one channel submission is done.
+**Gate 6:** `readiness.sh --ship` still exits 0 on the tagged release, `marketplace_check.sh . OWNER/REPO --listed`
+prints PASS when there is an `action.yml`, README passes the 10-second test (a stranger can say what it does and how
+to install it), and one channel submission is done.
 
 ## Phase 7 · Loop
 

@@ -17,6 +17,9 @@ inputs:
   lint:
     description: Fail the step when lint_skill.sh reports a FAIL.
     default: "true"
+  ship-gates:
+    description: Fail the step when a ship gate is not met (Scorecard >= 7.3, Best Practices passing, private vulnerability reporting, ruleset with PR + CodeQL). Use before release tags.
+    default: "false"
 outputs:
   score:
     description: Readiness score 0-100.
@@ -41,6 +44,7 @@ runs:
         SKILL_PATH: ${{ inputs.path }}
         SKILL_REPO: ${{ inputs.repo }}
         MIN_SCORE: ${{ inputs.min-score }}
+        SHIP_GATES: ${{ inputs.ship-gates }}
         SCRIPTS: ${{ github.action_path }}/skills/skill-forger-e2e/scripts
         GH_TOKEN: ${{ github.token }}
       run: |
@@ -54,3 +58,6 @@ runs:
         echo "badge=$badge" >> "$GITHUB_OUTPUT"
         bash "$SCRIPTS/readiness.sh" "${args[@]}" --markdown >> "$GITHUB_STEP_SUMMARY" || true
         [ "${score:-0}" -ge "$MIN_SCORE" ] || { echo "::error::Skill readiness $score is below $MIN_SCORE"; exit 1; }
+        if [ "$SHIP_GATES" = true ] && ! grep -q '^GATES all met' <<<"$out"; then
+          echo "::error::$(grep '^GATES' <<<"$out")"; exit 1
+        fi

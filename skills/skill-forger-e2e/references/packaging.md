@@ -46,6 +46,8 @@ Outputs `score` and `badge`; the table goes to the job summary.
 ## GitHub Marketplace (when the repo ships an action)
 
 A root `action.yml` can be listed on the GitHub Marketplace, so people find the CI check there too.
+No `action.yml` = no listing: tell the user at the start, and if the skill has a natural CI check, design a real one
+(inputs, outputs, a pass/fail threshold), not a wrapper that only echoes.
 The Marketplace validates `action.yml` **only when you publish, and reads it from the release tag**. A mistake
 found then costs a new patch release. So every rule is checked in the PR, before the tag exists.
 
@@ -65,7 +67,8 @@ found then costs a new patch release. So every rule is checked in the PR, before
    is public, the name is free (or already yours) and what the latest tag carries. Fix every FAIL first.
 2. CI self-tests the action: a job with `uses: ./` on a passing input, and one on a failing input
    (`continue-on-error: true`, then assert `steps.<id>.outcome == 'failure'` and the outputs).
-3. PR → CI green → the owner merges. Bump the version (`plugin.json`, CHANGELOG, README `@vX.Y.Z` example) in that PR.
+3. PR → CI green → the owner merges. Bump the version (`plugin.json`, CHANGELOG, README `@vX.Y.Z` example, the
+   `llms.txt` line) in that PR; `marketplace_check.sh` fails when they disagree. `readiness.sh . OWNER/REPO --ship` exits 0.
 4. Signed tag on the merge commit, `git verify-tag`, the owner pushes it. The release workflow creates the release.
 5. Release notes: what changed, a `uses:` example pinned to the new tag, measured numbers, the verify command.
 6. Open the release → **Edit** → tick "Publish this Action to the GitHub Marketplace". The page now validates
@@ -74,7 +77,8 @@ found then costs a new patch release. So every rule is checked in the PR, before
 7. Pick a primary and a secondary category (e.g. Code quality, Continuous integration, Testing, AI Assisted).
    Driving the page from a browser tool: the selects are `#action-primary-category` and `#action-secondary-category`;
    set the option value and dispatch `input` and `change` from JavaScript, since form filling does not stick.
-8. **Update release** is a publish click: ask the owner first, then click.
+8. **Update release** is a publish click and triggers GitHub sudo mode (passkey or password): ask the owner first,
+   then click; the owner completes the passkey prompt.
 9. First listing only: the owner accepts the GitHub Marketplace Developer Agreement (needs 2FA). That is accepting
    terms, so the owner does it, you never do.
 10. Prove it: `scripts/marketplace_check.sh . OWNER/REPO --listed` must print `listed:` and PASS. The page is

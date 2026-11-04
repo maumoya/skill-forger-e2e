@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.8.0
+
+- Ship gates: `readiness.sh . OWNER/REPO --ship` exits 1 unless OpenSSF Scorecard ≥ 7.3, Best Practices is passing,
+  private vulnerability reporting is on, and a ruleset on main requires a PR and CodeQL. The Action does the same
+  with `ship-gates: true`. Phase 5 is now a hard gate before every release tag.
+- `templates/ruleset-main.json`: the "Protect main" ruleset (PR + 1 review, CodeQL required, no force push or delete).
+- readiness also checks CodeQL, `permissions: read-all` in every workflow, SHA-pinned actions, one version across
+  plugin.json, CHANGELOG, README and llms.txt, an action self-test (or flags "no action.yml = not on the Marketplace"),
+  benefit badges in % instead of raw sizes, and a hero result card.
+- `marketplace_check.sh` fails without a CI self-test (a passing `uses: ./` run and one asserted as failure) and on
+  version drift. Packaging notes that Update release triggers GitHub sudo (passkey): owner OK first.
+- `scorecard.sh`: ship bar line, ruleset and private-reporting fixes, and a short live "OpenSSF" profile badge.
+- Launch: results as percentages, a big green SVG hero card, profile row and portfolio site updated in the same pass.
+- This repo: CI self-tests the Action on a failing repo; README leads with the measured bench card (47% vs 0%).
+
 ## 0.7.0
 
 - Spec lint: `lint_skill.sh` checks frontmatter against the Agent Skills spec (allowed keys, `compatibility`
