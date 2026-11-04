@@ -1,6 +1,6 @@
 # Skill Forger E2E
 
-> Ship an agent skill end to end: scaffold, lint, a 0-100 readiness score and GitHub Action, retrofit for existing repos, a live install test from GitHub, header image and trust badges, security workflows and launch. Writing and evals hand off to skill-creator.
+> Ship an agent skill end to end: scaffold, lint, a 0-100 readiness score and GitHub Action, retrofit for existing repos, a live install test from GitHub, header image and trust badges, security workflows, ship gates (Verified, owner-only authorship) and launch done end to end by the agent. Writing and evals hand off to skill-creator.
 
 ## Install
 
@@ -13,7 +13,8 @@
 - [authoring.md](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/references/authoring.md): frontmatter and body rules
 - [testing.md](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/references/testing.md): lint, trigger tests, claude plugin eval
 - [packaging.md](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/references/packaging.md): plugin layout, install paths, live install test, readiness score in CI
-- [action.yml](https://github.com/maumoya/skill-forger-e2e/blob/main/action.yml): GitHub Action that lints and scores any skill repo and enforces the ship gates (`uses: maumoya/skill-forger-e2e@v0.9.0`)
+- [action.yml](https://github.com/maumoya/skill-forger-e2e/blob/main/action.yml): GitHub Action that lints and scores any skill repo and enforces the ship gates (`uses: maumoya/skill-forger-e2e@v0.10.0`)
+- [make_demo.sh](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/scripts/make_demo.sh): README demo video card (<=10 s GIF) from a recording or a URL
 - [make_header.sh](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/scripts/make_header.sh): 1280x640 README header and social preview
 - [security.md](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/references/security.md): Scorecard, CodeQL, pinning, SLSA
 - [launch.md](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/references/launch.md): README, discovery, channels

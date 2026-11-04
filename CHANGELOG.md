@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.10.0
+
+- The agent does the GitHub work end to end: push, PR, merge, signed tag, release, Marketplace, private reporting,
+  ruleset, Best Practices form (to 100% of passing) and About/social preview, in the built-in browser where the owner
+  is signed in. The owner keeps sign-ins, passkeys and terms. New "Who does what" section.
+- Launch checklist (a-h) in SKILL.md, swept before every status or done report, each row with its proof; with the
+  adhd-status skill installed it runs as that skill's sweep.
+- `make_demo.sh` + `record_page.mjs`: a <=10 s README demo GIF under 5 MB from a screen recording or a URL
+  (headless Chrome screencast).
+- New ship gates in `readiness.sh --ship`: header banner, demo video card and result card (were plain checks),
+  owner-only authorship (no AI co-author trailer or footer in commits or files), main head signed + Verified +
+  authored by the owner, latest release tag signed + Verified.
+- Update round rewrites the whole README body, `llms.txt`, description and topics for the new version, not just numbers.
+- This repo: README order is banner, badges, demo card, result card.
+
 ## 0.9.0
 
 - Update round: `scripts/sync.py` keeps every published number in step with one `launch/facts.json`. It re-renders SVG

@@ -67,9 +67,9 @@ found then costs a new patch release. So every rule is checked in the PR, before
    is public, the name is free (or already yours) and what the latest tag carries. Fix every FAIL first.
 2. CI self-tests the action: a job with `uses: ./` on a passing input, and one on a failing input
    (`continue-on-error: true`, then assert `steps.<id>.outcome == 'failure'` and the outputs).
-3. PR → CI green → the owner merges. Bump the version (`plugin.json`, CHANGELOG, README `@vX.Y.Z` example, the
+3. PR → CI green → you merge (after the owner's OK for that merge, if the session needs one). Bump the version (`plugin.json`, CHANGELOG, README `@vX.Y.Z` example, the
    `llms.txt` line) in that PR; `marketplace_check.sh` fails when they disagree. `readiness.sh . OWNER/REPO --ship` exits 0.
-4. Signed tag on the merge commit, `git verify-tag`, the owner pushes it. The release workflow creates the release.
+4. Signed tag on the merge commit, `git verify-tag`, you push it. The release workflow creates the release.
 5. Release notes: what changed, a `uses:` example pinned to the new tag, measured numbers, the verify command.
 6. Open the release → **Edit** → tick "Publish this Action to the GitHub Marketplace". The page now validates
    `action.yml` from the tag: name, description, icon, color must all show a green check. Any red: stop, fix in a PR,
@@ -77,8 +77,8 @@ found then costs a new patch release. So every rule is checked in the PR, before
 7. Pick a primary and a secondary category (e.g. Code quality, Continuous integration, Testing, AI Assisted).
    Driving the page from a browser tool: the selects are `#action-primary-category` and `#action-secondary-category`;
    set the option value and dispatch `input` and `change` from JavaScript, since form filling does not stick.
-8. **Update release** is a publish click and triggers GitHub sudo mode (passkey or password): ask the owner first,
-   then click; the owner completes the passkey prompt.
+8. **Update release** is a publish click: you click it in the built-in browser. If GitHub asks for sudo mode
+   (passkey or password), the owner completes that prompt.
 9. First listing only: the owner accepts the GitHub Marketplace Developer Agreement (needs 2FA). That is accepting
    terms, so the owner does it, you never do.
 10. Prove it: `scripts/marketplace_check.sh . OWNER/REPO --listed` must print `listed:` and PASS. The page is

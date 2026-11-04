@@ -63,10 +63,13 @@ One stale surface is a failed update. Re-measure first, then:
 1. Write the new values into `launch/facts.json` (`{"key": {"value", "source", "date"}}`), never copied from an old banner.
 2. `launch/assets.json` lists each surface: `{"path", "template", "uses"}` for SVG cards and banners (`{{key}}`,
    `{{key|scale:360}}` for bar widths), `{"path", "run", "uses"}` for PNGs, GIFs and videos, `{"name", "outward", "uses"}`
-   for what only the owner can change. Numbers in Markdown sit in fact markers (format in the header of `scripts/sync.py`).
+   for places outside the repo (social preview, About box, profile row). Numbers in Markdown sit in fact markers (format in the header of `scripts/sync.py`).
 3. `python3 scripts/sync.py apply . --run`, then `sync.py check .` until "in sync". LEFTOVER means an old value is still
    written by hand somewhere (badge URLs, alt text): fix that line. `launch/keep.txt` lists files left alone (tests).
-4. Show the owner items; after each is done, `sync.py done . "<name>"`. CI runs `sync.py check . --no-outward`.
+4. Update each outward item yourself in the built-in browser; after each, `sync.py done . "<name>"`. CI runs
+   `sync.py check . --no-outward`.
+5. Rewrite the README body, `llms.txt`, description and topics for the current version (Phase 4, update round).
+6. New demo? `scripts/make_demo.sh INPUT assets/demo.gif`, then the same file on the portfolio site.
 
 ## Never
 

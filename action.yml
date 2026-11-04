@@ -18,7 +18,7 @@ inputs:
     description: Fail the step when lint_skill.sh reports a FAIL.
     default: "true"
   ship-gates:
-    description: Fail the step when a ship gate is not met (Scorecard >= 7.3, Best Practices passing, private vulnerability reporting, ruleset with PR + CodeQL). Use before release tags.
+    description: Fail the step when a ship gate is not met (banner, demo and result cards, owner-only authorship, Scorecard >= 7.3, Best Practices passing, private reporting, ruleset, Verified head and tag). Use before release tags.
     default: "false"
 outputs:
   score:

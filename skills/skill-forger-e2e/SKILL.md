@@ -8,6 +8,8 @@ license: MIT
 
 Eight phases. Each has a gate. Do not start a phase until the previous gate passes.
 Tell the user which phase you are in and what passes its gate, in one line.
+You do the GitHub work yourself, end to end: push, open PRs, merge, tag, release, Marketplace, settings, forms
+(see "Who does what"). Every release ends with the Launch checklist, swept row by row.
 
 Write it with a writing tool, ship it with this one. Phases 2-3 hand off to the best authoring and eval tools;
 Phases 4-7 are this skill's own work and scripts.
@@ -73,8 +75,11 @@ Details: `references/packaging.md`.
 - After each change, run the update round: every number lives once in `launch/facts.json`, every surface that shows
   one is listed in `launch/assets.json` (SVG templates, generator commands, owner-only places), and Markdown numbers sit
   in fact markers (format in the header of `scripts/sync.py`). `scripts/sync.py apply . --run` re-renders and regenerates; `sync.py check .`
-  must print "in sync" (CI runs it with `--no-outward`). Owner-only items (social preview, About, profile row) go to the
-  user; after they confirm, `sync.py done . "<name>"`. Details: `references/launch.md`.
+  must print "in sync" (CI runs it with `--no-outward`). Outward items (social preview, About, profile row) you update
+  yourself in the built-in browser, then `sync.py done . "<name>"`. Details: `references/launch.md`.
+- Same round, rewrite the whole README body, not just the numbers: re-read SKILL.md, CHANGELOG and the scripts, then
+  update the promise, feature list, install lines, examples, Results, FAQ, `llms.txt`, the repo description and topics
+  so each one describes the current version. A feature in the new CHANGELOG entry that the README does not mention is a miss.
 - Live install test, after pushing: `scripts/install_test.sh OWNER/REPO`. It installs from GitHub into a throwaway config
   (yours is untouched) and prints the component inventory and token cost. Free.
 - Trigger check: add `--trigger "<a phrase a user types>"`. One short `claude -p` run on the user's account: ask first.
@@ -88,9 +93,9 @@ Details: `references/packaging.md`.
 Details: `references/security.md`. Templates are in `templates/repo/.github/`.
 - Workflows: lint, OpenSSF Scorecard, CodeQL (`actions`), Dependabot for actions, SLSA-signed release.
 - Every action pinned to a full commit SHA; `permissions: read-all` at the top.
-- `SECURITY.md` with a private reporting path, and that path turned on (owner runs):
+- `SECURITY.md` with a private reporting path, and that path turned on (you run it):
   `gh api -X PUT repos/OWNER/REPO/private-vulnerability-reporting`.
-- A ruleset on main that requires a PR and CodeQL (owner runs, a settings change):
+- A ruleset on main that requires a PR and CodeQL (you run it, after telling the owner it is a settings change):
   `gh api -X POST repos/OWNER/REPO/rulesets --input templates/ruleset-main.json`.
 - Review every script the skill runs: no network writes, no piping downloads into a shell, no secret reads.
 - Scorecard feedback: `scripts/scorecard.sh OWNER/REPO` lists every check below 10, fixable ones first, with the fix.
@@ -98,11 +103,13 @@ Details: `references/security.md`. Templates are in `templates/repo/.github/`.
   (7.3 is the release floor, not the goal); stop only when every remaining check needs other people.
 - Best Practices: `scripts/bestpractices.sh OWNER/REPO <repo-dir>` says if the project is registered (ID, level, badge).
   If not, it prints the form link and an evidence sheet (each passing criterion and the URL proving it).
-  The owner signs in and submits the form; you prepare the answers. Never answer Met without the evidence.
-  Aim for passing at 100% (fill it in the built-in browser with the owner signed in), then add the badge to the README.
+  Fill the form yourself in the built-in browser (the owner is signed in; if not, they sign in, never you), answer every
+  criterion with its evidence URL and save each section. Never answer Met without the evidence.
+  Done means passing at 100%: re-read the project page, then add the badge to the README.
 
-**Gate 5 (hard, blocks every release):** `scripts/readiness.sh . OWNER/REPO --ship` exits 0. Its four GATE rows:
-Scorecard ≥ 7.3, Best Practices passing, private vulnerability reporting on, ruleset with PR + CodeQL. CodeQL is green
+**Gate 5 (hard, blocks every release):** `scripts/readiness.sh . OWNER/REPO --ship` exits 0. Its GATE rows:
+header banner, demo video card, hero result card, owner-only authorship, Scorecard ≥ 7.3, Best Practices passing,
+private vulnerability reporting on, ruleset with PR + CodeQL, main head and latest release tag signed and Verified. CodeQL is green
 and a signed SLSA release exists. Below 7.3, `scorecard.sh` lists the fixes (these took a repo from 6.6 to 7.4: ruleset,
 CodeQL + Scorecard workflows, SHA pins, `permissions: read-all`, signed release, reporting on, Best Practices passing).
 
@@ -114,6 +121,9 @@ do them yourself in the built-in browser, where the owner is signed in, instead 
 sign-ins stay the owner's.
 - README order, every repo, every release: header banner, badge row, ≤10 s demo video card (GIF; the same clip as the
   portfolio site), big green result card, one-line promise, two install commands, one example, FAQ.
+- Demo video card: `scripts/make_demo.sh INPUT assets/demo.gif [--seconds 8] [--width 720]`. INPUT is a screen
+  recording (mp4, mov, webm) or a URL (a live page or a local dev server, recorded with headless Chrome). It keeps
+  the GIF ≤10 s and under 5 MB. Put it under the badge row; use the same file on the portfolio site.
 - Header image: `scripts/make_header.sh assets --repo OWNER/REPO --head "Line one." --head2 "Line two." --chip … --line '$ cmd' --line '✓ result'`
   (`--image shot.png` for an app; `--photo me.png --by "Name" --handle "@you"` for a byline). Writes a 1280×640 SVG and,
   with Chrome, a PNG that doubles as the social preview. If the project already has good art (an Open Graph image), use that.
@@ -132,8 +142,8 @@ sign-ins stay the owner's.
 - Repo description ≤350 chars opening with what + who; ≤20 topics; homepage (GitHub Pages) with Open Graph tags; `llms.txt`.
 - Repo ships an `action.yml`? List it on the GitHub Marketplace from a release. Run `scripts/marketplace_check.sh . OWNER/REPO`
   **before tagging** (the Marketplace reads `action.yml` from the tag; a late fix costs a patch release), then follow the
-  11 steps in `references/packaging.md`. Update release triggers GitHub sudo (passkey): get the owner's OK first; the
-  owner accepts the agreement; finish with `--listed`. CI must self-test the action: one passing `uses: ./` run and one
+  11 steps in `references/packaging.md`: you tick the box and click Update release in the built-in browser; a passkey
+  prompt is the owner's, and so is accepting the agreement (first listing only); finish with `--listed`. CI must self-test the action: one passing `uses: ./` run and one
   failing run asserted as failure (`marketplace_check.sh` fails without it).
 - Channels in order: Anthropic plugin directory form, skills.sh, awesome lists (each on its own rules), the niche community, then an essay that teaches something and links the repo.
 
@@ -155,4 +165,35 @@ Re-run Phase 3 evals before every release. For CI, the repo root `action.yml` ru
 - Never claim a phase passed without running its check. Show the output.
 - Stars and installs cannot be promised. Badges show live measurements only.
 - No bought stars, star swaps, fake reviews, or the same link posted in many places.
-- The user merges PRs and submits forms. You prepare them.
+- Owner-only authorship: commits, tags and releases carry the owner's name only. Never write an AI co-author
+  trailer or an AI "generated with" footer anywhere; `readiness.sh` fails the authorship gate if one exists.
+- "Verified" means the GitHub check mark on the signed head commit and release tag. The Marketplace's blue verified-creator
+  badge is only for organizations GitHub partners with: never promise it.
+
+## Who does what
+
+You (in the shell or the built-in browser, where the owner is signed in): commit as the owner's git identity, push,
+open the PR, wait for CI, merge (after the owner's OK for that merge, if the session needs one), sign and push the tag,
+edit the release, publish to the Marketplace, turn on reporting, add the ruleset, fill the Best Practices form,
+update the About box, topics, social preview, profile and portfolio rows.
+The owner: signs in, completes passkey or 2FA prompts, accepts terms, and approves posts to other people's spaces.
+Never create accounts or type passwords.
+
+## Launch checklist (every release)
+
+Before any status or done report, sweep these rows. If the `adhd-status` skill is installed, invoke it and use this
+list as its sweep: each row is ✅ only with the proof output in hand, otherwise it is a 👉 or ⚠️ row.
+
+| Row | Proof |
+|---|---|
+| a. Pushed, PR merged, tag and release out, all by you | `gh pr view N --json state` = MERGED; `gh release view vX.Y.Z` |
+| b. Header banner on top | GATE "README has a header banner" |
+| c. Whole README body, `llms.txt`, description match this version | every new CHANGELOG feature named in the README |
+| d. Demo video card and big green result card | GATEs "demo video card" and "hero result card"; `sync.py check .` in sync |
+| e. Best Practices passing at 100% | GATE "Best Practices passing" |
+| f. Scorecard ≥ 7.3, looping to ≥ 7.4 | GATE "Scorecard"; `scorecard.sh` lists what is left |
+| g. Verified | GATEs "head signed, Verified" and "release tag signed and Verified"; `marketplace_check.sh --listed` PASS |
+| h. Owner-only authorship | GATE "owner-only authorship" |
+
+Rows a–h together: `readiness.sh . OWNER/REPO --ship` exits 0, plus the a and c checks. Any row not met means the
+release is not done: say which, and fix it before reporting.
