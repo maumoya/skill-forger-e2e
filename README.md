@@ -4,9 +4,9 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Claude%20Code-skill%20%2B%20plugin-7c5cfc" alt="Claude Code skill and plugin">
-  <a href="#results-measured-2026-11-01"><img src="https://img.shields.io/badge/retrofit%2C%201%20command-readiness%2016%20%E2%86%92%2068-2da44e" alt="One retrofit command: readiness 16 to 68 out of 100"></a>
-  <a href="#results-measured-2026-11-01"><img src="https://img.shields.io/badge/existing%20files%20changed-0-2da44e" alt="Retrofit changes 0 existing files"></a>
-  <a href="#score-any-skill-repo-0-100"><img src="https://img.shields.io/badge/skill%20readiness-98%2F100-brightgreen" alt="Skill readiness: 98/100"></a>
+  <a href="#retrofit"><img src="https://img.shields.io/badge/retrofit%2C%201%20command-readiness%2014%20%E2%86%92%2066-2da44e" alt="One retrofit command: readiness 14 to 66 out of 100"></a>
+  <a href="#retrofit"><img src="https://img.shields.io/badge/existing%20files%20changed-0-2da44e" alt="Retrofit changes 0 existing files"></a>
+  <a href="#score-any-skill-repo-0-100"><img src="https://img.shields.io/badge/skill%20readiness-100%2F100-brightgreen" alt="Skill readiness: 100/100"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license">
   <a href="https://opensource.org/license/mit"><img src="https://img.shields.io/badge/Open%20Source-OSI%20approved%20license-3DA639?logo=opensourceinitiative&logoColor=white" alt="Open Source: OSI-approved MIT license"></a>
   <img src="https://img.shields.io/badge/privacy-no%20tracking%20%C2%B7%20no%20data%20collected-7c5cfc" alt="Privacy: no tracking, no data collected">
@@ -153,7 +153,7 @@ You sign in and submit the form yourself.
 
 ```bash
 bash skills/skill-forger-e2e/scripts/badges.sh OWNER/REPO --readiness 95 \
-  --results '#results-measured-2026-11-01' --from README.md --benefit 'readiness=16→68'
+  --results '#retrofit' --from README.md --benefit 'readiness=14→66'
 bash skills/skill-forger-e2e/scripts/owner_profile.sh your-github my-skill --name "Your Full Name"
 ```
 
@@ -224,15 +224,17 @@ the latest tag carries this `action.yml` and is Verified. Add `--listed` after p
 
 ## Results (measured 2026-11-03)
 
-Method: `bench.sh` ran `claude plugin eval` on 5 cases, 3 runs each, with the skill and without it
+### Bench
+
+Method: `bench.sh` ran `claude plugin eval` on <!--fact:bench_cases-->5<!--/fact--> cases, <!--fact:bench_runs-->3<!--/fact--> runs each, with the skill and without it
 (claude 2.1.316). Score is the share of graders passed per run; a run passes when every grader passes.
 
 | | With the skill | Without | Change |
 |---|---:|---:|---:|
-| Runs passed | 47% | 0% | +47 pts |
+| Runs passed | <!--fact:bench_runs_with-->47%<!--/fact--> | <!--fact:bench_runs_without-->0%<!--/fact--> | +47 pts |
 | Score (mean ± sd) | 0.78 ± 0.22 | 0.38 ± 0.13 | +0.40 |
-| Spend per run (USD) | 0.403 | 0.263 | +53% |
-| Time per run (s) | 89 | 159 | -44% |
+| Spend per run (USD) | 0.403 | 0.263 | +<!--fact:bench_spend_more-->53%<!--/fact--> |
+| Time per run (s) | 89 | 159 | -<!--fact:bench_time_less-->44%<!--/fact--> |
 | Turns per run | 13.1 | 9.8 | |
 
 | Case | Passed with | Passed without |
@@ -245,7 +247,7 @@ Method: `bench.sh` ran `claude plugin eval` on 5 cases, 3 runs each, with the sk
 
 Open: `fix-broken-skill` and `retrofit-and-score` pass 0/3 with the skill; they are the next cases to fix.
 
-## Results (measured 2026-11-01)
+### Retrofit
 
 Method: copy the `haiku-coach` fixture (a bare skill repo in `evals/retrofit-and-score/files/`), score
 it, run `retrofit.sh`, score again. CI repeats this on every PR and fails if the score does not rise or
@@ -253,8 +255,8 @@ the skill's own files change.
 
 | | Before | After one `retrofit.sh` |
 |---|---:|---:|
-| Readiness score | 16/100 | 68/100 |
-| Files in the repo | 2 | 17 |
+| Readiness score | <!--fact:retrofit_before-->14/100<!--/fact--> | <!--fact:retrofit_after-->66/100<!--/fact--> |
+| Files in the repo | 2 | <!--fact:retrofit_files_after-->18<!--/fact--> |
 | Existing files changed | | 0 |
 
 ## FAQ

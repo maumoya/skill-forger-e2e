@@ -1,0 +1,24 @@
+{
+ "assets": {
+  "Profile row": "fac4bae6fc2a",
+  "Repo description": "fac4bae6fc2a",
+  "assets/bench-card.svg": "dc7a591dfdeb",
+  "assets/header.png": "9ee1dc684fa6",
+  "assets/header.svg": "9ee1dc684fa6"
+ },
+ "facts": {
+  "bench_cases": "5",
+  "bench_date": "2026-11-03",
+  "bench_runs": "3",
+  "bench_runs_with": "47%",
+  "bench_runs_without": "0%",
+  "bench_score_with": "78%",
+  "bench_score_without": "38%",
+  "bench_spend_more": "53%",
+  "bench_time_less": "44%",
+  "readiness": "100/100",
+  "retrofit_after": "66/100",
+  "retrofit_before": "14/100",
+  "retrofit_files_after": "18"
+ }
+}

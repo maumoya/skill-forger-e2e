@@ -8,8 +8,26 @@
 #   [--line '$ command' --line '✓ result' --line 'SCORE 100/100'] [--image shot.png] [--photo me.png] \
 #   [--by "Your Name" --handle "@you"] [--mark "SF"] [--license "Open Source · MIT"] [--privacy "No tracking · no data collected"] \
 #   [--no-trust] [--bg1 '#1B1240' --bg2 '#3A1670' --accent '#C9B8FF']
+#        make_header.sh OUT_DIR --png-only   (PNG from an existing OUT_DIR/header.svg)
 set -euo pipefail
 out="${1:?usage: make_header.sh OUT_DIR --repo OWNER/REPO --head TEXT [options]}"; shift
+# PNG through headless Chrome; without it, keep the SVG (GitHub renders it, but social previews need a PNG)
+render_png() {
+  chrome=""
+  for c in "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" "/Applications/Chromium.app/Contents/MacOS/Chromium" \
+           "$(command -v google-chrome 2>/dev/null)" "$(command -v chromium 2>/dev/null)" "$(command -v chromium-browser 2>/dev/null)"; do
+    [ -n "$c" ] && [ -x "$c" ] && { chrome="$c"; break; }
+  done
+  if [ -z "$chrome" ]; then echo "no Chrome found: kept the SVG only (render header.png by hand for the social preview)"; return 0; fi
+  tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
+  abs="$(cd "$out" && pwd)"
+  printf '<!doctype html><html><body style="margin:0;background:#000"><img src="file://%s/header.svg" width="1280" height="640" style="display:block"></body></html>' "$abs" > "$tmp/h.html"
+  "$chrome" --headless=new --disable-gpu --hide-scrollbars --allow-file-access-from-files --user-data-dir="$tmp/profile" \
+    --window-size=1280,640 --screenshot="$abs/header.png" "file://$tmp/h.html" >/dev/null 2>&1 \
+    && echo "wrote $out/header.png (1280x640)" || echo "Chrome failed: kept the SVG only"
+}
+# --png-only: re-render OUT_DIR/header.png from an existing OUT_DIR/header.svg (after sync.py updated the SVG)
+if [ "${1:-}" = "--png-only" ]; then [ -f "$out/header.svg" ] || { echo "no such file: $out/header.svg" >&2; exit 1; }; render_png; exit 0; fi
 repo=""; head1=""; head2=""; sub1=""; sub2=""; chips=(); lines=(); image=""; photo=""; by=""; handle=""; mark=""
 license="Open Source · MIT"; privacy="No tracking · no data collected"; trust=1
 bg1="#1B1240"; bg2="#3A1670"; accent="#C9B8FF"
@@ -125,17 +143,4 @@ svg+="
 mkdir -p "$out"
 printf '%s\n' "$svg" > "$out/header.svg"
 echo "wrote $out/header.svg"
-
-# PNG through headless Chrome; without it, keep the SVG (GitHub renders it, but social previews need a PNG)
-chrome=""
-for c in "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" "/Applications/Chromium.app/Contents/MacOS/Chromium" \
-         "$(command -v google-chrome 2>/dev/null)" "$(command -v chromium 2>/dev/null)" "$(command -v chromium-browser 2>/dev/null)"; do
-  [ -n "$c" ] && [ -x "$c" ] && { chrome="$c"; break; }
-done
-if [ -z "$chrome" ]; then echo "no Chrome found: kept the SVG only (render header.png by hand for the social preview)"; exit 0; fi
-tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
-abs="$(cd "$out" && pwd)"
-printf '<!doctype html><html><body style="margin:0;background:#000"><img src="file://%s/header.svg" width="1280" height="640" style="display:block"></body></html>' "$abs" > "$tmp/h.html"
-"$chrome" --headless=new --disable-gpu --hide-scrollbars --allow-file-access-from-files --user-data-dir="$tmp/profile" \
-  --window-size=1280,640 --screenshot="$abs/header.png" "file://$tmp/h.html" >/dev/null 2>&1 \
-  && echo "wrote $out/header.png (1280x640)" || echo "Chrome failed: kept the SVG only"
+render_png
