@@ -16,6 +16,12 @@ In this order:
    raised. Each links to a dated `## Results (measured DATE)` section with the method and a table, so anyone can
    check it. `scripts/bench.sh` writes that section from a with-vs-without eval run (billed; ask first), and
    `badges.sh` refuses a value whose numbers are not in it. No measurement, no benefit badge.
+   Percentages, never raw sizes: "19% of the disk freed (6% → 25% free)", "100% of deletes approved"; a reader
+   cannot judge "86 GiB" without the disk size. readiness flags benefit badges with GiB/MB in them.
+   The hero result also goes in a big green SVG card (`assets/<name>-card.svg`, about 760×240: the big % on the left,
+   before/after bars on the right, the honest cost line under them) linked to the Results section.
+   Then, in the same pass: the owner's profile row and portfolio site get the new numbers. Profile tables use the
+   short live "OpenSSF 7.4" badge (`scorecard.sh` prints it), not the default Scorecard badge, which is unreadable there.
 2. One line: what it does, for whom.
 3. Two install commands (`/plugin install` and `npx skills add`).
 4. One real example.

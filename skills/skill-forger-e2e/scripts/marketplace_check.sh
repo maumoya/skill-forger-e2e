@@ -31,6 +31,21 @@ while IFS= read -r line; do
 done < <(bash "$here/lint_skill.sh" . | grep -E '^(FAIL|WARN) (action\.ya?ml|both action|action file)')
 [ "$fails" -eq 0 ] && ok "$af: name, description, branding and runs pass the Marketplace rules"
 
+# --- the action is tested in CI: one passing `uses: ./` run and one failing run asserted as failure
+shopt -s nullglob; wfs=(.github/workflows/*.yml .github/workflows/*.yaml)
+if [ ${#wfs[@]} -gt 0 ] && grep -lqE '^\s*-?\s*uses:\s*\./?\s*$' "${wfs[@]}" && grep -lqE '= failure|== .failure.' "${wfs[@]}"; then
+  ok "CI self-tests the action (uses: ./ and a run asserted as failure)"
+else
+  fail "CI does not self-test the action: add a 'uses: ./' job on a passing input and one asserted as failure"
+fi
+# --- one version everywhere: plugin.json, CHANGELOG, README and llms.txt @vX.Y.Z examples
+v=$(jq -r '.version // empty' .claude-plugin/plugin.json 2>/dev/null)
+if [ -n "$v" ]; then
+  grep -qE "^## \[?v?${v//./\\.}\]?( |$)" CHANGELOG.md 2>/dev/null || fail "CHANGELOG.md has no '## $v' entry (bump it with plugin.json)"
+  stale=$(grep -ohE '@v[0-9]+\.[0-9]+\.[0-9]+' README.md llms.txt 2>/dev/null | sort -u | grep -vxF "@v$v" | tr '\n' ' ')
+  [ -z "$stale" ] || fail "README/llms.txt pin $stale but plugin.json is $v"
+fi
+
 # --- online
 if [ -n "$slug_repo" ]; then
   command -v gh >/dev/null || { fail "gh not installed (needed for the online checks)"; slug_repo=""; }

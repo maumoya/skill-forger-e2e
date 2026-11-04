@@ -6,12 +6,16 @@
   <img src="https://img.shields.io/badge/Claude%20Code-skill%20%2B%20plugin-7c5cfc" alt="Claude Code skill and plugin">
   <a href="#results-measured-2026-11-01"><img src="https://img.shields.io/badge/retrofit%2C%201%20command-readiness%2016%20%E2%86%92%2068-2da44e" alt="One retrofit command: readiness 16 to 68 out of 100"></a>
   <a href="#results-measured-2026-11-01"><img src="https://img.shields.io/badge/existing%20files%20changed-0-2da44e" alt="Retrofit changes 0 existing files"></a>
-  <a href="#score-any-skill-repo-0-100"><img src="https://img.shields.io/badge/skill%20readiness-97%2F100-brightgreen" alt="Skill readiness: 97/100"></a>
+  <a href="#score-any-skill-repo-0-100"><img src="https://img.shields.io/badge/skill%20readiness-98%2F100-brightgreen" alt="Skill readiness: 98/100"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license">
   <a href="https://opensource.org/license/mit"><img src="https://img.shields.io/badge/Open%20Source-OSI%20approved%20license-3DA639?logo=opensourceinitiative&logoColor=white" alt="Open Source: OSI-approved MIT license"></a>
   <img src="https://img.shields.io/badge/privacy-no%20tracking%20%C2%B7%20no%20data%20collected-7c5cfc" alt="Privacy: no tracking, no data collected">
   <a href="https://scorecard.dev/viewer/?uri=github.com/maumoya/skill-forger-e2e"><img src="https://api.scorecard.dev/projects/github.com/maumoya/skill-forger-e2e/badge" alt="OpenSSF Scorecard"></a>
   <a href="https://www.bestpractices.dev/projects/16183"><img src="https://www.bestpractices.dev/projects/16183/badge" alt="OpenSSF Best Practices"></a>
+</p>
+
+<p align="center">
+  <a href="#results-measured-2026-11-03"><img src="assets/bench-card.svg" alt="47% of eval runs passed with the skill, 0% without it; grader score 78% vs 38%; 44% less time and 53% more spend per run (measured 2026-11-03)" width="760"></a>
 </p>
 
 # Skill Forger E2E
@@ -110,12 +114,14 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@<commit-sha> # pin to a full SHA
+      - uses: maumoya/skill-forger-e2e@v0.8.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
+          ship-gates: true # fail below Scorecard 7.3, Best Practices passing, reporting on, ruleset
 ```
 
 Lints, scores, writes the table to the job summary, and outputs `score` and `badge`.
+Listed on the [GitHub Marketplace](https://github.com/marketplace/actions/skill-forger-e2e-readiness).
 
 ### Make a header image and badge row
 
@@ -215,6 +221,29 @@ the latest tag carries this `action.yml` and is Verified. Add `--listed` after p
 - CI lints this repo, scaffolds a fresh skill and lints it, retrofits the broken fixture, and runs
   the readiness score through the repo's own `action.yml`, on every PR.
 - `evals/` holds one case per promise. Run `claude plugin eval . --allow-tools` (bills your account).
+
+## Results (measured 2026-11-03)
+
+Method: `bench.sh` ran `claude plugin eval` on 5 cases, 3 runs each, with the skill and without it
+(claude 2.1.316). Score is the share of graders passed per run; a run passes when every grader passes.
+
+| | With the skill | Without | Change |
+|---|---:|---:|---:|
+| Runs passed | 47% | 0% | +47 pts |
+| Score (mean ± sd) | 0.78 ± 0.22 | 0.38 ± 0.13 | +0.40 |
+| Spend per run (USD) | 0.403 | 0.263 | +53% |
+| Time per run (s) | 89 | 159 | -44% |
+| Turns per run | 13.1 | 9.8 | |
+
+| Case | Passed with | Passed without |
+|---|---:|---:|
+| decide-before-building | 3/3 | 0/3 |
+| fix-broken-skill | 0/3 | 0/3 |
+| install-test-consent | 1/3 | 0/3 |
+| retrofit-and-score | 0/3 | 0/3 |
+| scaffold-and-lint | 3/3 | 0/3 |
+
+Open: `fix-broken-skill` and `retrofit-and-score` pass 0/3 with the skill; they are the next cases to fix.
 
 ## Results (measured 2026-11-01)
 

@@ -70,3 +70,21 @@ jobs:
         uses: ./
         with:
           min-score: 80
+
+      - name: The action fails a repo below min-score
+        id: low
+        continue-on-error: true
+        uses: ./
+        with:
+          path: evals/retrofit-and-score/files/haiku-coach
+          repo: ""
+          lint: "false"
+          min-score: 99
+
+      - name: Assert the low-score run failed
+        env:
+          OUTCOME: ${{ steps.low.outcome }}
+          SCORE: ${{ steps.low.outputs.score }}
+        run: |
+          echo "outcome=$OUTCOME score=$SCORE"
+          [ "$OUTCOME" = failure ] && [ -n "$SCORE" ] && [ "$SCORE" -lt 99 ]

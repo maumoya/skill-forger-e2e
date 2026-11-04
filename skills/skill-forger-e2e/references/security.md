@@ -38,7 +38,20 @@ Run it on any skill before you install it, not only your own: `bash scripts/lint
 | CodeQL with `languages: actions` | catches workflow injection | Security tab shows CodeQL green |
 | SLSA-signed release | anyone can check the zip came from the tag | release has `.zip` + `.intoto.jsonl` |
 | `SECURITY.md` + private vulnerability reporting on | a safe way to report | the link in SECURITY.md works |
-| Branch protection on main, PRs required | no direct pushes | settings show the rule |
+| Private vulnerability reporting enabled | SECURITY.md's link only works when it is on | `gh api repos/O/R/private-vulnerability-reporting` says `enabled: true` (owner turns it on with `-X PUT`) |
+| Ruleset "Protect main": PR + 1 review, CodeQL required, no force push or delete | no direct pushes; admins merge through a PR | `gh api -X POST repos/O/R/rulesets --input templates/ruleset-main.json` (owner runs) |
+
+## Ship gates (hard)
+
+`scripts/readiness.sh . OWNER/REPO --ship` exits 1 until all four hold; run it before every release tag. The GitHub
+Action does the same with `ship-gates: true`.
+
+| Gate | Bar | Fix |
+|---|---|---|
+| OpenSSF Scorecard | ≥ 7.3 | `scorecard.sh OWNER/REPO`, top row first |
+| Best Practices | passing (aim for 100%) | `bestpractices.sh`, owner submits, badge in README |
+| Private vulnerability reporting | enabled | `gh api -X PUT repos/O/R/private-vulnerability-reporting` |
+| Ruleset on the default branch | PR + CodeQL required | `templates/ruleset-main.json` |
 
 ## OpenSSF Best Practices badge
 
