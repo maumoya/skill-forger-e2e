@@ -94,7 +94,8 @@ Details: `references/security.md`. Templates are in `templates/repo/.github/`.
   `gh api -X POST repos/OWNER/REPO/rulesets --input templates/ruleset-main.json`.
 - Review every script the skill runs: no network writes, no piping downloads into a shell, no secret reads.
 - Scorecard feedback: `scripts/scorecard.sh OWNER/REPO` lists every check below 10, fixable ones first, with the fix.
-  Fix the top one, re-run after the next scan, report the score delta.
+  Fix the top one, re-run after the next scan, report the score delta. Keep looping until Scorecard reads ≥ 7.4
+  (7.3 is the release floor, not the goal); stop only when every remaining check needs other people.
 - Best Practices: `scripts/bestpractices.sh OWNER/REPO <repo-dir>` says if the project is registered (ID, level, badge).
   If not, it prints the form link and an evidence sheet (each passing criterion and the URL proving it).
   The owner signs in and submits the form; you prepare the answers. Never answer Met without the evidence.
@@ -108,7 +109,11 @@ CodeQL + Scorecard workflows, SHA pins, `permissions: read-all`, signed release,
 ## Phase 6 · Launch
 
 Details: `references/launch.md`. Every post, form or PR to another repo is an outward action: ask the user first.
-- README order: picture or ≤10 s GIF, one-line promise, two install commands, one example, FAQ.
+GitHub-side updates (social preview upload, About/description/topics, Best Practices form, profile and site PRs):
+do them yourself in the built-in browser, where the owner is signed in, instead of handing them over. Approvals and
+sign-ins stay the owner's.
+- README order, every repo, every release: header banner, badge row, ≤10 s demo video card (GIF; the same clip as the
+  portfolio site), big green result card, one-line promise, two install commands, one example, FAQ.
 - Header image: `scripts/make_header.sh assets --repo OWNER/REPO --head "Line one." --head2 "Line two." --chip … --line '$ cmd' --line '✓ result'`
   (`--image shot.png` for an app; `--photo me.png --by "Name" --handle "@you"` for a byline). Writes a 1280×640 SVG and,
   with Chrome, a PNG that doubles as the social preview. If the project already has good art (an Open Graph image), use that.
@@ -132,7 +137,8 @@ Details: `references/launch.md`. Every post, form or PR to another repo is an ou
   failing run asserted as failure (`marketplace_check.sh` fails without it).
 - Channels in order: Anthropic plugin directory form, skills.sh, awesome lists (each on its own rules), the niche community, then an essay that teaches something and links the repo.
 
-**Gate 6:** `readiness.sh --ship` still exits 0 on the tagged release, `marketplace_check.sh . OWNER/REPO --listed`
+**Gate 6:** `readiness.sh --ship` still exits 0 on the tagged release, the README shows the banner, the demo video card
+and the result card, `marketplace_check.sh . OWNER/REPO --listed`
 prints PASS when there is an `action.yml`, README passes the 10-second test (a stranger can say what it does and how
 to install it), and one channel submission is done.
 

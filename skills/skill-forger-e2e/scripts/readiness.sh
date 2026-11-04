@@ -41,7 +41,8 @@ check 15 "lint passes (no FAIL)" "$([ $lint_rc -eq 0 ] && echo 1 || echo 0)" "ru
 check 5 "lint has 0 warnings" "$(grep -q '^WARN' <<<"$lint_out" && echo 0 || echo 1)" "fix the WARN lines from lint_skill.sh"
 check 10 "plugin.json + marketplace.json" "$(yes test -f .claude-plugin/plugin.json -a -f .claude-plugin/marketplace.json)" "add .claude-plugin/ (retrofit.sh)"
 check 10 "README shows both install paths" "$(grep -q 'plugin marketplace add' README.md 2>/dev/null && grep -q 'npx skills add' README.md 2>/dev/null && echo 1 || echo 0)" "add /plugin and npx skills install lines"
-check 5 "README has a picture" "$(yes grep -qiE '\.(png|gif|svg|jpe?g|webp)' README.md)" "add a header image (make_header.sh) or a demo GIF at the top"
+check 3 "README has a header banner" "$(yes grep -qiE 'header[^)\" ]*\.(png|svg)' README.md)" "make_header.sh writes assets/header.svg + .png; put it first in the README"
+check 2 "README has a demo video card" "$(yes grep -qiE '\.(gif|mp4|webm)|demo[^)\" ]*\.svg' README.md)" "a <=10 s demo GIF under the header, the same clip as the portfolio site"
 cases=(evals/*/case.yaml)
 check 3 "README has a badge row" "$(yes grep -qiE 'shields\.io|/badge' README.md)" "add a centered badge row under the header (see Phase 6)"
 check 2 "README has About the author" "$(yes grep -qiE '^#+ *about the author' README.md)" "owner_profile.sh drafts it from the owner's GitHub profile"
