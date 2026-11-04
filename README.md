@@ -67,6 +67,7 @@ Type one of (or just `ForgeSkill`):
 - `retrofit my skill repo`
 - `add a header image and badges to my repo`
 - `I want people to install my skill`
+- `update everything` (new numbers or a new version: banners, cards, badges, README in one pass)
 
 ## What is inside
 
@@ -79,7 +80,7 @@ Type one of (or just `ForgeSkill`):
 | 4 Package | live install test passes, trigger loads the skill | `retrofit.sh`, `install_test.sh`, [packaging.md](skills/skill-forger-e2e/references/packaging.md) |
 | 5 Secure | Scorecard ran, CodeQL green, signed release, Best Practices evidence | `scorecard.sh`, `bestpractices.sh`, SHA-pinned workflows, SLSA release, [security.md](skills/skill-forger-e2e/references/security.md) |
 | 6 Launch | 10-second README test + one channel submitted | `make_header.sh`, `badges.sh`, `owner_profile.sh`, [launch.md](skills/skill-forger-e2e/references/launch.md) |
-| 7 Loop | one measured fix per round | `readiness.sh`, `measure.sh`, GitHub Action |
+| 7 Loop | one measured fix per round; `sync.py check` says every number is current | `readiness.sh`, `measure.sh`, `sync.py`, GitHub Action |
 
 ### Scaffold a new skill repo
 
@@ -114,7 +115,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@v0.8.0 # or pin the tag's full commit SHA
+      - uses: maumoya/skill-forger-e2e@v0.9.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
           ship-gates: true # fail below Scorecard 7.3, Best Practices passing, reporting on, ruleset
@@ -170,6 +171,18 @@ bash skills/skill-forger-e2e/scripts/retrofit.sh path/to/repo "Your Name" your-g
 ```
 
 Adds only what is missing; existing files are kept. Drop `--dry-run` to write.
+
+### Keep every number in sync
+
+```bash
+python3 skills/skill-forger-e2e/scripts/sync.py apply . --run
+python3 skills/skill-forger-e2e/scripts/sync.py check .
+```
+
+Each number lives once in `launch/facts.json`. `launch/assets.json` says which banner, card, PNG or owner-only
+place shows it; templates re-render, generator commands re-run with `--run`, and fact markers (HTML comments) in
+Markdown update in place. `check` exits 1 on a stale surface or on an old value still written by hand somewhere
+(badge URLs included). This repo runs it in CI.
 
 ### Test the install from GitHub
 

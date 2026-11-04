@@ -70,7 +70,11 @@ Details: `references/packaging.md`.
   Bump plugin.json, CHANGELOG, the README `@vX.Y.Z` example and the `llms.txt` line in one PR (readiness checks they agree).
 - No root `action.yml` = not on the GitHub Marketplace. Say so to the user now, not at launch; if a CI check fits
   the skill, design a real one (see Phase 6).
-- After each release, refresh every published number: README Results and badges, release notes, About.
+- After each change, run the update round: every number lives once in `launch/facts.json`, every surface that shows
+  one is listed in `launch/assets.json` (SVG templates, generator commands, owner-only places), and Markdown numbers sit
+  in fact markers (format in the header of `scripts/sync.py`). `scripts/sync.py apply . --run` re-renders and regenerates; `sync.py check .`
+  must print "in sync" (CI runs it with `--no-outward`). Owner-only items (social preview, About, profile row) go to the
+  user; after they confirm, `sync.py done . "<name>"`. Details: `references/launch.md`.
 - Live install test, after pushing: `scripts/install_test.sh OWNER/REPO`. It installs from GitHub into a throwaway config
   (yours is untouched) and prints the component inventory and token cost. Free.
 - Trigger check: add `--trigger "<a phrase a user types>"`. One short `claude -p` run on the user's account: ask first.

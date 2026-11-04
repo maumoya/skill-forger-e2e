@@ -57,6 +57,17 @@ In the 8 biggest skill repos (measured 2026-11): 6 open with a picture, 5 docume
 5. An essay that teaches something and links the repo (dev.to, a blog). Then Show HN with the essay,
    not the bare repo: bare skill-repo links on HN have scored 2–3 points.
 
+## Update round (every change, new measurement or version)
+
+One stale surface is a failed update. Re-measure first, then:
+1. Write the new values into `launch/facts.json` (`{"key": {"value", "source", "date"}}`), never copied from an old banner.
+2. `launch/assets.json` lists each surface: `{"path", "template", "uses"}` for SVG cards and banners (`{{key}}`,
+   `{{key|scale:360}}` for bar widths), `{"path", "run", "uses"}` for PNGs, GIFs and videos, `{"name", "outward", "uses"}`
+   for what only the owner can change. Numbers in Markdown sit in fact markers (format in the header of `scripts/sync.py`).
+3. `python3 scripts/sync.py apply . --run`, then `sync.py check .` until "in sync". LEFTOVER means an old value is still
+   written by hand somewhere (badge URLs, alt text): fix that line. `launch/keep.txt` lists files left alone (tests).
+4. Show the owner items; after each is done, `sync.py done . "<name>"`. CI runs `sync.py check . --no-outward`.
+
 ## Never
 
 Bought stars, star-for-star swaps, mass DMs, fake quotes, or the same link in many places.
