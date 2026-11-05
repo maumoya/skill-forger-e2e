@@ -110,6 +110,13 @@ if [ -d evals ]; then
     grep -qE "^name: *\"?$cn\"?$" "$c/case.yaml" || fail "$c/case.yaml: name must equal folder '$cn'"
     grep -q '^expected_outcome:' "$c/case.yaml" || fail "$c/case.yaml: no expected_outcome"
     [ -f "$c/prompt.md" ] || fail "$c: no prompt.md"
+    # "/my-skill: do X" is read as a command named "my-skill:", which does not exist, so the skill never loads.
+    [ -f "$c/prompt.md" ] && grep -qE '^/[a-z0-9-]+:([[:space:]]|$)' "$c/prompt.md" && warn "$c/prompt.md: slash command followed by ':' (the skill does not load; drop the colon)"
+    # Eval sandboxes deny writes to .git/hooks; a case that installs a hook needs `git init --separate-git-dir`.
+    s0=$(sed -nE 's/^ *scaffold_script: *//p' "$c/case.yaml")
+    if [ -n "$s0" ] && [ -f "$c/$s0" ] && grep -qiE 'install[^.]*hook' "$c/prompt.md" && grep -q 'git init' "$c/$s0" && ! grep -q 'separate-git-dir' "$c/$s0"; then
+      warn "$c: installs a git hook but the scaffold keeps .git/hooks (eval sandboxes lock it; use git init --separate-git-dir)"
+    fi
     g=("$c"/graders/*.md); [ ${#g[@]} -gt 0 ] || fail "$c: no graders/*.md"
     for gf in "${g[@]}"; do fo="$(sed -n "s/^focus:[[:space:]]*//p" "$gf" 2>/dev/null | head -1)"; [ -z "$fo" ] || [ "$fo" = trace ] || warn "$gf: focus \"$fo\" (claude plugin eval rejected \"output\" and skipped the case; \"trace\" loads)"; done
     for gf in "${g[@]}"; do grep -q '^type:' "$gf" || fail "$gf: no type in frontmatter"; done

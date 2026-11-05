@@ -14,6 +14,7 @@
 - "Why steps get missed": six root causes from an audit of ~40 owner corrections, each mapped to the rule that stops it.
 - `bench.sh` passes `--scaffold`, so eval cases get their input files (before, such cases scored 0 in both arms).
 - `bench.sh` grants the tools the cases list (`allowed_tools`) with `--allow-tools`; the eval sandbox ignored them, so cases that run a script scored 0 in both arms.
+- Lint warns on two eval traps that score a case 0 in both arms: a prompt like `/my-skill: do X` (the colon stops the skill loading) and a hook-install case whose scaffold keeps `.git/hooks` (eval sandboxes lock it; use `git init --separate-git-dir`).
 - `make_demo.sh` records a local page too (`file:///abs/path/demo.html`).
 - New skill repos get a `.gitignore` for `evals/results/`.
 - Tag only after the merge landed: a blocked merge plus an early tag points the release at the old code.
