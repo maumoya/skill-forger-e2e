@@ -70,6 +70,7 @@ description optimizer) and come back here for the gate. SkillForge adds regressi
 4. **Keyless CI:** the linter runs in GitHub Actions on every PR.
 
 **Gate 3:** every case passes with the skill and the skill beats the baseline on at least one. If not, back to Phase 2.
+A case at 0 in both arms usually means its input files never arrived: open its report before blaming the skill.
 
 ## Phase 4 · Package
 
@@ -77,6 +78,8 @@ Details: `references/packaging.md`.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` (the scaffold made them).
 - Install paths to document: `/plugin marketplace add OWNER/REPO` then `/plugin install NAME@NAME`, and `npx skills add OWNER/REPO`.
 - Semantic version in plugin.json; `CHANGELOG.md`; signed git tag `vX.Y.Z` per release (SSH key, set up once).
+  Tag only after the merge landed: `gh pr view N --json state` says MERGED and main's head is the version bump. A
+  blocked merge (required review) leaves main on the old version, and a tag cut then points at the wrong code.
   Bump plugin.json, CHANGELOG, the README `@vX.Y.Z` example and the `llms.txt` line in one PR (readiness checks they agree).
 - No root `action.yml` = not on the GitHub Marketplace. Say so to the user now, not at launch; if a CI check fits
   the skill, design a real one (see Phase 6).

@@ -45,7 +45,9 @@ if [ -z "$json" ]; then
   work="$(mktemp -d)"; trap 'rm -rf "$work"' EXIT
   json="$work/result.json"
   # --trust-plugin: this is the user's own repo and they agreed to the plan above. --threshold 0: low scores are data.
-  claude plugin eval "$PWD" --runs "$runs" --ablation with-without --no-publish --threshold 0 --trust-plugin \
+  # --scaffold: run each case's own scaffold_script (its input files); without it a case with fixtures runs on an
+  # empty workspace and fails in both arms, which reads as "the skill does not help" when the test never ran.
+  claude plugin eval "$PWD" --runs "$runs" --ablation with-without --no-publish --threshold 0 --trust-plugin --scaffold \
     ${case_glob:+--case "$case_glob"} --json "$json" ${extra[@]+"${extra[@]}"} >"$work/eval.log" 2>&1
   rc=$?
   [ -s "$json" ] || { tail -20 "$work/eval.log" >&2; echo "claude plugin eval wrote no result (exit $rc)" >&2; exit 2; }

@@ -1,6 +1,5 @@
 # Changelog
 
-
 ## 0.11.0
 
 - Preflight before Phase 0: itemize the request (one row per sentence or number) and load the owner's standing
@@ -13,6 +12,9 @@
   every README link answers.
 - `make_header.sh` tags the photo (`id="byline-photo"`) so the gate can find it.
 - "Why steps get missed": six root causes from an audit of ~40 owner corrections, each mapped to the rule that stops it.
+- `bench.sh` passes `--scaffold`, so eval cases get their input files (before, such cases scored 0 in both arms).
+- New skill repos get a `.gitignore` for `evals/results/`.
+- Tag only after the merge landed: a blocked merge plus an early tag points the release at the old code.
 
 ## 0.10.0
 
