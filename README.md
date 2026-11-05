@@ -157,6 +157,7 @@ The banner above was made with it. Add the badge row from the [template README](
 ```bash
 bash skills/skill-forger-e2e/scripts/make_demo.sh demo.mp4 assets/demo.gif --seconds 8
 bash skills/skill-forger-e2e/scripts/make_demo.sh http://localhost:5173 assets/demo.gif --seconds 6
+bash skills/skill-forger-e2e/scripts/make_demo.sh file://$PWD/assets/demo.html assets/demo.gif --seconds 9
 ```
 
 A screen recording or a URL (recorded in headless Chrome) becomes a ≤10 s palette GIF under 5 MB; it retries
@@ -231,13 +232,17 @@ bash skills/skill-forger-e2e/scripts/bench.sh .
 Both print a plan and stop: they bill your account, so add `--yes` once you agree. `trigger_test.sh`
 reports recall and the false-trigger rate for `evals/triggers.json`, holdout queries apart.
 `bench.sh` runs the evals with and without the skill and writes a dated Results block, the only
-source `badges.sh --from` accepts for benefit badges.
+source `badges.sh --from` accepts for benefit badges. It runs each case's own input files (`--scaffold`) and
+grants the tools the cases list (`--allow-tools`), so a case never scores 0 just because the test could not run.
 
 ### Lint any skill repo
 
 ```bash
 bash skills/skill-forger-e2e/scripts/lint_skill.sh path/to/repo
 ```
+
+It also warns on eval traps that score a case 0 in both arms: a `/my-skill:` prompt (the colon stops the skill
+loading) and a hook-install case whose scaffold keeps `.git/hooks`, which eval sandboxes lock.
 
 Checks frontmatter rules, name/folder match, description length and trigger wording, broken links to
 `references/` and `scripts/`, plugin JSON, eval layout, GitHub Marketplace rules for a root `action.yml`
