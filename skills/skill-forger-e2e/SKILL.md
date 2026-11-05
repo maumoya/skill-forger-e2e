@@ -70,7 +70,7 @@ description optimizer) and come back here for the gate. SkillForge adds regressi
 4. **Keyless CI:** the linter runs in GitHub Actions on every PR.
 
 **Gate 3:** every case passes with the skill and the skill beats the baseline on at least one. If not, back to Phase 2.
-A case at 0 in both arms usually means its input files never arrived: open its report before blaming the skill.
+A case at 0 in both arms usually means the test never ran: its input files never arrived (`--scaffold`) or the agent lacked Bash or Edit (`--allow-tools`; bench.sh passes the cases' `allowed_tools`). Open its report before blaming the skill.
 
 ## Phase 4 · Package
 

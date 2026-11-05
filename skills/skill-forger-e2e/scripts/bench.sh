@@ -42,6 +42,18 @@ if [ -z "$json" ]; then
     exit 3
   fi
   command -v claude >/dev/null || { echo "claude CLI not found" >&2; exit 2; }
+  # The eval sandbox gives the agent read-only tools unless --allow-tools names more: a case's own `allowed_tools`
+  # line is not enough. Pass the union of the cases' lists, so a case that must run a script is not graded 0 for
+  # lacking Bash (seen 2026-11-05: 2 of 3 cases failed in both arms for this reason alone).
+  case " ${extra[*]-} " in *" --allow-tools "*) ;; *)
+    tools="$(sed -n 's/^allowed_tools:[[:space:]]*\[\(.*\)\]/\1/p' evals/*/prompt.md evals/*/case.yaml 2>/dev/null \
+      | tr ',' '\n' | tr -d " \"'" | grep -vxE 'Read|Glob|Grep|Skill' | grep . | sort -u | tr '\n' ' ')"
+    if [ -n "$tools" ]; then
+      echo "allow-tools (from the cases): $tools"
+      # shellcheck disable=SC2206
+      extra+=(--allow-tools $tools)
+    fi ;;
+  esac
   work="$(mktemp -d)"; trap 'rm -rf "$work"' EXIT
   json="$work/result.json"
   # --trust-plugin: this is the user's own repo and they agreed to the plan above. --threshold 0: low scores are data.
