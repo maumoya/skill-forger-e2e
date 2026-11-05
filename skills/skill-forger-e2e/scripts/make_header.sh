@@ -135,7 +135,7 @@ if [ -n "$by" ]; then
 fi
 if [ -n "$photo" ]; then
   svg+="
-  <image x=\"1040\" y=\"28\" width=\"210\" height=\"210\" filter=\"url(#ps)\" href=\"$(datauri "$photo")\"/>"
+  <image id=\"byline-photo\" x=\"1040\" y=\"28\" width=\"210\" height=\"210\" filter=\"url(#ps)\" href=\"$(datauri "$photo")\"/>"
 fi
 svg+="
 </svg>"

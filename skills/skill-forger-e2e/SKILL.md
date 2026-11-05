@@ -19,6 +19,14 @@ then `scripts/retrofit.sh <repo-dir> "<Owner Name>" <github-user>` to add what i
 
 Paths below are relative to this skill's folder (`skills/skill-forger-e2e/`).
 
+## Preflight (before Phase 0, every run)
+
+Most misses are not hard steps; they are steps nobody wrote down. Do these two first:
+1. **Itemize the request.** One row per sentence, number or "and" in what the user asked ("check 3 times",
+   "add it to my portfolio", "update the forger"). These rows join the Launch checklist; a done report needs every one.
+2. **Load the owner's standing preferences** from memory, CLAUDE.md and past feedback: photo byline in the header,
+   demo video card, portfolio section or carousel, Marketplace, the marketing angle they gave. Each becomes a row too.
+
 ## Phase 0 · Decide (is a skill the right thing?)
 
 A skill is right when the job repeats, needs know-how the model does not have by default, and fits in instructions plus small scripts.
@@ -181,7 +189,7 @@ Never create accounts or type passwords.
 
 ## Launch checklist (every release)
 
-Before any status or done report, sweep these rows. If the `adhd-status` skill is installed, invoke it and use this
+Before any status or done report, sweep these rows (three times; see below). If the `adhd-status` skill is installed, invoke it and use this
 list as its sweep: each row is ✅ only with the proof output in hand, otherwise it is a 👉 or ⚠️ row.
 
 | Row | Proof |
@@ -194,6 +202,22 @@ list as its sweep: each row is ✅ only with the proof output in hand, otherwise
 | f. Scorecard ≥ 7.3, looping to ≥ 7.4 | GATE "Scorecard"; `scorecard.sh` lists what is left |
 | g. Verified | GATEs "head signed, Verified" and "release tag signed and Verified"; `marketplace_check.sh --listed` PASS |
 | h. Owner-only authorship | GATE "owner-only authorship" |
+| i. Owner photo byline in the header | GATE "header carries the owner photo byline" |
+| j. Dated Results section, benefit badge, the owner's marketing angle | GATE "dated Results section"; badges.sh `--benefit` |
+| k. Social preview set and the share link unfurls (LinkedIn, X) | GATE "social preview image set"; og:image on the homepage |
+| l. Profile README row and portfolio site card, in the right section | GATEs "profile README lists the repo" and "portfolio site lists the repo" |
+| m. Every README link answers (old and V1 links too) | GATE "README links answer" |
+| n. Rendered read-back: you looked at the README, profile and site | a browser screenshot of each, the GIF moves, card text readable |
+| o. Every outward step done by you | the report lists no owner click except a passkey, terms or a blocked merge |
+| p. Every itemized request row (Preflight) ticked | count of request rows = count of ticked rows |
 
-Rows a–h together: `readiness.sh . OWNER/REPO --ship` exits 0, plus the a and c checks. Any row not met means the
+Rows a–p together: `readiness.sh . OWNER/REPO --ship` exits 0, plus rows a, c, n, o and p. Any row not met means the
 release is not done: say which, and fix it before reporting.
+
+**Check three times.** Before the done report, sweep rows a–p three separate times, each from fresh evidence (re-run
+`readiness.sh --ship`, re-open each page, re-read the request). A row that flips between sweeps was never done.
+
+**Why steps get missed** (audit of ~40 owner corrections, 2026-11-05), and the rule that stops each:
+done claimed from a merge or CI instead of the rendered page (row n); portfolio and profile left for "later" (row l, a
+ship gate now); preferences living only in memory (Preflight 2); the request not itemized (Preflight 1, row p);
+outward steps handed back to the owner (row o); no sweep before the report (three sweeps).

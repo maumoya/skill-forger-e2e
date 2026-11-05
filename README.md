@@ -31,9 +31,12 @@ Claude Code plugin repo, and tells you with a number how close you are. The agen
 itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings and forms. You only sign in.
 
 - **Readiness score 0-100** with a badge, locally or as a GitHub Action on every PR, plus **ship gates** that block a
-  release: header banner, demo video card, result card, owner-only authorship, Scorecard ≥ 7.3, Best Practices
-  passing, private reporting, a ruleset, and a signed, Verified head commit and release tag.
-- **Launch checklist (a-h)** swept before every done report, each row with its proof command. With
+  release: header banner with your photo byline, demo video card, result card, dated Results, owner-only authorship,
+  Scorecard ≥ 7.3, Best Practices passing, private reporting, a ruleset, a signed, Verified head commit and release
+  tag, social preview set, your profile README row, your portfolio site card, and no dead README links.
+- **Preflight + Launch checklist (a-p), swept three times** before every done report, each row with its proof
+  command: the request is itemized first, your standing preferences loaded, and "done" needs a rendered read-back of
+  the README, profile and site, not just a merge. Built from an audit of ~40 real "you missed a step" corrections. With
   [adhd-status](https://github.com/maumoya/adhd-status) installed it becomes one tiny status table, so nothing is missed.
 - **Demo video card:** one command turns a screen recording or a live URL into a ≤10 s README GIF under 5 MB.
 - **Retrofit** an existing skill repo: adds the missing plugin JSON, workflows, `SECURITY.md`, evals and `llms.txt`. Never overwrites.
@@ -127,7 +130,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@v0.10.0 # or pin the tag's full commit SHA
+      - uses: maumoya/skill-forger-e2e@v0.11.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
           ship-gates: true # fail below Scorecard 7.3, Best Practices passing, reporting on, ruleset

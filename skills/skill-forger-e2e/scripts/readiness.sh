@@ -2,7 +2,9 @@
 # Ship-readiness score 0-100 for a skill repo, plus a shields.io badge.
 # Read-only. Local checks always run; GitHub checks (topics, description, Scorecard) run when OWNER/REPO is given.
 # Skipped checks are left out and the score is scaled to what was checked.
-# Ship gates (marked GATE): header banner, demo video card, hero result card, owner-only authorship (local);
+# Ship gates (marked GATE): header banner with the owner photo byline, demo video card, hero result card, dated
+# Results section, owner-only authorship (local); social preview set, profile README row, portfolio site card
+# (FORGE_SITE, default https://OWNER.github.io/), every README link answers (no 404/410/5xx);
 # Scorecard >= 7.3, Best Practices passing, private vulnerability reporting on, a ruleset on main that requires a PR
 # and CodeQL, the main head and latest release tag signed and Verified (need OWNER/REPO and gh signed in).
 # Usage: readiness.sh [REPO_DIR] [OWNER/REPO] [--min N] [--ship] [--markdown]
@@ -81,6 +83,11 @@ fi
 rawsize=$(grep -oE 'img\.shields\.io/badge/[^)" ]*[0-9]+(\.[0-9]+)?(%20)?(GiB|GB|MiB|MB|KiB|KB)' README.md 2>/dev/null | wc -l | tr -d ' ')
 check 2 "benefit badges in %, not raw sizes" "$([ "$rawsize" -eq 0 ] && echo 1 || echo 0)" "say '19% of the disk freed (6% → 25% free)', not GiB"
 gate 2 "README hero result card (SVG)" "$(yes grep -qiE '(card|hero)[^)\" ]*\.svg' README.md)" "a big green SVG card with the measured result, under the header"
+# Missed-steps gates (audit 2026-11-05): the owner's photo byline, a dated Results section.
+hdr=(assets/header*.svg docs/header*.svg header*.svg); byline=0
+for h in "${hdr[@]}"; do grep -qE 'id="byline-photo"|url\(#ps\)' "$h" && byline=1; done
+gate 2 "header carries the owner photo byline" "$byline" "make_header.sh ... --photo me.png --by \"Full Name\" --handle @you"
+gate 2 "README has a dated Results section" "$(yes grep -qiE '^#+ *results.*20[0-9]{2}-[0-9]{2}-[0-9]{2}' README.md)" "## Results (measured YYYY-MM-DD): method + numbers from a run you can repeat"
 # Owner-only authorship: no AI co-author trailers or AI "generated" footers in commit messages or tracked files.
 # The pattern is built from parts so this script does not match itself.
 ai='(claude|anthropic|copilot|openai|chatgpt|codex|gemini|cursor|devin|aider)'
@@ -120,6 +127,19 @@ if [ -n "$slug" ] && command -v gh >/dev/null; then
     head=$(gh api "repos/$slug/commits/${def:-main}" --jq '[.commit.verification.verified, (.author.login // "")] | @tsv' 2>/dev/null)
     owner="${slug%%/*}"; hv=0; [ "${head%%$'\t'*}" = true ] && [ "$(tr 'A-Z' 'a-z' <<<"${head#*$'\t'}")" = "$(tr 'A-Z' 'a-z' <<<"$owner")" ] && hv=1
     gate 3 "${def:-main} head signed, Verified, authored by $owner" "$hv" "merge through GitHub (squash merges are signed) as $owner; author ${head#*$'\t'}"
+    og=$(gh api graphql -f query="{repository(owner:\"${slug%%/*}\",name:\"${slug#*/}\"){usesCustomOpenGraphImage}}" --jq .data.repository.usesCustomOpenGraphImage 2>/dev/null)
+    gate 2 "social preview image set" "$([ "$og" = true ] && echo 1 || echo 0)" "upload assets/header.png in Settings > Social preview (built-in browser)"
+    prof=$(gh api "repos/$owner/$owner/readme" --jq .content 2>/dev/null | base64 -d 2>/dev/null)
+    gate 2 "profile README lists the repo" "$(grep -qiF "${slug#*/}" <<<"$prof" && echo 1 || echo 0)" "add a row to github.com/$owner/$owner README (Phase 6)"
+    site="${FORGE_SITE:-https://$owner.github.io/}"
+    page=$(curl -fsSL --max-time 20 "$site" 2>/dev/null)
+    gate 2 "portfolio site lists the repo ($site)" "$(grep -qiF "${slug#*/}" <<<"$page" && echo 1 || echo 0)" "add a card with the demo GIF to the site (pro-portfolio-dev), in the right section; FORGE_SITE=url to override"
+    dead=""; n=0
+    for u in $(grep -oE 'https?://[^ )"<>]+' README.md 2>/dev/null | sed 's/[.,]$//' | sort -u | head -60); do
+      c=$(curl -s -o /dev/null -L --max-time 15 -w '%{http_code}' "$u"); n=$((n+1))
+      case "$c" in 404|410|5??|000) dead+="$u ($c) " ;; esac
+    done
+    gate 2 "README links answer ($n checked)" "$([ -z "$dead" ] && echo 1 || echo 0)" "dead: $dead"
     tag=$(gh api "repos/$slug/releases/latest" --jq .tag_name 2>/dev/null); tv=0
     if [ -n "$tag" ]; then
       obj=$(gh api "repos/$slug/git/ref/tags/$tag" --jq '.object.type + " " + .object.sha' 2>/dev/null)
@@ -130,10 +150,11 @@ if [ -n "$slug" ] && command -v gh >/dev/null; then
     gate 3 "private vulnerability reporting on" skip "gh not signed in"
     gate 3 "ruleset on main: PR + CodeQL" skip "gh not signed in"
     gate 6 "head commit and release tag Verified" skip "gh not signed in"
+    gate 8 "social preview, profile row, site card, live links" skip "gh not signed in"
   fi
 else
   check 10 "GitHub topics, description" skip "pass OWNER/REPO to check"
-  gate 28 "Scorecard, Best Practices, reporting, ruleset, Verified" skip "pass OWNER/REPO to check the ship gates"
+  gate 36 "Scorecard, Best Practices, reporting, ruleset, Verified, social preview, profile, site, links" skip "pass OWNER/REPO to check the ship gates"
 fi
 
 score=$(( max > 0 ? (got*100 + max/2) / max : 0 ))
