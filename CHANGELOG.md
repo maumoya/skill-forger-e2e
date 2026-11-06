@@ -4,12 +4,14 @@
 
 - Preflight before Phase 0: itemize the request (one row per sentence or number) and load the owner's standing
   preferences (photo byline, demo card, portfolio section, Marketplace, marketing angle).
-- Launch checklist grows from a-h to a-p and is swept three times from fresh evidence: photo byline, dated Results and
+- Launch checklist grows from a-h to a-q and is swept three times from fresh evidence: photo byline, dated Results and
   marketing angle, social preview and share unfurl, profile row and portfolio card in the right section, live links,
   rendered read-back, every outward step done by the agent, every request row ticked.
 - New ship gates in `readiness.sh --ship`: header carries the owner photo byline, dated Results section, social preview
   set, profile README lists the repo, portfolio site lists the repo (`FORGE_SITE`, default `https://OWNER.github.io/`),
   every README link answers.
+- Marketplace by default: a skill whose job fits a CI check ships a self-tested root `action.yml` and is listed from its
+  first release (checklist row q); only when none fits is the user told, up front.
 - `make_header.sh` tags the photo (`id="byline-photo"`) so the gate can find it.
 - "Why steps get missed": six root causes from an audit of ~40 owner corrections, each mapped to the rule that stops it.
 - `bench.sh` passes `--scaffold`, so eval cases get their input files (before, such cases scored 0 in both arms).

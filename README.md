@@ -34,7 +34,7 @@ itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings 
   release: header banner with your photo byline, demo video card, result card, dated Results, owner-only authorship,
   Scorecard ≥ 7.3, Best Practices passing, private reporting, a ruleset, a signed, Verified head commit and release
   tag, social preview set, your profile README row, your portfolio site card, and no dead README links.
-- **Preflight + Launch checklist (a-p), swept three times** before every done report, each row with its proof
+- **Preflight + Launch checklist (a-q), swept three times** before every done report, each row with its proof
   command: the request is itemized first, your standing preferences loaded, and "done" needs a rendered read-back of
   the README, profile and site, not just a merge. Built from an audit of ~40 real "you missed a step" corrections. With
   [adhd-status](https://github.com/maumoya/adhd-status) installed it becomes one tiny status table, so nothing is missed.
@@ -44,7 +44,7 @@ itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings 
 - **Header image and badge row** in the style that gets clicked: one command makes a 1280x640 banner (and social preview) from your words, a screenshot or a terminal card. Benefit badges come only from measured numbers.
 - **OpenSSF feedback:** your live Scorecard checks, fixable ones first, each with its fix, looping to ≥ 7.4, and an evidence sheet the agent uses to fill the Best Practices form to 100% of "passing".
 - **About the author:** drafts your credits section from your public GitHub profile (LinkedIn, other repos) and interviews you for the rest. Nothing is saved.
-- **Release hygiene:** owner-only authorship (no AI co-author lines), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and listing your Action on the GitHub Marketplace.
+- **Release hygiene:** owner-only authorship (no AI co-author lines), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and, by default, a self-tested GitHub Action listed on the Marketplace for every skill whose job fits a CI check.
 - Scaffold, keyless linter, SHA-pinned security workflows and a launch playbook, in eight gated phases.
 
 ```

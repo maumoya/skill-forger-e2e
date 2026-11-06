@@ -81,8 +81,10 @@ Details: `references/packaging.md`.
   Tag only after the merge landed: `gh pr view N --json state` says MERGED and main's head is the version bump. A
   blocked merge (required review) leaves main on the old version, and a tag cut then points at the wrong code.
   Bump plugin.json, CHANGELOG, the README `@vX.Y.Z` example and the `llms.txt` line in one PR (readiness checks they agree).
-- No root `action.yml` = not on the GitHub Marketplace. Say so to the user now, not at launch; if a CI check fits
-  the skill, design a real one (see Phase 6).
+- Marketplace by default: if the skill's job fits a CI check (pass/fail on a repo, a PR or a file), ship a root
+  `action.yml` that runs that check, a CI self-test (one passing `uses: ./`, one failing run asserted as failure), and
+  list it on the GitHub Marketplace from the first release (Phase 6, row q). Build and self-test it before tagging.
+  Only when no CI check fits, say so to the user now (no `action.yml` = not on the Marketplace), not at launch.
 - After each change, run the update round: every number lives once in `launch/facts.json`, every surface that shows
   one is listed in `launch/assets.json` (SVG templates, generator commands, owner-only places), and Markdown numbers sit
   in fact markers (format in the header of `scripts/sync.py`). `scripts/sync.py apply . --run` re-renders and regenerates; `sync.py check .`
@@ -213,11 +215,12 @@ list as its sweep: each row is ✅ only with the proof output in hand, otherwise
 | n. Rendered read-back: you looked at the README, profile and site | a browser screenshot of each, the GIF moves, card text readable |
 | o. Every outward step done by you | the report lists no owner click except a passkey, terms or a blocked merge |
 | p. Every itemized request row (Preflight) ticked | count of request rows = count of ticked rows |
+| q. Marketplace: `action.yml` built, self-tested in CI, listed from the release (or the user was told why not) | `marketplace_check.sh . OWNER/REPO --listed` PASS |
 
-Rows a–p together: `readiness.sh . OWNER/REPO --ship` exits 0, plus rows a, c, n, o and p. Any row not met means the
+Rows a–q together: `readiness.sh . OWNER/REPO --ship` exits 0, plus rows a, c, n, o, p and q. Any row not met means the
 release is not done: say which, and fix it before reporting.
 
-**Check three times.** Before the done report, sweep rows a–p three separate times, each from fresh evidence (re-run
+**Check three times.** Before the done report, sweep rows a–q three separate times, each from fresh evidence (re-run
 `readiness.sh --ship`, re-open each page, re-read the request). A row that flips between sweeps was never done.
 
 **Why steps get missed** (audit of ~40 owner corrections, 2026-11-05), and the rule that stops each:
