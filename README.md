@@ -31,9 +31,12 @@ Claude Code plugin repo, and tells you with a number how close you are. The agen
 itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings and forms. You only sign in.
 
 - **Readiness score 0-100** with a badge, locally or as a GitHub Action on every PR, plus **ship gates** that block a
-  release: header banner, demo video card, result card, owner-only authorship, Scorecard ≥ 7.3, Best Practices
-  passing, private reporting, a ruleset, and a signed, Verified head commit and release tag.
-- **Launch checklist (a-h)** swept before every done report, each row with its proof command. With
+  release: header banner with your photo byline, demo video card, result card, dated Results, owner-only authorship,
+  Scorecard ≥ 7.3, Best Practices passing, private reporting, a ruleset, a signed, Verified head commit and release
+  tag, social preview set, your profile README row, your portfolio site card, and no dead README links.
+- **Preflight + Launch checklist (a-q), swept three times** before every done report, each row with its proof
+  command: the request is itemized first, your standing preferences loaded, and "done" needs a rendered read-back of
+  the README, profile and site, not just a merge. Built from an audit of ~40 real "you missed a step" corrections. With
   [adhd-status](https://github.com/maumoya/adhd-status) installed it becomes one tiny status table, so nothing is missed.
 - **Demo video card:** one command turns a screen recording or a live URL into a ≤10 s README GIF under 5 MB.
 - **Retrofit** an existing skill repo: adds the missing plugin JSON, workflows, `SECURITY.md`, evals and `llms.txt`. Never overwrites.
@@ -41,7 +44,7 @@ itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings 
 - **Header image and badge row** in the style that gets clicked: one command makes a 1280x640 banner (and social preview) from your words, a screenshot or a terminal card. Benefit badges come only from measured numbers.
 - **OpenSSF feedback:** your live Scorecard checks, fixable ones first, each with its fix, looping to ≥ 7.4, and an evidence sheet the agent uses to fill the Best Practices form to 100% of "passing".
 - **About the author:** drafts your credits section from your public GitHub profile (LinkedIn, other repos) and interviews you for the rest. Nothing is saved.
-- **Release hygiene:** owner-only authorship (no AI co-author lines), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and listing your Action on the GitHub Marketplace.
+- **Release hygiene:** owner-only authorship (no AI co-author lines), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and, by default, a self-tested GitHub Action listed on the Marketplace for every skill whose job fits a CI check.
 - Scaffold, keyless linter, SHA-pinned security workflows and a launch playbook, in eight gated phases.
 
 ```
@@ -127,7 +130,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@v0.10.0 # or pin the tag's full commit SHA
+      - uses: maumoya/skill-forger-e2e@v0.11.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
           ship-gates: true # fail below Scorecard 7.3, Best Practices passing, reporting on, ruleset
@@ -154,6 +157,7 @@ The banner above was made with it. Add the badge row from the [template README](
 ```bash
 bash skills/skill-forger-e2e/scripts/make_demo.sh demo.mp4 assets/demo.gif --seconds 8
 bash skills/skill-forger-e2e/scripts/make_demo.sh http://localhost:5173 assets/demo.gif --seconds 6
+bash skills/skill-forger-e2e/scripts/make_demo.sh file://$PWD/assets/demo.html assets/demo.gif --seconds 9
 ```
 
 A screen recording or a URL (recorded in headless Chrome) becomes a ≤10 s palette GIF under 5 MB; it retries
@@ -228,13 +232,17 @@ bash skills/skill-forger-e2e/scripts/bench.sh .
 Both print a plan and stop: they bill your account, so add `--yes` once you agree. `trigger_test.sh`
 reports recall and the false-trigger rate for `evals/triggers.json`, holdout queries apart.
 `bench.sh` runs the evals with and without the skill and writes a dated Results block, the only
-source `badges.sh --from` accepts for benefit badges.
+source `badges.sh --from` accepts for benefit badges. It runs each case's own input files (`--scaffold`) and
+grants the tools the cases list (`--allow-tools`), so a case never scores 0 just because the test could not run.
 
 ### Lint any skill repo
 
 ```bash
 bash skills/skill-forger-e2e/scripts/lint_skill.sh path/to/repo
 ```
+
+It also warns on eval traps that score a case 0 in both arms: a `/my-skill:` prompt (the colon stops the skill
+loading) and a hook-install case whose scaffold keeps `.git/hooks`, which eval sandboxes lock.
 
 Checks frontmatter rules, name/folder match, description length and trigger wording, broken links to
 `references/` and `scripts/`, plugin JSON, eval layout, GitHub Marketplace rules for a root `action.yml`

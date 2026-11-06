@@ -60,6 +60,9 @@ Run `claude plugin eval <repo> --allow-tools`. It runs every case with the skill
 - A case that passes **without** the skill tests nothing the skill adds. Make it harder or drop it.
 - A case that fails **with** the skill is a bug in SKILL.md, or a grader asking for something the
   skill never promised.
+- A case that fails in both arms for a sandbox reason (a tool the agent cannot run there, e.g. `git` hitting
+  `xcrun` cache errors, or writes to `.git/hooks` denied) is not a skill bug and not a pass. Give the skill a
+  self-contained proof command (run the hook or script itself on sample input) and let the grader accept that proof.
 - Put the report in the PR description and the pass count in the release notes.
 
 ### Benchmark (`scripts/bench.sh`, billed; ask first)

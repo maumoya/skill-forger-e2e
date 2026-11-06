@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.11.0
+
+- Preflight before Phase 0: itemize the request (one row per sentence or number) and load the owner's standing
+  preferences (photo byline, demo card, portfolio section, Marketplace, marketing angle).
+- Launch checklist grows from a-h to a-q and is swept three times from fresh evidence: photo byline, dated Results and
+  marketing angle, social preview and share unfurl, profile row and portfolio card in the right section, live links,
+  rendered read-back, every outward step done by the agent, every request row ticked.
+- New ship gates in `readiness.sh --ship`: header carries the owner photo byline, dated Results section, social preview
+  set, profile README lists the repo, portfolio site lists the repo (`FORGE_SITE`, default `https://OWNER.github.io/`),
+  every README link answers.
+- Marketplace by default: a skill whose job fits a CI check ships a self-tested root `action.yml` and is listed from its
+  first release (checklist row q); only when none fits is the user told, up front.
+- `make_header.sh` tags the photo (`id="byline-photo"`) so the gate can find it.
+- "Why steps get missed": six root causes from an audit of ~40 owner corrections, each mapped to the rule that stops it.
+- `bench.sh` passes `--scaffold`, so eval cases get their input files (before, such cases scored 0 in both arms).
+- `bench.sh` grants the tools the cases list (`allowed_tools`) with `--allow-tools`; the eval sandbox ignored them, so cases that run a script scored 0 in both arms.
+- Lint warns on two eval traps that score a case 0 in both arms: a prompt like `/my-skill: do X` (the colon stops the skill loading) and a hook-install case whose scaffold keeps `.git/hooks` (eval sandboxes lock it; use `git init --separate-git-dir`).
+- Testing guide: a case that fails in both arms for a sandbox reason (git cannot run, `.git/hooks` locked) gets a self-contained proof command and a grader that accepts it.
+- `make_demo.sh` records a local page too (`file:///abs/path/demo.html`).
+- New skill repos get a `.gitignore` for `evals/results/`.
+- `readiness.sh` and `marketplace_check.sh` on a repo with no release yet say "(none)"; before, they showed GitHub's 404 JSON as the tag name.
+- Dependabot groups GitHub Action bumps into one PR (template and this repo). Split bumps of `codeql-action/init` and
+  `codeql-action/analyze` failed CodeQL, because the two must be the same version.
+- New and retrofitted skill repos get a `CONTRIBUTING.md` (Best Practices asks for it, with a test policy); before,
+  `bestpractices.sh` reported two TODO rows on every fresh repo.
+- Tag only after the merge landed: a blocked merge plus an early tag points the release at the old code.
+
 ## 0.10.0
 
 - The agent does the GitHub work end to end: push, PR, merge, signed tag, release, Marketplace, private reporting,
