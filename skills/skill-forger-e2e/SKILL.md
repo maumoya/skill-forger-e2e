@@ -19,6 +19,14 @@ then `scripts/retrofit.sh <repo-dir> "<Owner Name>" <github-user>` to add what i
 
 Paths below are relative to this skill's folder (`skills/skill-forger-e2e/`).
 
+## Preflight (before Phase 0, every run)
+
+Most misses are not hard steps; they are steps nobody wrote down. Do these two first:
+1. **Itemize the request.** One row per sentence, number or "and" in what the user asked ("check 3 times",
+   "add it to my portfolio", "update the forger"). These rows join the Launch checklist; a done report needs every one.
+2. **Load the owner's standing preferences** from memory, CLAUDE.md and past feedback: photo byline in the header,
+   demo video card, portfolio section or carousel, Marketplace, the marketing angle they gave. Each becomes a row too.
+
 ## Phase 0 · Decide (is a skill the right thing?)
 
 A skill is right when the job repeats, needs know-how the model does not have by default, and fits in instructions plus small scripts.
@@ -62,6 +70,7 @@ description optimizer) and come back here for the gate. SkillForge adds regressi
 4. **Keyless CI:** the linter runs in GitHub Actions on every PR.
 
 **Gate 3:** every case passes with the skill and the skill beats the baseline on at least one. If not, back to Phase 2.
+A case at 0 in both arms usually means the test never ran: its input files never arrived (`--scaffold`) or the agent lacked Bash or Edit (`--allow-tools`; bench.sh passes the cases' `allowed_tools`). Open its report before blaming the skill.
 
 ## Phase 4 · Package
 
@@ -69,9 +78,13 @@ Details: `references/packaging.md`.
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` (the scaffold made them).
 - Install paths to document: `/plugin marketplace add OWNER/REPO` then `/plugin install NAME@NAME`, and `npx skills add OWNER/REPO`.
 - Semantic version in plugin.json; `CHANGELOG.md`; signed git tag `vX.Y.Z` per release (SSH key, set up once).
+  Tag only after the merge landed: `gh pr view N --json state` says MERGED and main's head is the version bump. A
+  blocked merge (required review) leaves main on the old version, and a tag cut then points at the wrong code.
   Bump plugin.json, CHANGELOG, the README `@vX.Y.Z` example and the `llms.txt` line in one PR (readiness checks they agree).
-- No root `action.yml` = not on the GitHub Marketplace. Say so to the user now, not at launch; if a CI check fits
-  the skill, design a real one (see Phase 6).
+- Marketplace by default: if the skill's job fits a CI check (pass/fail on a repo, a PR or a file), ship a root
+  `action.yml` that runs that check, a CI self-test (one passing `uses: ./`, one failing run asserted as failure), and
+  list it on the GitHub Marketplace from the first release (Phase 6, row q). Build and self-test it before tagging.
+  Only when no CI check fits, say so to the user now (no `action.yml` = not on the Marketplace), not at launch.
 - After each change, run the update round: every number lives once in `launch/facts.json`, every surface that shows
   one is listed in `launch/assets.json` (SVG templates, generator commands, owner-only places), and Markdown numbers sit
   in fact markers (format in the header of `scripts/sync.py`). `scripts/sync.py apply . --run` re-renders and regenerates; `sync.py check .`
@@ -181,7 +194,7 @@ Never create accounts or type passwords.
 
 ## Launch checklist (every release)
 
-Before any status or done report, sweep these rows. If the `adhd-status` skill is installed, invoke it and use this
+Before any status or done report, sweep these rows (three times; see below). If the `adhd-status` skill is installed, invoke it and use this
 list as its sweep: each row is ✅ only with the proof output in hand, otherwise it is a 👉 or ⚠️ row.
 
 | Row | Proof |
@@ -194,6 +207,23 @@ list as its sweep: each row is ✅ only with the proof output in hand, otherwise
 | f. Scorecard ≥ 7.3, looping to ≥ 7.4 | GATE "Scorecard"; `scorecard.sh` lists what is left |
 | g. Verified | GATEs "head signed, Verified" and "release tag signed and Verified"; `marketplace_check.sh --listed` PASS |
 | h. Owner-only authorship | GATE "owner-only authorship" |
+| i. Owner photo byline in the header | GATE "header carries the owner photo byline" |
+| j. Dated Results section, benefit badge, the owner's marketing angle | GATE "dated Results section"; badges.sh `--benefit` |
+| k. Social preview set and the share link unfurls (LinkedIn, X) | GATE "social preview image set"; og:image on the homepage |
+| l. Profile README row and portfolio site card, in the right section | GATEs "profile README lists the repo" and "portfolio site lists the repo" |
+| m. Every README link answers (old and V1 links too) | GATE "README links answer" |
+| n. Rendered read-back: you looked at the README, profile and site | a browser screenshot of each, the GIF moves, card text readable |
+| o. Every outward step done by you | the report lists no owner click except a passkey, terms or a blocked merge |
+| p. Every itemized request row (Preflight) ticked | count of request rows = count of ticked rows |
+| q. Marketplace: `action.yml` built, self-tested in CI, listed from the release (or the user was told why not) | `marketplace_check.sh . OWNER/REPO --listed` PASS |
 
-Rows a–h together: `readiness.sh . OWNER/REPO --ship` exits 0, plus the a and c checks. Any row not met means the
+Rows a–q together: `readiness.sh . OWNER/REPO --ship` exits 0, plus rows a, c, n, o, p and q. Any row not met means the
 release is not done: say which, and fix it before reporting.
+
+**Check three times.** Before the done report, sweep rows a–q three separate times, each from fresh evidence (re-run
+`readiness.sh --ship`, re-open each page, re-read the request). A row that flips between sweeps was never done.
+
+**Why steps get missed** (audit of ~40 owner corrections, 2026-11-05), and the rule that stops each:
+done claimed from a merge or CI instead of the rendered page (row n); portfolio and profile left for "later" (row l, a
+ship gate now); preferences living only in memory (Preflight 2); the request not itemized (Preflight 1, row p);
+outward steps handed back to the owner (row o); no sweep before the report (three sweeps).

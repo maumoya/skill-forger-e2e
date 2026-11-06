@@ -68,7 +68,7 @@ if [ -n "$slug_repo" ]; then
     warn "could not read $url (HTTP $code)"
   fi
 
-  tag=$(gh api "repos/$slug_repo/releases/latest" -q .tag_name 2>/dev/null)
+  tag=$(gh api "repos/$slug_repo/releases/latest" -q .tag_name 2>/dev/null) || tag=""  # a 404 prints its JSON body on stdout
   if [ -z "$tag" ]; then
     warn "no release yet: the listing is created from a release (see references/packaging.md)"
   else

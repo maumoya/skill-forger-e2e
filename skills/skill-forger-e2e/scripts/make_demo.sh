@@ -3,7 +3,7 @@
 # Input: a video file (mp4, mov, webm, gif) or a web page URL (recorded with headless Chrome + record_page.mjs).
 # Writes only OUT_GIF. Local only: no uploads. Needs ffmpeg; a URL also needs Chrome and node 22+.
 # Usage: make_demo.sh INPUT OUT_GIF [--seconds 8] [--start 0] [--width 720] [--size 1200x760]
-#   INPUT    demo.mp4 | https://example.com | http://localhost:5173
+#   INPUT    demo.mp4 | https://example.com | http://localhost:5173 | file:///abs/path/demo.html
 #   OUT_GIF  assets/demo.gif (put it under the header: <img src="assets/demo.gif" width="720" alt="…">)
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
@@ -27,7 +27,7 @@ tmp="$(mktemp -d)"; trap '[ -n "${cpid:-}" ] && { kill "$cpid"; wait "$cpid"; } 
 mkdir -p "$(dirname "$gif")"
 
 src="$in"
-if [[ "$in" =~ ^https?:// ]]; then
+if [[ "$in" =~ ^(https?|file):// ]]; then
   command -v node >/dev/null || { echo "a URL needs node 22+ (built-in WebSocket)" >&2; exit 1; }
   chrome=""
   for c in "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" "/Applications/Chromium.app/Contents/MacOS/Chromium" \
