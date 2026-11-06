@@ -140,7 +140,7 @@ if [ -n "$slug" ] && command -v gh >/dev/null; then
       case "$c" in 404|410|5??|000) dead+="$u ($c) " ;; esac
     done
     gate 2 "README links answer ($n checked)" "$([ -z "$dead" ] && echo 1 || echo 0)" "dead: $dead"
-    tag=$(gh api "repos/$slug/releases/latest" --jq .tag_name 2>/dev/null); tv=0
+    tag=$(gh api "repos/$slug/releases/latest" --jq .tag_name 2>/dev/null) || tag=""; tv=0  # a 404 prints its JSON body on stdout
     if [ -n "$tag" ]; then
       obj=$(gh api "repos/$slug/git/ref/tags/$tag" --jq '.object.type + " " + .object.sha' 2>/dev/null)
       [ "${obj%% *}" = tag ] && [ "$(gh api "repos/$slug/git/tags/${obj#* }" --jq .verification.verified 2>/dev/null)" = true ] && tv=1

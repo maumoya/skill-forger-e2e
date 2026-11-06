@@ -20,6 +20,7 @@
 - Testing guide: a case that fails in both arms for a sandbox reason (git cannot run, `.git/hooks` locked) gets a self-contained proof command and a grader that accepts it.
 - `make_demo.sh` records a local page too (`file:///abs/path/demo.html`).
 - New skill repos get a `.gitignore` for `evals/results/`.
+- `readiness.sh` and `marketplace_check.sh` on a repo with no release yet say "(none)"; before, they showed GitHub's 404 JSON as the tag name.
 - New and retrofitted skill repos get a `CONTRIBUTING.md` (Best Practices asks for it, with a test policy); before,
   `bestpractices.sh` reported two TODO rows on every fresh repo.
 - Tag only after the merge landed: a blocked merge plus an early tag points the release at the old code.
