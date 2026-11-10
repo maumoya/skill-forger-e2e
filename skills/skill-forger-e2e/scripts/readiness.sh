@@ -5,7 +5,7 @@
 # Ship gates (marked GATE): header banner with the owner photo byline, demo video card, hero result card, dated
 # Results section, owner-only authorship (local); social preview set, profile README row, portfolio site card
 # (FORGE_SITE, default https://OWNER.github.io/), every README link answers (no 404/410/5xx);
-# Scorecard >= 7.3, Best Practices passing, private vulnerability reporting on, a ruleset on main that requires a PR
+# Scorecard >= 7.4, Best Practices passing, private vulnerability reporting on, a ruleset on main that requires a PR
 # and CodeQL, the main head and latest release tag signed and Verified (need OWNER/REPO and gh signed in).
 # Usage: readiness.sh [REPO_DIR] [OWNER/REPO] [--min N] [--ship] [--markdown]
 #   --min N      exit 1 when the score is below N (for CI)
@@ -108,9 +108,9 @@ if [ -n "$slug" ] && command -v gh >/dev/null; then
   fi
   sc=$(curl -fsS "https://api.securityscorecards.dev/projects/github.com/$slug" 2>/dev/null | jq -r '.score // empty' 2>/dev/null)
   if [ -n "$sc" ]; then
-    gate 8 "Scorecard >= 7.3 (now $sc)" "$(awk -v s="$sc" 'BEGIN{print (s>=7.3)?1:0}')" "scorecard.sh $slug lists each fix"
+    gate 8 "Scorecard >= 7.4 (now $sc)" "$(awk -v s="$sc" 'BEGIN{print (s>=7.4)?1:0}')" "scorecard.sh $slug lists each fix"
   else
-    gate 8 "Scorecard >= 7.3" skip "no Scorecard result yet: push scorecard.yml to main"
+    gate 8 "Scorecard >= 7.4" skip "no Scorecard result yet: push scorecard.yml to main"
   fi
   bp=$(curl -fsS "https://www.bestpractices.dev/en/projects.json?url=$(jq -rn --arg u "https://github.com/$slug" '$u|@uri')" 2>/dev/null \
     | jq -r --arg u "https://github.com/$slug" '[.[] | select(.repo_url == $u or .homepage_url == $u)][0].id // empty' 2>/dev/null)
