@@ -32,7 +32,7 @@ itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings 
 
 - **Readiness score 0-100** with a badge, locally or as a GitHub Action on every PR, plus **ship gates** that block a
   release: header banner with your photo byline, demo video card, result card, dated Results, owner-only authorship,
-  Scorecard ≥ 7.3, Best Practices passing, private reporting, a ruleset, a signed, Verified head commit and release
+  Scorecard ≥ 7.4, Best Practices passing at 100%, private reporting, a ruleset, a signed, Verified head commit and release
   tag, social preview set, your profile README row, your portfolio site card, and no dead README links.
 - **Preflight + Launch checklist (a-q), swept three times** before every done report, each row with its proof
   command: the request is itemized first, your standing preferences loaded, and "done" needs a rendered read-back of
@@ -42,7 +42,7 @@ itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings 
 - **Retrofit** an existing skill repo: adds the missing plugin JSON, workflows, `SECURITY.md`, evals and `llms.txt`. Never overwrites.
 - **Live install test** from your public repo, in a throwaway config, plus an opt-in check that a trigger phrase loads the skill.
 - **Header image and badge row** in the style that gets clicked: one command makes a 1280x640 banner (and social preview) from your words, a screenshot or a terminal card. Benefit badges come only from measured numbers.
-- **OpenSSF feedback:** your live Scorecard checks, fixable ones first, each with its fix, looping to ≥ 7.4, and an evidence sheet the agent uses to fill the Best Practices form to 100% of "passing".
+- **OpenSSF feedback:** your live Scorecard checks, fixable ones first, each with its fix, looping until it reads 7.4 or more (aim 8.0), and an evidence sheet the agent uses to fill the Best Practices form to 100% of "passing".
 - **About the author:** drafts your credits section from your public GitHub profile (LinkedIn, other repos) and interviews you for the rest. Nothing is saved.
 - **Release hygiene:** owner-only authorship (no AI co-author lines), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and, by default, a self-tested GitHub Action listed on the Marketplace for every skill whose job fits a CI check.
 - Scaffold, keyless linter, SHA-pinned security workflows and a launch playbook, in eight gated phases.
@@ -130,10 +130,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@v0.12.0 # or pin the tag's full commit SHA
+      - uses: maumoya/skill-forger-e2e@v0.13.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
-          ship-gates: true # fail below Scorecard 7.3, Best Practices passing, reporting on, ruleset
+          ship-gates: true # fail below Scorecard 7.4, Best Practices passing, reporting on, ruleset
 ```
 
 Lints, scores, writes the table to the job summary, and outputs `score` and `badge`.
