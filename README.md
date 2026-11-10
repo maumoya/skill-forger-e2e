@@ -130,7 +130,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@v0.11.0 # or pin the tag's full commit SHA
+      - uses: maumoya/skill-forger-e2e@v0.12.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
           ship-gates: true # fail below Scorecard 7.3, Best Practices passing, reporting on, ruleset
@@ -162,6 +162,17 @@ bash skills/skill-forger-e2e/scripts/make_demo.sh file://$PWD/assets/demo.html a
 
 A screen recording or a URL (recorded in headless Chrome) becomes a ≤10 s palette GIF under 5 MB; it retries
 smaller until it fits. Put it under the badge row and use the same file on your portfolio site.
+
+### Guard the repo settings on every change
+
+```bash
+bash skills/skill-forger-e2e/scripts/repo_guard.sh OWNER/REPO path/to/repo --apply
+```
+
+`repo_guard.sh` checks what GitHub nags about in banners: an unprotected main branch, private vulnerability
+reporting off, no description or topics, no release, an `action.yml` that is not on the Marketplace. With `--apply`
+it adds the branch ruleset and turns reporting on (two repo settings, nothing else); the rest it prints as the next
+command. Run it after any change to a skill repo, not only at the first launch.
 
 ### Improve your OpenSSF Scorecard and get the Best Practices badge
 
@@ -315,7 +326,8 @@ measurement.
 
 No. The scaffold, linter, retrofit and score are local and write only inside the folder you give
 them. `readiness.sh`, `measure.sh`, `scorecard.sh`, `bestpractices.sh` and `badges.sh` only read
-public GitHub and OpenSSF data for the repo you name. `owner_profile.sh` reads your public GitHub
+public GitHub and OpenSSF data for the repo you name. `repo_guard.sh` reads the same way and, only with `--apply`,
+writes two settings on your own repo (the main ruleset and private vulnerability reporting). `owner_profile.sh` reads your public GitHub
 profile and prints a draft; nothing is stored or sent anywhere. `install_test.sh` clones your public repo into a temp folder and deletes it after.
 
 ### Will it get my skill stars?

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.12.0
+
+- New `repo_guard.sh OWNER/REPO [repo-dir] [--apply]`: checks the GitHub-side settings on every run (ruleset on the
+  default branch with PR + CodeQL, a job actually named `CodeQL`, private vulnerability reporting, description, 5+
+  topics, a release, the Marketplace listing when there is an `action.yml`). `--apply` adds the ruleset and turns
+  reporting on.
+- Rule: any change to an existing skill repo is a release. Missing repo settings are closed in the same session and
+  never reported as follow-ups. Launch checklist row r.
+
 ## 0.11.0
 
 - Preflight before Phase 0: itemize the request (one row per sentence or number) and load the owner's standing

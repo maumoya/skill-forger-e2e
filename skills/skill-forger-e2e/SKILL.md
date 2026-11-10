@@ -17,6 +17,11 @@ Phases 4-7 are this skill's own work and scripts.
 **Already have a skill?** Skip to Phase 4: run `scripts/readiness.sh <repo-dir> [OWNER/REPO]` for the score and the gaps,
 then `scripts/retrofit.sh <repo-dir> "<Owner Name>" <github-user>` to add what is missing (it never overwrites).
 
+**Any change to an existing skill repo is a release.** A rewrite, a new reference file, one fixed script: before the
+done report run `scripts/repo_guard.sh OWNER/REPO <repo-dir> --apply`. It protects the default branch, turns on private
+reporting and lists what else is missing (description, topics, a signed release, the Marketplace listing). Close every
+line it prints in the same session, then pass Gate 5. A missing repo setting is never a "follow-up" in a report.
+
 Paths below are relative to this skill's folder (`skills/skill-forger-e2e/`).
 
 ## Preflight (before Phase 0, every run)
@@ -110,6 +115,9 @@ Details: `references/security.md`. Templates are in `templates/repo/.github/`.
   `gh api -X PUT repos/OWNER/REPO/private-vulnerability-reporting`.
 - A ruleset on main that requires a PR and CodeQL (you run it, after telling the owner it is a settings change):
   `gh api -X POST repos/OWNER/REPO/rulesets --input templates/ruleset-main.json`.
+- Both in one call, plus description, topics, release and Marketplace checks: `scripts/repo_guard.sh OWNER/REPO . --apply`.
+  The ruleset waits for a check named `CodeQL`: the CodeQL job needs `name: CodeQL`, merged before the ruleset goes on,
+  or every later PR hangs (`repo_guard.sh` checks this first).
 - Review every script the skill runs: no network writes, no piping downloads into a shell, no secret reads.
 - Scorecard feedback: `scripts/scorecard.sh OWNER/REPO` lists every check below 10, fixable ones first, with the fix.
   Fix the top one, re-run after the next scan, report the score delta. Keep looping until Scorecard reads ≥ 7.4
@@ -216,14 +224,16 @@ list as its sweep: each row is ✅ only with the proof output in hand, otherwise
 | o. Every outward step done by you | the report lists no owner click except a passkey, terms or a blocked merge |
 | p. Every itemized request row (Preflight) ticked | count of request rows = count of ticked rows |
 | q. Marketplace: `action.yml` built, self-tested in CI, listed from the release (or the user was told why not) | `marketplace_check.sh . OWNER/REPO --listed` PASS |
+| r. Repo guard: main protected, reporting on, description, topics, release, no "Draft a release" or "isn't protected" banner | `repo_guard.sh OWNER/REPO .` prints PASS |
 
-Rows a–q together: `readiness.sh . OWNER/REPO --ship` exits 0, plus rows a, c, n, o, p and q. Any row not met means the
+Rows a–r together: `readiness.sh . OWNER/REPO --ship` exits 0, plus rows a, c, n, o, p, q and r. Any row not met means the
 release is not done: say which, and fix it before reporting.
 
-**Check three times.** Before the done report, sweep rows a–q three separate times, each from fresh evidence (re-run
+**Check three times.** Before the done report, sweep rows a–r three separate times, each from fresh evidence (re-run
 `readiness.sh --ship`, re-open each page, re-read the request). A row that flips between sweeps was never done.
 
 **Why steps get missed** (audit of ~40 owner corrections, 2026-11-05), and the rule that stops each:
 done claimed from a merge or CI instead of the rendered page (row n); portfolio and profile left for "later" (row l, a
 ship gate now); preferences living only in memory (Preflight 2); the request not itemized (Preflight 1, row p);
-outward steps handed back to the owner (row o); no sweep before the report (three sweeps).
+outward steps handed back to the owner (row o); no sweep before the report (three sweeps); a skill improved by PR while
+its repo stayed unprotected, unreleased and unlisted, reported as "follow-ups" (2026-11-10: row r, `repo_guard.sh`).
