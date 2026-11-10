@@ -45,7 +45,7 @@ if [[ "$in" =~ ^(https?|file):// ]]; then
   node -e '
     const fs = require("fs"); const [d, end] = process.argv.slice(1); const t = JSON.parse(fs.readFileSync(d + "/times.json"));
     const t0 = t[0] ?? 0; let s = "";
-    t.forEach((x, i) => { s += `file '\''${d}/f${String(i).padStart(5, "0")}.jpg'\''\nduration ${Math.max((t[i + 1] ?? t0 + +end) - x, 0.1).toFixed(3)}\n`; });
+    t.forEach((x, i) => { s += `file '\''${d}/f${String(i).padStart(5, "0")}.jpg'\''\nduration ${Math.max((t[i + 1] ?? t0 + +end) - x, 0.02).toFixed(3)}\n`; });
     // concat drops the last duration unless the last file is listed once more
     if (t.length) s += `file '\''${d}/f${String(t.length - 1).padStart(5, "0")}.jpg'\''\n`;
     fs.writeFileSync(d + "/list.txt", s);' "$tmp/frames" "$secs"
