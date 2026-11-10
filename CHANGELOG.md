@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.13.0
+
+- New `repo_hygiene.sh OWNER/REPO`: lists everything left pending on GitHub (open PRs including Dependabot bumps,
+  branches pushed with no PR, open Dependabot / code-scanning / secret-scanning alerts, alerts switched off, failed
+  latest runs on main) and exits 1 until `RESULT 0 pending`. Launch checklist row s, part of Gate 5.
+- Marketplace is mandatory: every skill ships an `action.yml` (its own check, or its keyless self-check) and the
+  listing is the last step of every release. Row t.
+- `make_demo.sh` records an illustrated scene deterministically: a page that defines `window.demoSeek(ms)` is
+  stepped frame by frame at 15 fps (no clock drift, the loop ends where it starts); frame durations under 0.1 s are kept.
+- Scorecard ship bar raised to 7.4 (aim 8.0), with a loop rule and a list of further fixes when the easy ones run
+  out. Best Practices must read passing at 100%.
+- Demo card must be an animated illustration of the idea (a scene, not only a terminal recording), kept as
+  `assets/demo-scene.html` and recorded with `make_demo.sh`.
+
+## 0.12.0
+
+- New `repo_guard.sh OWNER/REPO [repo-dir] [--apply]`: checks the GitHub-side settings on every run (ruleset on the
+  default branch with PR + CodeQL, a job actually named `CodeQL`, private vulnerability reporting, description, 5+
+  topics, a release, the Marketplace listing when there is an `action.yml`). `--apply` adds the ruleset and turns
+  reporting on.
+- Rule: any change to an existing skill repo is a release. Missing repo settings are closed in the same session and
+  never reported as follow-ups. Launch checklist row r.
+
 ## 0.11.0
 
 - Preflight before Phase 0: itemize the request (one row per sentence or number) and load the owner's standing

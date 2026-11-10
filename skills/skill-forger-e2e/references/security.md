@@ -48,7 +48,7 @@ Action does the same with `ship-gates: true`.
 
 | Gate | Bar | Fix |
 |---|---|---|
-| OpenSSF Scorecard | ≥ 7.3 | `scorecard.sh OWNER/REPO`, top row first |
+| OpenSSF Scorecard | ≥ 7.4 (aim 8.0) | `scorecard.sh OWNER/REPO`, top row first |
 | Best Practices | passing (aim for 100%) | `bestpractices.sh`, you fill it in the browser, badge in README |
 | Private vulnerability reporting | enabled | `gh api -X PUT repos/O/R/private-vulnerability-reporting` |
 | Ruleset on the default branch | PR + CodeQL required | `templates/ruleset-main.json` |
