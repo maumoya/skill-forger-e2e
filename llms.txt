@@ -13,7 +13,8 @@
 - [authoring.md](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/references/authoring.md): frontmatter and body rules
 - [testing.md](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/references/testing.md): lint, trigger tests, claude plugin eval
 - [packaging.md](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/references/packaging.md): plugin layout, install paths, live install test, readiness score in CI
-- [action.yml](https://github.com/maumoya/skill-forger-e2e/blob/main/action.yml): GitHub Action that lints and scores any skill repo and enforces the ship gates (`uses: maumoya/skill-forger-e2e@v0.11.0`)
+- [action.yml](https://github.com/maumoya/skill-forger-e2e/blob/main/action.yml): GitHub Action that lints and scores any skill repo and enforces the ship gates (`uses: maumoya/skill-forger-e2e@v0.13.0`)
+- [repo_guard.sh](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/scripts/repo_guard.sh): checks branch ruleset, private reporting, description, topics, release and Marketplace listing on every change; --apply fixes the first two
 - [make_demo.sh](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/scripts/make_demo.sh): README demo video card (<=10 s GIF) from a recording or a URL
 - [make_header.sh](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/scripts/make_header.sh): 1280x640 README header and social preview
 - [security.md](https://github.com/maumoya/skill-forger-e2e/blob/main/skills/skill-forger-e2e/references/security.md): Scorecard, CodeQL, pinning, SLSA

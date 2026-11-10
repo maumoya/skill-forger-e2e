@@ -1,6 +1,8 @@
 // Record a web page through the Chrome DevTools screencast (used by make_demo.sh).
 // Usage: node record_page.mjs PORT URL OUT_DIR SECONDS [WIDTH] [HEIGHT]
 // Writes OUT_DIR/f00000.jpg ... and OUT_DIR/times.json (seconds since start, one per frame). Local only.
+// A page that defines window.demoSeek(ms) is stepped frame by frame at 15 fps (deterministic, no clock drift);
+// any other page is recorded live through the screencast.
 import fs from 'node:fs';
 const [port, url, out, secs, width = '1200', height = '760'] = process.argv.slice(2);
 const list = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
@@ -21,9 +23,19 @@ await send('Emulation.setDeviceMetricsOverride', { width: +width, height: +heigh
 await send('Page.enable');
 await send('Page.navigate', { url });
 await new Promise(r => setTimeout(r, 4000));
-await send('Page.startScreencast', { format: 'jpeg', quality: 85 });
-await new Promise(r => setTimeout(r, secs * 1000));
-await send('Page.stopScreencast');
+const seek = await send('Runtime.evaluate', { expression: "typeof window.demoSeek === 'function'", returnByValue: true });
+if (seek?.result?.value === true) {
+  for (let ms = 0; ms < secs * 1000; ms += 1000 / 15) {
+    await send('Runtime.evaluate', { expression: `window.demoSeek(${ms})`, awaitPromise: true });
+    const shot = await send('Page.captureScreenshot', { format: 'jpeg', quality: 85 });
+    fs.writeFileSync(`${out}/f${String(n++).padStart(5, '0')}.jpg`, Buffer.from(shot.data, 'base64'));
+    times.push(ms / 1000);
+  }
+} else {
+  await send('Page.startScreencast', { format: 'jpeg', quality: 85 });
+  await new Promise(r => setTimeout(r, secs * 1000));
+  await send('Page.stopScreencast');
+}
 fs.writeFileSync(`${out}/times.json`, JSON.stringify(times));
 console.log(`recorded ${n} frames`);
 process.exit(0);

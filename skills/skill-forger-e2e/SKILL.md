@@ -17,6 +17,11 @@ Phases 4-7 are this skill's own work and scripts.
 **Already have a skill?** Skip to Phase 4: run `scripts/readiness.sh <repo-dir> [OWNER/REPO]` for the score and the gaps,
 then `scripts/retrofit.sh <repo-dir> "<Owner Name>" <github-user>` to add what is missing (it never overwrites).
 
+**Any change to an existing skill repo is a release.** A rewrite, a new reference file, one fixed script: before the
+done report run `scripts/repo_guard.sh OWNER/REPO <repo-dir> --apply`. It protects the default branch, turns on private
+reporting and lists what else is missing (description, topics, a signed release, the Marketplace listing). Close every
+line it prints in the same session, then pass Gate 5. A missing repo setting is never a "follow-up" in a report.
+
 Paths below are relative to this skill's folder (`skills/skill-forger-e2e/`).
 
 ## Preflight (before Phase 0, every run)
@@ -81,10 +86,11 @@ Details: `references/packaging.md`.
   Tag only after the merge landed: `gh pr view N --json state` says MERGED and main's head is the version bump. A
   blocked merge (required review) leaves main on the old version, and a tag cut then points at the wrong code.
   Bump plugin.json, CHANGELOG, the README `@vX.Y.Z` example and the `llms.txt` line in one PR (readiness checks they agree).
-- Marketplace by default: if the skill's job fits a CI check (pass/fail on a repo, a PR or a file), ship a root
-  `action.yml` that runs that check, a CI self-test (one passing `uses: ./`, one failing run asserted as failure), and
-  list it on the GitHub Marketplace from the first release (Phase 6, row q). Build and self-test it before tagging.
-  Only when no CI check fits, say so to the user now (no `action.yml` = not on the Marketplace), not at launch.
+- Marketplace, always: every skill repo ships a root `action.yml`, a CI self-test (one passing `uses: ./`, one failing
+  run asserted as failure), and is listed on the GitHub Marketplace from its release (Phase 6, row q). The action runs
+  the skill's own check when its job fits CI (pass/fail on a repo, a PR or a file); when it does not, the action runs the
+  skill's keyless self-check (lint plus tests) so other repos can pin it. Build and self-test it before tagging.
+  "No CI check fits" is never a reason to skip the listing.
 - After each change, run the update round: every number lives once in `launch/facts.json`, every surface that shows
   one is listed in `launch/assets.json` (SVG templates, generator commands, owner-only places), and Markdown numbers sit
   in fact markers (format in the header of `scripts/sync.py`). `scripts/sync.py apply . --run` re-renders and regenerates; `sync.py check .`
@@ -110,20 +116,30 @@ Details: `references/security.md`. Templates are in `templates/repo/.github/`.
   `gh api -X PUT repos/OWNER/REPO/private-vulnerability-reporting`.
 - A ruleset on main that requires a PR and CodeQL (you run it, after telling the owner it is a settings change):
   `gh api -X POST repos/OWNER/REPO/rulesets --input templates/ruleset-main.json`.
+- Both in one call, plus description, topics, release and Marketplace checks: `scripts/repo_guard.sh OWNER/REPO . --apply`.
+  The ruleset waits for a check named `CodeQL`: the CodeQL job needs `name: CodeQL`, merged before the ruleset goes on,
+  or every later PR hangs (`repo_guard.sh` checks this first).
 - Review every script the skill runs: no network writes, no piping downloads into a shell, no secret reads.
 - Scorecard feedback: `scripts/scorecard.sh OWNER/REPO` lists every check below 10, fixable ones first, with the fix.
-  Fix the top one, re-run after the next scan, report the score delta. Keep looping until Scorecard reads ≥ 7.4
-  (7.3 is the release floor, not the goal); stop only when every remaining check needs other people.
+  Fix the top one, push, wait for the next scan, report the score delta, then the next one. Loop until Scorecard reads
+  ≥ 7.4 (the release floor) and keep going toward 8.0. Below 7.4 the release waits: when the listed fixes run out,
+  find more (hash-pin every Dockerfile and pip/npm install, add a fuzz target, a SAST step, Dependabot for every
+  ecosystem, close or dismiss every open code-scanning alert with a reason). Stop only at ≥ 7.4 with every remaining
+  check needing other people (Code-Review approvals, Maintained age), and say which.
 - Best Practices: `scripts/bestpractices.sh OWNER/REPO <repo-dir>` says if the project is registered (ID, level, badge).
   If not, it prints the form link and an evidence sheet (each passing criterion and the URL proving it).
   Fill the form yourself in the built-in browser (the owner is signed in; if not, they sign in, never you), answer every
   criterion with its evidence URL and save each section. Never answer Met without the evidence.
-  Done means passing at 100%: re-read the project page, then add the badge to the README.
+  Done means passing at 100%, not "in progress": re-read the project page, then add the badge to the README.
+- Nothing left pending: `scripts/repo_hygiene.sh OWNER/REPO` lists open PRs (Dependabot bumps too), branches pushed
+  without a PR (the "Compare & pull request" banner), open Dependabot, code-scanning and secret-scanning alerts,
+  Dependabot alerts or secret scanning switched off, and workflows whose last run on main failed. Merge, close or
+  dismiss each one with a written reason in the same session, until it prints `RESULT 0 pending`.
 
 **Gate 5 (hard, blocks every release):** `scripts/readiness.sh . OWNER/REPO --ship` exits 0. Its GATE rows:
-header banner, demo video card, hero result card, owner-only authorship, Scorecard ≥ 7.3, Best Practices passing,
+header banner, demo video card, hero result card, owner-only authorship, Scorecard ≥ 7.4, Best Practices passing at 100%,
 private vulnerability reporting on, ruleset with PR + CodeQL, main head and latest release tag signed and Verified. CodeQL is green
-and a signed SLSA release exists. Below 7.3, `scorecard.sh` lists the fixes (these took a repo from 6.6 to 7.4: ruleset,
+and a signed SLSA release exists, and `repo_hygiene.sh` prints `RESULT 0 pending`. Below 7.4, `scorecard.sh` lists the fixes (these took a repo from 6.6 to 7.4: ruleset,
 CodeQL + Scorecard workflows, SHA pins, `permissions: read-all`, signed release, reporting on, Best Practices passing).
 
 ## Phase 6 · Launch
@@ -134,7 +150,12 @@ do them yourself in the built-in browser, where the owner is signed in, instead 
 sign-ins stay the owner's.
 - README order, every repo, every release: header banner, badge row, ≤10 s demo video card (GIF; the same clip as the
   portfolio site), big green result card, one-line promise, two install commands, one example, FAQ.
-- Demo video card: `scripts/make_demo.sh INPUT assets/demo.gif [--seconds 8] [--width 720]`. INPUT is a screen
+- Demo video card = the idea, drawn. Not only a terminal or code recording: an animated illustration of what the skill
+  does, the way trading platforms show money flowing. A crawler is a spider walking a web of sites and carrying data
+  back to a table; a linter is a scanner sweeping a file and stamping it; a backup is files flying into a vault. Draw it
+  as one self-contained HTML page (SVG + CSS/JS animation, no network), optionally ending on the real command and
+  result, then record it: `scripts/make_demo.sh assets/demo-scene.html assets/demo.gif`. Keep the scene file in the repo.
+- Recording: `scripts/make_demo.sh INPUT assets/demo.gif [--seconds 8] [--width 720]`. INPUT is a screen
   recording (mp4, mov, webm) or a URL (a live page or a local dev server, recorded with headless Chrome). It keeps
   the GIF ≤10 s and under 5 MB. Put it under the badge row; use the same file on the portfolio site.
 - Header image: `scripts/make_header.sh assets --repo OWNER/REPO --head "Line one." --head2 "Line two." --chip … --line '$ cmd' --line '✓ result'`
@@ -160,9 +181,9 @@ sign-ins stay the owner's.
   failing run asserted as failure (`marketplace_check.sh` fails without it).
 - Channels in order: Anthropic plugin directory form, skills.sh, awesome lists (each on its own rules), the niche community, then an essay that teaches something and links the repo.
 
-**Gate 6:** `readiness.sh --ship` still exits 0 on the tagged release, the README shows the banner, the demo video card
-and the result card, `marketplace_check.sh . OWNER/REPO --listed`
-prints PASS when there is an `action.yml`, README passes the 10-second test (a stranger can say what it does and how
+**Gate 6:** `readiness.sh --ship` still exits 0 on the tagged release, the README shows the banner, the illustrated demo
+card and the result card, `marketplace_check.sh . OWNER/REPO --listed` prints PASS (the Marketplace listing is the last
+step of every launch, never skipped), README passes the 10-second test (a stranger can say what it does and how
 to install it), and one channel submission is done.
 
 ## Phase 7 · Loop
@@ -202,9 +223,9 @@ list as its sweep: each row is ✅ only with the proof output in hand, otherwise
 | a. Pushed, PR merged, tag and release out, all by you | `gh pr view N --json state` = MERGED; `gh release view vX.Y.Z` |
 | b. Header banner on top | GATE "README has a header banner" |
 | c. Whole README body, `llms.txt`, description match this version | every new CHANGELOG feature named in the README |
-| d. Demo video card and big green result card | GATEs "demo video card" and "hero result card"; `sync.py check .` in sync |
+| d. Demo video card (an animated illustration of the idea, not only code) and big green result card | GATEs "demo video card" and "hero result card"; `sync.py check .` in sync |
 | e. Best Practices passing at 100% | GATE "Best Practices passing" |
-| f. Scorecard ≥ 7.3, looping to ≥ 7.4 | GATE "Scorecard"; `scorecard.sh` lists what is left |
+| f. Scorecard ≥ 7.4, looping toward 8.0; Best Practices 100% | GATE "Scorecard >= 7.4"; `scorecard.sh` lists what is left |
 | g. Verified | GATEs "head signed, Verified" and "release tag signed and Verified"; `marketplace_check.sh --listed` PASS |
 | h. Owner-only authorship | GATE "owner-only authorship" |
 | i. Owner photo byline in the header | GATE "header carries the owner photo byline" |
@@ -216,14 +237,18 @@ list as its sweep: each row is ✅ only with the proof output in hand, otherwise
 | o. Every outward step done by you | the report lists no owner click except a passkey, terms or a blocked merge |
 | p. Every itemized request row (Preflight) ticked | count of request rows = count of ticked rows |
 | q. Marketplace: `action.yml` built, self-tested in CI, listed from the release (or the user was told why not) | `marketplace_check.sh . OWNER/REPO --listed` PASS |
+| r. Repo guard: main protected, reporting on, description, topics, release, no "Draft a release" or "isn't protected" banner | `repo_guard.sh OWNER/REPO .` prints PASS |
+| s. Nothing pending on GitHub: no open PR, no un-PR'd branch, no open security alert, no failed main run | `repo_hygiene.sh OWNER/REPO` prints `RESULT 0 pending` |
+| t. Last step, every release: the action is live on the Marketplace | `marketplace_check.sh . OWNER/REPO --listed` PASS, the listing page opened |
 
-Rows a–q together: `readiness.sh . OWNER/REPO --ship` exits 0, plus rows a, c, n, o, p and q. Any row not met means the
+Rows a–t together: `readiness.sh . OWNER/REPO --ship` exits 0, plus rows a, c, n, o, p, q, r, s and t. Any row not met means the
 release is not done: say which, and fix it before reporting.
 
-**Check three times.** Before the done report, sweep rows a–q three separate times, each from fresh evidence (re-run
+**Check three times.** Before the done report, sweep rows a–t three separate times, each from fresh evidence (re-run
 `readiness.sh --ship`, re-open each page, re-read the request). A row that flips between sweeps was never done.
 
 **Why steps get missed** (audit of ~40 owner corrections, 2026-11-05), and the rule that stops each:
 done claimed from a merge or CI instead of the rendered page (row n); portfolio and profile left for "later" (row l, a
 ship gate now); preferences living only in memory (Preflight 2); the request not itemized (Preflight 1, row p);
-outward steps handed back to the owner (row o); no sweep before the report (three sweeps).
+outward steps handed back to the owner (row o); no sweep before the report (three sweeps); a skill improved by PR while
+its repo stayed unprotected, unreleased and unlisted, reported as "follow-ups" (2026-11-10: row r, `repo_guard.sh`).

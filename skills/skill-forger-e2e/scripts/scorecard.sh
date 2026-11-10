@@ -36,8 +36,8 @@ hint() {
 }
 
 jq -r '"Scorecard \(.score)/10 for \(.repo.name) (scanned \(.date[:10]))"' <<<"$json"
-# Ship bar: a release needs 7.3 or more (readiness.sh --ship enforces it).
-jq -r 'if .score >= 7.3 then "Ship bar 7.3: met" else "Ship bar 7.3: NOT met, \((7.3 - .score) * 10 | round / 10) to go; fix the top rows below" end' <<<"$json"
+# Ship bar: a release needs 7.4 or more; aim for 8.0 (readiness.sh --ship enforces it).
+jq -r 'if .score >= 8 then "Ship bar 7.4: met, target 8.0: met" elif .score >= 7.4 then "Ship bar 7.4: met; keep looping to 8.0, \((8 - .score) * 10 | round / 10) to go" else "Ship bar 7.4: NOT met, \((7.4 - .score) * 10 | round / 10) to go; fix the top rows below" end' <<<"$json"
 # Checks that only time or outside people can move go last.
 later() { case "$1" in Maintained|Contributors|Fuzzing) echo 1 ;; *) echo 0 ;; esac; }
 echo "gain  check                  reason -> fix   (fixable now first)"
