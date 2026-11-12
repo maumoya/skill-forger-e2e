@@ -2,6 +2,7 @@
 # Live install test from the public repo, the way a stranger would install it.
 # Free part: in a throwaway Claude config, `claude plugin marketplace add OWNER/REPO` + `claude plugin install`,
 # then checks a SKILL.md landed and prints the component inventory and token cost. Never touches your own config.
+# Both paths also check the repo lists the owner as its only contributor (gh signed in; read-only).
 # Billed part (opt-in, --trigger): one `claude -p` run with the installed plugin that checks the phrase loads the skill.
 # --npx: test the other install path instead, `npx skills add OWNER/REPO` (skills.sh, 75+ agents), in a throwaway
 # HOME and project with telemetry off, then lint the installed copy. Free. Needs node.
@@ -27,6 +28,16 @@ cfg="$work/config"; mkdir -p "$cfg" "$work/project"
 pass=0; fails=0
 ok()   { echo "PASS $*"; pass=$((pass+1)); }
 bad()  { echo "FAIL $*"; fails=$((fails+1)); }
+# Sole contributor: the repo page a stranger opens must list the owner only (no bot or AI account).
+# GitHub caches this list; after a history fix the rendered repo page is the truth, the API can lag.
+sole_contributor() {
+  command -v gh >/dev/null && gh auth status >/dev/null 2>&1 || { echo "SKIP sole contributor (gh not signed in)"; return; }
+  local owner="${slug%%/*}" others
+  others="$(gh api "repos/$slug/contributors?anon=1" --jq '.[] | (.login // .name // "anonymous")' 2>/dev/null \
+    | grep -vixF "$owner" | paste -sd, -)"
+  if [ -z "$others" ]; then ok "sole contributor: $owner (GitHub contributors = 1)"
+  else bad "contributors besides $owner: $others (your-authorship-skill: re-author those commits, Phase 5)"; fi
+}
 
 if [ -n "$npx_mode" ]; then
   command -v npx >/dev/null || { echo "npx not found (install Node.js)" >&2; exit 2; }
@@ -45,6 +56,7 @@ if [ -n "$npx_mode" ]; then
     if [ $? -eq 0 ]; then ok "lint on the installed copy: no FAIL"
     else bad "lint on the installed copy:"; { grep '^FAIL' <<<"$lout" || tail -2 <<<"$lout"; } | sed 's/^/  /'; fi
   else bad "no SKILL.md landed in the project (agent $agent)"; fi
+  sole_contributor
   echo "RESULT $pass passed, $fails failed"
   [ $fails -eq 0 ]; exit
 fi
@@ -88,5 +100,6 @@ if [ -n "$trigger" ] && [ ${#skills[@]} -gt 0 ]; then
   else bad "trigger \"$trigger\" did not load $sname (tighten the description's trigger phrases)"; fi
 fi
 
+sole_contributor
 echo "RESULT $pass passed, $fails failed"
 [ $fails -eq 0 ]

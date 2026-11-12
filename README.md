@@ -44,7 +44,9 @@ itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings 
 - **Header image and badge row** in the style that gets clicked: one command makes a 1280x640 banner (and social preview) from your words, a screenshot or a terminal card. Benefit badges come only from measured numbers.
 - **OpenSSF feedback:** your live Scorecard checks, fixable ones first, each with its fix, looping until it reads 7.4 or more (aim 8.0), and an evidence sheet the agent uses to fill the Best Practices form to 100% of "passing".
 - **About the author:** drafts your credits section from your public GitHub profile (LinkedIn, other repos) and interviews you for the rest. Nothing is saved.
-- **Release hygiene:** owner-only authorship (no AI co-author lines), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and, by default, a self-tested GitHub Action listed on the Marketplace for every skill whose job fits a CI check.
+- **Release hygiene:** owner-only authorship (no AI co-author lines) and you as the only contributor (a required
+  `your-authorship-skill` sweep before the first push and before every launch; `readiness.sh` and `install_test.sh`
+  fail while GitHub lists a bot or AI account), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and, by default, a self-tested GitHub Action listed on the Marketplace for every skill whose job fits a CI check.
 - Scaffold, keyless linter, SHA-pinned security workflows and a launch playbook, in eight gated phases.
 
 ```
@@ -113,7 +115,7 @@ bash skills/skill-forger-e2e/scripts/readiness.sh path/to/repo OWNER/REPO
 
 30+ weighted checks: lint, plugin JSON, both install paths in the README, header banner, demo video card, result
 card, a badge row, eval cases, LICENSE, `SECURITY.md`, `llms.txt`, CI, CodeQL, Scorecard, Dependabot, SHA pins,
-release, one version everywhere, owner-only authorship, and (with `OWNER/REPO`) topics, description, the live
+release, one version everywhere, owner-only authorship, and (with `OWNER/REPO`) sole contributor, topics, description, the live
 Scorecard score, Best Practices, private reporting, the ruleset and Verified signatures. `--ship` exits 1 while any
 GATE row is missed. Prints each gap with its fix and a badge:
 `![skill readiness](https://img.shields.io/badge/skill%20readiness-95%2F100-brightgreen)`.
@@ -130,7 +132,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@v0.13.0 # or pin the tag's full commit SHA
+      - uses: maumoya/skill-forger-e2e@v0.14.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
           ship-gates: true # fail below Scorecard 7.4, Best Practices passing, reporting on, ruleset
@@ -342,7 +344,8 @@ Posts to other people's spaces (directories, awesome lists, communities) wait fo
 
 ### Who is the author of what it ships?
 
-You. Commits, tags and releases carry your name only; the authorship gate fails if any commit or file credits an AI.
+You. Commits, tags and releases carry your name only; the authorship gate fails if any commit or file credits an AI,
+and the sole-contributor gate fails while GitHub lists anyone but you (a bot merge counts).
 
 ## About the author
 
