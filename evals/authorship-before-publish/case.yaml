@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: authorship-before-publish
+expected_outcome: |
+  On "ForgeSkill: publish ./haiku-coach", the agent runs the authorship sweep as a required step before any first push: it invokes the your-authorship-skill skill (or, when that skill is not installed, says it is required and gives the install line) and does not push, tag or release before that sweep. It names the sole-contributor check (GitHub contributors = 1) from readiness.sh or install_test.sh, and it never writes an AI co-author trailer or AI credit line.
+context:
+  scaffold_script: place-files.sh
