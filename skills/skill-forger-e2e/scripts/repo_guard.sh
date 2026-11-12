@@ -2,9 +2,10 @@
 # Repo guard: the GitHub-side settings every skill repo needs, checked on every run (new skill, retrofit or a
 # small improvement PR). Lists what is missing; with --apply it fixes what one API call can fix.
 # Checks: ruleset on the default branch (PR + CodeQL), the CodeQL check name the ruleset waits for exists,
-# private vulnerability reporting, description, 5+ topics, a release, and an action.yml that is not listed yet.
+# private vulnerability reporting, head branches deleted on merge (a kept branch keeps bot or old commits alive and
+# GitHub can count their authors as contributors), description, 5+ topics, a release, and an unlisted action.yml.
 # Usage: repo_guard.sh OWNER/REPO [repo-dir] [--apply]
-# --apply writes two repo settings (ruleset, reporting). Everything else is printed as the next command.
+# --apply writes three repo settings (ruleset, reporting, delete_branch_on_merge). Everything else is printed as the next command.
 set -uo pipefail
 slug="${1:?usage: repo_guard.sh OWNER/REPO [repo-dir] [--apply]}"; shift
 dir="."; apply=0
@@ -39,6 +40,9 @@ elif [ "$apply" = 1 ]; then
 else bad "private vulnerability reporting is off" "repo_guard.sh $slug $dir --apply"; fi
 
 meta=$(gh api "repos/$slug" 2>/dev/null)
+if [ "$(jq -r '.delete_branch_on_merge' <<<"$meta")" = true ]; then ok "head branches deleted after merge"
+elif [ "$apply" = 1 ] && gh api -X PATCH "repos/$slug" -F delete_branch_on_merge=true >/dev/null 2>&1; then ok "head branches deleted after merge: turned on"
+else bad "merged PR branches stay on GitHub (delete_branch_on_merge off)" "repo_guard.sh $slug $dir --apply"; fi
 [ -n "$(jq -r '.description // ""' <<<"$meta")" ] && ok "description set" \
   || bad "no repo description" "gh repo edit $slug --description \"<what + who, 350 chars or less>\""
 nt=$(jq -r '.topics | length' <<<"$meta" 2>/dev/null || echo 0)

@@ -46,7 +46,8 @@ itself, end to end: push, PR, merge, signed tag, release, Marketplace, settings 
 - **About the author:** drafts your credits section from your public GitHub profile (LinkedIn, other repos) and interviews you for the rest. Nothing is saved.
 - **Release hygiene:** owner-only authorship (no AI co-author lines) and you as the only contributor (a required
   `your-authorship-skill` sweep before the first push and before every launch; `readiness.sh` and `install_test.sh`
-  fail while GitHub lists a bot or AI account), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and, by default, a self-tested GitHub Action listed on the Marketplace for every skill whose job fits a CI check.
+  fail while GitHub lists a bot or AI account; `owner_only.sh` checks every branch and tag, open bot PRs and stale
+  merged branches, and `land_bot_pr.sh` lands a bot PR as your own commit), SSH-signed tags that GitHub shows as Verified, re-signing an old tag in place, a checklist to refresh every published number after each release, and, by default, a self-tested GitHub Action listed on the Marketplace for every skill whose job fits a CI check.
 - Scaffold, keyless linter, SHA-pinned security workflows and a launch playbook, in eight gated phases.
 
 ```
@@ -132,7 +133,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: maumoya/skill-forger-e2e@v0.14.0 # or pin the tag's full commit SHA
+      - uses: maumoya/skill-forger-e2e@v0.15.0 # or pin the tag's full commit SHA
         with:
           min-score: 80
           ship-gates: true # fail below Scorecard 7.4, Best Practices passing, reporting on, ruleset
@@ -329,7 +330,7 @@ measurement.
 No. The scaffold, linter, retrofit and score are local and write only inside the folder you give
 them. `readiness.sh`, `measure.sh`, `scorecard.sh`, `bestpractices.sh` and `badges.sh` only read
 public GitHub and OpenSSF data for the repo you name. `repo_guard.sh` reads the same way and, only with `--apply`,
-writes two settings on your own repo (the main ruleset and private vulnerability reporting). `owner_profile.sh` reads your public GitHub
+writes three settings on your own repo (the main ruleset, private vulnerability reporting and deleting merged branches). `owner_only.sh` reads the same way and, only with `--apply`, turns on deleting merged branches; `land_bot_pr.sh` changes nothing without `--apply`. `owner_profile.sh` reads your public GitHub
 profile and prints a draft; nothing is stored or sent anywhere. `install_test.sh` clones your public repo into a temp folder and deletes it after.
 
 ### Will it get my skill stars?

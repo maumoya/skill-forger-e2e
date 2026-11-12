@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: bot-pr-landed-as-owner
+expected_outcome: |
+  On "merge the open Dependabot PR on testowner/haiku-coach", the agent refuses to merge it as the bot, because that adds the bot as a repo contributor. It lands the same change as an owner commit with land_bot_pr.sh (a dry run first, or with --apply after saying what it does), which closes the bot PR and deletes its branch, and it checks owner-only authorship three ways: owner_only.sh (git authors on every branch and tag, open bot PRs, merged-PR branches left on GitHub, delete_branch_on_merge), the GitHub contributors API, and the rendered repo page, noting the page can lag about 24 h. It never writes an AI co-author trailer or AI credit line.
+context:
+  scaffold_script: place-files.sh

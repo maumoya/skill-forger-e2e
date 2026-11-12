@@ -132,6 +132,12 @@ if [ -n "$slug" ] && command -v gh >/dev/null; then
     # adds a second avatar. The API caches; after a history fix trust the rendered repo page.
     others=$(gh api "repos/$slug/contributors?anon=1" --jq '.[] | (.login // .name // "anonymous")' 2>/dev/null | grep -vixF "$owner" | paste -sd, -)
     gate 3 "sole contributor: $owner (GitHub contributors = 1)" "$([ -z "$others" ] && echo 1 || echo 0)" "also listed: $others. Run your-authorship-skill, re-author those commits to $owner (back up first), never merge a bot PR as the bot"
+    # Owner only, checked three ways: every author on every branch and tag in git, open bot PRs, branches of merged PRs
+    # left on GitHub, and delete_branch_on_merge. The repo page's Contributors sidebar is cached and can lag ~24 h.
+    if [ -d "$repo/.git" ] || git -C "$repo" rev-parse --git-dir >/dev/null 2>&1; then
+      oo=$(bash "$here/owner_only.sh" "$slug" "$repo" 2>/dev/null | grep '^MISS' | head -2 | sed 's/^MISS  //' | paste -sd';' -)
+      gate 3 "owner only: one author in git, no bot PR, no stale branch (owner_only.sh)" "$([ -z "$oo" ] && echo 1 || echo 0)" "$oo. Run owner_only.sh $slug $repo for every fix"
+    fi
     og=$(gh api graphql -f query="{repository(owner:\"${slug%%/*}\",name:\"${slug#*/}\"){usesCustomOpenGraphImage}}" --jq .data.repository.usesCustomOpenGraphImage 2>/dev/null)
     gate 2 "social preview image set" "$([ "$og" = true ] && echo 1 || echo 0)" "upload assets/header.png in Settings > Social preview (built-in browser)"
     prof=$(gh api "repos/$owner/$owner/readme" --jq .content 2>/dev/null | base64 -d 2>/dev/null)
