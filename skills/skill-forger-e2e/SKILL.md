@@ -142,8 +142,9 @@ Details: `references/security.md`. Templates are in `templates/repo/.github/`.
   without a PR (the "Compare & pull request" banner), open Dependabot, code-scanning and secret-scanning alerts,
   Dependabot alerts or secret scanning switched off, and workflows whose last run on main failed. Merge, close or
   dismiss each one with a written reason in the same session, until it prints `RESULT 0 pending`.
-  A Dependabot or other bot PR is never merged as the bot: that adds it as a contributor. Land the same change as an
-  owner commit (cherry-pick, `git commit --amend --reset-author`, strip its trailers), push it, close the bot PR.
+  A Dependabot or other bot PR is never merged as the bot: that adds it as a contributor. `repo_hygiene.sh` names
+  each one; `scripts/land_bot_pr.sh OWNER/REPO N . --apply` lands the same change as an owner commit on a new PR, then
+  closes the bot PR and deletes its branch (dry run without `--apply`). Merge the owner PR on green CI.
 
 **Gate 5 (hard, blocks every release):** `scripts/readiness.sh . OWNER/REPO --ship` exits 0. Its GATE rows:
 header banner, demo video card, hero result card, owner-only authorship, Scorecard ≥ 7.4, Best Practices passing at 100%,
@@ -214,6 +215,13 @@ Re-run Phase 3 evals before every release. For CI, the repo root `action.yml` ru
   trailer or an AI "generated with" footer anywhere; `readiness.sh` fails the authorship gate if one exists.
 - Sole contributor: the owner is the only name in the repo's contributor list. A bot or AI account there is a miss,
   fixed with `your-authorship-skill` and a backed-up history rewrite on the owner's OK, never left as a follow-up.
+- One author, checked three ways (owner or the repo owner's account only; no bot, no AI assistant):
+  1. git: `scripts/owner_only.sh OWNER/REPO .` reads every author and trailer on every branch and tag on GitHub,
+     open bot PRs, branches of merged PRs still on GitHub, and `delete_branch_on_merge` (`--apply` turns it on).
+  2. GitHub API: readiness GATE "sole contributor" (contributors API = owner only).
+  3. Rendered page: open the repo page and read "Contributors". It is cached apart from the API and can lag ~24 h
+     after a history fix; a stale count after 24 h with 1 and 2 clean is a GitHub Support ticket, never a pass.
+  Run it before publish, before every release and before launch. `your-authorship-skill` runs first.
 - "Verified" means the GitHub check mark on the signed head commit and release tag. The Marketplace's blue verified-creator
   badge is only for organizations GitHub partners with: never promise it.
 
@@ -240,7 +248,7 @@ list as its sweep: each row is ✅ only with the proof output in hand, otherwise
 | e. Best Practices passing at 100% | GATE "Best Practices passing" |
 | f. Scorecard ≥ 7.4, looping toward 8.0; Best Practices 100% | GATE "Scorecard >= 7.4"; `scorecard.sh` lists what is left |
 | g. Verified | GATEs "head signed, Verified" and "release tag signed and Verified"; `marketplace_check.sh --listed` PASS |
-| h. Owner-only authorship and sole contributor | GATEs "owner-only authorship" and "sole contributor"; `your-authorship-skill` re-scan 0 high/medium; repo page shows 1 contributor |
+| h. Owner-only authorship and sole contributor | GATEs "owner-only authorship", "sole contributor" and "owner only" (`owner_only.sh` RESULT 0); `your-authorship-skill` re-scan 0 high/medium; repo page shows 1 contributor |
 | i. Owner photo byline in the header | GATE "header carries the owner photo byline" |
 | j. Dated Results section, benefit badge, the owner's marketing angle | GATE "dated Results section"; badges.sh `--benefit` |
 | k. Social preview set and the share link unfurls (LinkedIn, X) | GATE "social preview image set"; og:image on the homepage |
@@ -250,8 +258,8 @@ list as its sweep: each row is ✅ only with the proof output in hand, otherwise
 | o. Every outward step done by you | the report lists no owner click except a passkey, terms or a blocked merge |
 | p. Every itemized request row (Preflight) ticked | count of request rows = count of ticked rows |
 | q. Marketplace: `action.yml` built, self-tested in CI, listed from the release (or the user was told why not) | `marketplace_check.sh . OWNER/REPO --listed` PASS |
-| r. Repo guard: main protected, reporting on, description, topics, release, no "Draft a release" or "isn't protected" banner | `repo_guard.sh OWNER/REPO .` prints PASS |
-| s. Nothing pending on GitHub: no open PR, no un-PR'd branch, no open security alert, no failed main run | `repo_hygiene.sh OWNER/REPO` prints `RESULT 0 pending` |
+| r. Repo guard: main protected, reporting on, merged branches deleted, description, topics, release, no "Draft a release" or "isn't protected" banner | `repo_guard.sh OWNER/REPO .` prints PASS |
+| s. Nothing pending on GitHub: no open PR (bot PRs landed as the owner), no un-PR'd branch, no open security alert, no failed main run | `repo_hygiene.sh OWNER/REPO` prints `RESULT 0 pending` |
 | t. Last step, every release: the action is live on the Marketplace | `marketplace_check.sh . OWNER/REPO --listed` PASS, the listing page opened |
 
 Rows a–t together: `readiness.sh . OWNER/REPO --ship` exits 0, plus rows a, c, n, o, p, q, r, s and t. Any row not met means the
@@ -264,4 +272,6 @@ release is not done: say which, and fix it before reporting.
 done claimed from a merge or CI instead of the rendered page (row n); portfolio and profile left for "later" (row l, a
 ship gate now); preferences living only in memory (Preflight 2); the request not itemized (Preflight 1, row p);
 outward steps handed back to the owner (row o); no sweep before the report (three sweeps); a skill improved by PR while
-its repo stayed unprotected, unreleased and unlisted, reported as "follow-ups" (2026-11-10: row r, `repo_guard.sh`).
+its repo stayed unprotected, unreleased and unlisted, reported as "follow-ups" (2026-11-10: row r, `repo_guard.sh`); a second contributor on the repo page from bot PRs merged
+as the bot and merged-PR branches that kept the bot's commit alive, while the API said 1 (2026-11-11: `owner_only.sh`,
+`land_bot_pr.sh`, `delete_branch_on_merge`, row h checked three ways).
