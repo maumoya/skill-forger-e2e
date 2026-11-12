@@ -99,13 +99,20 @@ Details: `references/packaging.md`.
 - Same round, rewrite the whole README body, not just the numbers: re-read SKILL.md, CHANGELOG and the scripts, then
   update the promise, feature list, install lines, examples, Results, FAQ, `llms.txt`, the repo description and topics
   so each one describes the current version. A feature in the new CHANGELOG entry that the README does not mention is a miss.
+- Authorship sweep, required before the first push and again before every launch: invoke the Skill
+  `your-authorship-skill:your-authorship-skill` (install: `/plugin marketplace add maumoya/your-authorship-skill`) and
+  follow it for this repo: scan, fix each finding on the owner's yes, install its commit-msg hook, `test-hook <repo>`.
+  Then the repo must list the owner as its only contributor: `install_test.sh` and `readiness.sh` check it
+  (GitHub contributors = 1). The API caches; after a history fix, open the repo page and count the avatars.
 - Live install test, after pushing: `scripts/install_test.sh OWNER/REPO`. It installs from GitHub into a throwaway config
   (yours is untouched) and prints the component inventory and token cost. Free.
 - Trigger check: add `--trigger "<a phrase a user types>"`. One short `claude -p` run on the user's account: ask first.
 - Second path: `scripts/install_test.sh OWNER/REPO --npx` installs with a pinned `npx skills add` into a throwaway HOME
   and lints the installed copy. Free. `--agent codex` (or another agent) tests that agent's folder.
 
-**Gate 4:** `install_test.sh` prints `RESULT n passed, 0 failed` twice: once with a passing `--trigger` check, once with `--npx`.
+**Gate 4:** `your-authorship-skill` re-scan shows 0 high and 0 medium for the repo, its hook test prints
+`RESULT hook blocks AI credit`, and `install_test.sh` prints `RESULT n passed, 0 failed` (sole contributor included)
+twice: once with a passing `--trigger` check, once with `--npx`.
 
 ## Phase 5 · Secure
 
@@ -135,6 +142,8 @@ Details: `references/security.md`. Templates are in `templates/repo/.github/`.
   without a PR (the "Compare & pull request" banner), open Dependabot, code-scanning and secret-scanning alerts,
   Dependabot alerts or secret scanning switched off, and workflows whose last run on main failed. Merge, close or
   dismiss each one with a written reason in the same session, until it prints `RESULT 0 pending`.
+  A Dependabot or other bot PR is never merged as the bot: that adds it as a contributor. Land the same change as an
+  owner commit (cherry-pick, `git commit --amend --reset-author`, strip its trailers), push it, close the bot PR.
 
 **Gate 5 (hard, blocks every release):** `scripts/readiness.sh . OWNER/REPO --ship` exits 0. Its GATE rows:
 header banner, demo video card, hero result card, owner-only authorship, Scorecard ≥ 7.4, Best Practices passing at 100%,
@@ -145,6 +154,8 @@ CodeQL + Scorecard workflows, SHA pins, `permissions: read-all`, signed release,
 ## Phase 6 · Launch
 
 Details: `references/launch.md`. Every post, form or PR to another repo is an outward action: ask the user first.
+First step of every launch: run the `your-authorship-skill:your-authorship-skill` sweep again (Phase 4) and confirm the
+repo page shows the owner as the only contributor.
 GitHub-side updates (social preview upload, About/description/topics, Best Practices form, profile and site PRs):
 do them yourself in the built-in browser, where the owner is signed in, instead of handing them over. Approvals and
 sign-ins stay the owner's.
@@ -181,7 +192,7 @@ sign-ins stay the owner's.
   failing run asserted as failure (`marketplace_check.sh` fails without it).
 - Channels in order: Anthropic plugin directory form, skills.sh, awesome lists (each on its own rules), the niche community, then an essay that teaches something and links the repo.
 
-**Gate 6:** `readiness.sh --ship` still exits 0 on the tagged release, the README shows the banner, the illustrated demo
+**Gate 6:** `readiness.sh --ship` still exits 0 on the tagged release (sole contributor gate included), the README shows the banner, the illustrated demo
 card and the result card, `marketplace_check.sh . OWNER/REPO --listed` prints PASS (the Marketplace listing is the last
 step of every launch, never skipped), README passes the 10-second test (a stranger can say what it does and how
 to install it), and one channel submission is done.
@@ -201,6 +212,8 @@ Re-run Phase 3 evals before every release. For CI, the repo root `action.yml` ru
 - No bought stars, star swaps, fake reviews, or the same link posted in many places.
 - Owner-only authorship: commits, tags and releases carry the owner's name only. Never write an AI co-author
   trailer or an AI "generated with" footer anywhere; `readiness.sh` fails the authorship gate if one exists.
+- Sole contributor: the owner is the only name in the repo's contributor list. A bot or AI account there is a miss,
+  fixed with `your-authorship-skill` and a backed-up history rewrite on the owner's OK, never left as a follow-up.
 - "Verified" means the GitHub check mark on the signed head commit and release tag. The Marketplace's blue verified-creator
   badge is only for organizations GitHub partners with: never promise it.
 
@@ -227,7 +240,7 @@ list as its sweep: each row is ✅ only with the proof output in hand, otherwise
 | e. Best Practices passing at 100% | GATE "Best Practices passing" |
 | f. Scorecard ≥ 7.4, looping toward 8.0; Best Practices 100% | GATE "Scorecard >= 7.4"; `scorecard.sh` lists what is left |
 | g. Verified | GATEs "head signed, Verified" and "release tag signed and Verified"; `marketplace_check.sh --listed` PASS |
-| h. Owner-only authorship | GATE "owner-only authorship" |
+| h. Owner-only authorship and sole contributor | GATEs "owner-only authorship" and "sole contributor"; `your-authorship-skill` re-scan 0 high/medium; repo page shows 1 contributor |
 | i. Owner photo byline in the header | GATE "header carries the owner photo byline" |
 | j. Dated Results section, benefit badge, the owner's marketing angle | GATE "dated Results section"; badges.sh `--benefit` |
 | k. Social preview set and the share link unfurls (LinkedIn, X) | GATE "social preview image set"; og:image on the homepage |

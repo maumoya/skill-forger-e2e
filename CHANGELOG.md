@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.14.0
+
+- Authorship sweep is a required step: Phase 4 invokes `your-authorship-skill:your-authorship-skill` before the first
+  push (scan, fixes on the owner's yes, commit-msg hook, hook test), and Phase 6 runs it again before every launch.
+  Gate 4 needs its re-scan at 0 high / 0 medium.
+- New ship gate in `readiness.sh` (with `OWNER/REPO`): sole contributor, the owner is the only account in the GitHub
+  contributor list. `install_test.sh` checks the same on both install paths.
+- Bot PRs (Dependabot and others) are never merged as the bot; land the same change as an owner commit and close the PR.
+- New eval `authorship-before-publish`. `readiness.sh` no longer errors when no header SVG exists.
+
 ## 0.13.0
 
 - New `repo_hygiene.sh OWNER/REPO`: lists everything left pending on GitHub (open PRs including Dependabot bumps,

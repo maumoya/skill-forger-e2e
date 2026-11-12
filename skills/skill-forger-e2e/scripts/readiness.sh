@@ -6,7 +6,8 @@
 # Results section, owner-only authorship (local); social preview set, profile README row, portfolio site card
 # (FORGE_SITE, default https://OWNER.github.io/), every README link answers (no 404/410/5xx);
 # Scorecard >= 7.4, Best Practices passing, private vulnerability reporting on, a ruleset on main that requires a PR
-# and CodeQL, the main head and latest release tag signed and Verified (need OWNER/REPO and gh signed in).
+# and CodeQL, the main head and latest release tag signed and Verified, the owner as the only GitHub contributor
+# (need OWNER/REPO and gh signed in).
 # Usage: readiness.sh [REPO_DIR] [OWNER/REPO] [--min N] [--ship] [--markdown]
 #   --min N      exit 1 when the score is below N (for CI)
 #   --ship       exit 1 when any GATE is missed or could not be checked (run before every release tag)
@@ -85,7 +86,7 @@ check 2 "benefit badges in %, not raw sizes" "$([ "$rawsize" -eq 0 ] && echo 1 |
 gate 2 "README hero result card (SVG)" "$(yes grep -qiE '(card|hero)[^)\" ]*\.svg' README.md)" "a big green SVG card with the measured result, under the header"
 # Missed-steps gates (audit 2026-11-05): the owner's photo byline, a dated Results section.
 hdr=(assets/header*.svg docs/header*.svg header*.svg); byline=0
-for h in "${hdr[@]}"; do grep -qE 'id="byline-photo"|url\(#ps\)' "$h" && byline=1; done
+for h in ${hdr[@]+"${hdr[@]}"}; do [ -f "$h" ] || continue; grep -qE 'id="byline-photo"|url\(#ps\)' "$h" && byline=1; done
 gate 2 "header carries the owner photo byline" "$byline" "make_header.sh ... --photo me.png --by \"Full Name\" --handle @you"
 gate 2 "README has a dated Results section" "$(yes grep -qiE '^#+ *results.*20[0-9]{2}-[0-9]{2}-[0-9]{2}' README.md)" "## Results (measured YYYY-MM-DD): method + numbers from a run you can repeat"
 # Owner-only authorship: no AI co-author trailers or AI "generated" footers in commit messages or tracked files.
@@ -127,6 +128,10 @@ if [ -n "$slug" ] && command -v gh >/dev/null; then
     head=$(gh api "repos/$slug/commits/${def:-main}" --jq '[.commit.verification.verified, (.author.login // "")] | @tsv' 2>/dev/null)
     owner="${slug%%/*}"; hv=0; [ "${head%%$'\t'*}" = true ] && [ "$(tr 'A-Z' 'a-z' <<<"${head#*$'\t'}")" = "$(tr 'A-Z' 'a-z' <<<"$owner")" ] && hv=1
     gate 3 "${def:-main} head signed, Verified, authored by $owner" "$hv" "merge through GitHub (squash merges are signed) as $owner; author ${head#*$'\t'}"
+    # Sole contributor: the repo page lists the owner only. A bot merge (Dependabot, github-actions) or an AI account
+    # adds a second avatar. The API caches; after a history fix trust the rendered repo page.
+    others=$(gh api "repos/$slug/contributors?anon=1" --jq '.[] | (.login // .name // "anonymous")' 2>/dev/null | grep -vixF "$owner" | paste -sd, -)
+    gate 3 "sole contributor: $owner (GitHub contributors = 1)" "$([ -z "$others" ] && echo 1 || echo 0)" "also listed: $others. Run your-authorship-skill, re-author those commits to $owner (back up first), never merge a bot PR as the bot"
     og=$(gh api graphql -f query="{repository(owner:\"${slug%%/*}\",name:\"${slug#*/}\"){usesCustomOpenGraphImage}}" --jq .data.repository.usesCustomOpenGraphImage 2>/dev/null)
     gate 2 "social preview image set" "$([ "$og" = true ] && echo 1 || echo 0)" "upload assets/header.png in Settings > Social preview (built-in browser)"
     prof=$(gh api "repos/$owner/$owner/readme" --jq .content 2>/dev/null | base64 -d 2>/dev/null)
