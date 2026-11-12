@@ -25,8 +25,12 @@ ok() { say "ok      $1"; }
 def=$(gh repo view "$slug" --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null); def=${def:-main}
 
 # 1. open pull requests
-prs=$(gh pr list -R "$slug" --state open --json number,title,isDraft -q '.[] | "#\(.number) \(.title)\(if .isDraft then " (draft)" else "" end)"' 2>/dev/null)
-if [ -n "$prs" ]; then while IFS= read -r p; do pend "open PR $p" "merge it or close it with a reason"; done <<<"$prs"; else ok "no open PRs"; fi
+owner="${slug%%/*}"
+prs=$(gh pr list -R "$slug" --state open --json number,title,isDraft,author -q '.[] | "\(.author.login)\t#\(.number) \(.title)\(if .isDraft then " (draft)" else "" end)"' 2>/dev/null)
+if [ -n "$prs" ]; then while IFS=$'\t' read -r who p; do
+  if [ "$(tr 'A-Z' 'a-z' <<<"$who")" = "$(tr 'A-Z' 'a-z' <<<"$owner")" ]; then pend "open PR $p" "merge it or close it with a reason"
+  else pend "open PR $p by $who" "never merge it as the bot: land_bot_pr.sh $slug $(p=${p%% *}; echo ${p#\#}) <repo-dir> --apply (owner commit, closes this PR)"; fi
+done <<<"$prs"; else ok "no open PRs"; fi
 
 # 2. branches pushed but never opened as a PR (the "Compare & pull request" banner)
 found=0

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.15.0
+
+- One author, checked three ways. New `scripts/owner_only.sh OWNER/REPO [dir] [--apply]` reads every author and
+  co-author trailer on every branch and tag on GitHub, open PRs by bots or other accounts, branches of merged PRs
+  still on GitHub (they keep old bot commits alive), `delete_branch_on_merge` (`--apply` turns it on) and the
+  contributors API. New readiness ship GATE "owner only" runs it; the rendered repo page is the third check (it can
+  lag ~24 h after a history fix).
+- New `scripts/land_bot_pr.sh OWNER/REPO N [dir] [--apply]`: lands a bot PR as an owner commit on a new PR, then
+  closes the bot PR and deletes its branch. Dry run by default.
+- `repo_hygiene.sh` names bot PRs and points to `land_bot_pr.sh` instead of "merge it". `repo_guard.sh` checks
+  `delete_branch_on_merge` and turns it on with `--apply`.
+- New eval `bot-pr-landed-as-owner`.
+
 ## 0.14.0
 
 - Authorship sweep is a required step: Phase 4 invokes `your-authorship-skill:your-authorship-skill` before the first
